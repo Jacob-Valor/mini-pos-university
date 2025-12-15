@@ -33,6 +33,9 @@ public class MainWindowViewModel : ViewModelBase
 
     // Commands for specific pages
     public ReactiveCommand<Unit, Unit> GoToBrandCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoToProductTypeCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoToProductCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoToEmployeeCommand { get; }
 
     public MainWindowViewModel()
     {
@@ -62,5 +65,8 @@ public class MainWindowViewModel : ViewModelBase
         });
 
         GoToBrandCommand = ReactiveCommand.Create(() => { CurrentPage = new BrandViewModel(); });
+        GoToProductTypeCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductTypeViewModel(); });
+        GoToProductCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductViewModel(); });
+        GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(); });
     }
 }

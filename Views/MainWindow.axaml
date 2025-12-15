@@ -124,9 +124,9 @@
                         </StackPanel>
                     </MenuItem.Header>
                     <MenuItem Header="ຈັດການຂໍ້ມູນຍີ່ຫໍ້" Command="{Binding GoToBrandCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນສິນຄ້າ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນພະນັກງານ" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem Header="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ" Command="{Binding GoToProductTypeCommand}" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem Header="ຈັດການຂໍ້ມູນສິນຄ້າ" Command="{Binding GoToProductCommand}" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem Header="ຈັດການຂໍ້ມູນພະນັກງານ" Command="{Binding GoToEmployeeCommand}" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ຈັດການຂໍ້ມູນອັດຕາແລກປ່ຽນ" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ຈັດການຂໍ້ມູນຜູ້ສະໜອງ" FontFamily="{StaticResource LaoFont}"/>
                 </MenuItem>
