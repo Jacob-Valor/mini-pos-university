@@ -51,3 +51,6 @@ var/
 *.tmp
 *.bak
 *.swp
+
+# environment variables
+*.env
