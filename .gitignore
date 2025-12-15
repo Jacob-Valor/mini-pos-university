@@ -1,0 +1,53 @@
+## Build Results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.cache
+*.userprefs
+*.launchsettings.json
+
+## Rider / IntelliJ
+.idea/
+*.sln.iml
+
+## OS Generated
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+## Dotnet / NuGet
+project.lock.json
+project.fragment.lock.json
+artifacts/
+var/
+
+## Avalonia
+*.Avalonia/
+
+## Temporary
+*.log
+*.tmp
+*.bak
+*.swp

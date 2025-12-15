@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 17 Database
+  postgres:
+    image: postgres:17-alpine
+    container_name: mini_pos_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - pos_network
+    restart: unless-stopped
+
+  # POS Application
+  mini-pos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mini_pos_app
+    env_file:
+      - .env
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=${POSTGRES_HOST};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
+    networks:
+      - pos_network
+    restart: unless-stopped
+    # Note: GUI apps need X11 forwarding to run in Docker
+    # For development, you might want to run the app locally and only containerize the database
+
+volumes:
+  postgres_data:
+
+networks:
+  pos_network:
+    driver: bridge

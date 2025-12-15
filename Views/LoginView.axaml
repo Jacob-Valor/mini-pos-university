@@ -1,0 +1,116 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:mini_pos.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="mini_pos.Views.LoginView"
+        x:DataType="vm:LoginViewModel"
+        Width="400" Height="550"
+        Title="Login"
+        Icon="/Assets/avalonia-logo.ico"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        SystemDecorations="Full"
+        Background="#121212"
+        FontFamily="{StaticResource LaoFont}">
+
+
+
+  <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="30">
+    
+    <!-- Window Controls/Placeholder if needed, otherwise standard window chrome is used -->
+
+    <!-- Header Section -->
+    <StackPanel Grid.Row="1" HorizontalAlignment="Center" Spacing="15" Margin="0,20,0,40">
+      <!-- Lock Icon Circle -->
+      <Border Width="80" Height="80" CornerRadius="40" Background="#1E1E1E"> <!-- Darker bg for circle -->
+        <Panel>
+             <Ellipse Fill="#03A9F4" Width="70" Height="70" />
+             <PathIcon Data="M12,17A2,2 0 0,0 14,15A2,2 0 0,0 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10A2,2 0 0,1 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"
+                       Foreground="White" Width="34" Height="34"/>
+        </Panel>
+      </Border>
+      
+      <TextBlock Text="ຟອມເຂົ້າໃຊ້ລະບົບ" 
+                 Foreground="White" 
+                 FontSize="24" 
+                 FontWeight="Bold"
+                 HorizontalAlignment="Center"/>
+    </StackPanel>
+
+    <!-- Login Form -->
+    <StackPanel Grid.Row="2" Spacing="25" VerticalAlignment="Top">
+      
+      <!-- Username Field -->
+      <Grid ColumnDefinitions="Auto, *">
+         <PathIcon Grid.Column="0" 
+                  Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                  Foreground="#03A9F4" 
+                  Width="28" Height="28"
+                  Margin="0,0,15,5"
+                  VerticalAlignment="Bottom"/>
+
+        <TextBox Grid.Column="1" 
+                 Classes="input"
+                 Text="{Binding Username}" 
+                 Watermark="ບັນຊີເຂົ້າໃຊ້"
+                 />
+      </Grid>
+      
+      <!-- Password Field -->
+      <Grid ColumnDefinitions="Auto, *">
+        <PathIcon Grid.Column="0" 
+                  Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"
+                  Foreground="#FFC107" 
+                  Width="28" Height="28"
+                  Margin="0,0,15,5"
+                  VerticalAlignment="Bottom"/>
+                  
+         <Panel Grid.Column="1">
+             <TextBox Classes="input"
+                      Text="{Binding Password}" 
+                      Watermark="ລະຫັດຜ່ານ"
+                      PasswordChar="•"
+                      IsVisible="{Binding !ShowPassword}"/>
+             <TextBox Classes="input"
+                      Text="{Binding Password}" 
+                      Watermark="ລະຫັດຜ່ານ"
+                      IsVisible="{Binding ShowPassword}"/>
+         </Panel>
+      </Grid>
+      
+      <!-- Options -->
+      <Grid ColumnDefinitions="Auto, *, Auto" Margin="0,15,0,0">
+        <CheckBox Grid.Column="0" 
+                  Content="ສະແດງລະຫັດຜ່ານ" 
+                  IsChecked="{Binding ShowPassword}"
+                  Foreground="#03A9F4"
+                  VerticalAlignment="Center"
+                  />
+        
+        <Button Grid.Column="2" 
+                Content="ລ້າງຂໍ້ມູນ" 
+                Command="{Binding ClearCommand}"
+                Background="Transparent"
+                Foreground="#03A9F4"
+                BorderThickness="0"
+                Padding="0"
+                FontSize="14"
+                FontWeight="Bold"
+                VerticalAlignment="Center"/>
+      </Grid>
+
+    </StackPanel>
+
+    <!-- Main Button -->
+    <Button Grid.Row="3" 
+            Classes="primary"
+            Content="ເຂົ້າໃຊ້ລະບົບ" 
+            Command="{Binding LoginCommand}"
+            HorizontalAlignment="Stretch"
+            Height="55"
+            Margin="0,30,0,0"/>
+
+  </Grid>
+</Window>
