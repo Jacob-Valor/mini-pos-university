@@ -67,11 +67,6 @@ public class EmployeeViewModel : ViewModelBase
     }
 
     private DateTimeOffset _employeeDateOfBirth = DateTimeOffset.Now;
-    // Using DateTimeOffset for DatePicker binding usually, or DateTime. 
-    // ViewModel used DateTime, but DatePicker often likes DateTimeOffset. 
-    // Let's us DateTime to match Model for now and convert if needed, or just use DateTime.
-    // Actually Avalonia DatePicker binds to DateTimeOffset?.
-    // Let's stick to DateTime in Model and handling conversion or just use DateTimeOffset property in VM.
     public DateTimeOffset EmployeeDateOfBirth
     {
         get => _employeeDateOfBirth;
@@ -183,7 +178,7 @@ public class EmployeeViewModel : ViewModelBase
             Province = "ວຽງຈັນ",
             District = "ທຸລະຄົມ",
             Village = "ບຸ່ງກ້າວ",
-            Password = "souk",
+            Password = "",
             Position = "Admin",
             ImagePath = "" 
         });
@@ -199,7 +194,7 @@ public class EmployeeViewModel : ViewModelBase
             Province = "ນະຄອນຫຼວງວຽງຈັນ",
             District = "ສີສັດຕະນາກ",
             Village = "ວັດນາກ",
-            Password = "phout",
+            Password = "",
             Position = "Employee",
             ImagePath = "" 
         });

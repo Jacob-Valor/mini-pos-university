@@ -40,7 +40,7 @@ namespace mini_pos.ViewModels
 
         private void Login()
         {
-            // TODO: Implement actual login logic
+            // TODO: Implement actual login logic with database verification
             Console.WriteLine($"Login attempted with username: {Username}");
             LoginSuccessful?.Invoke(this, EventArgs.Empty);
         }

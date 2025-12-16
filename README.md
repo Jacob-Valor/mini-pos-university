@@ -22,7 +22,7 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 - **Frontend**: Avalonia UI 11.3.9 (Cross-platform .NET XAML framework)
 - **Backend**: .NET 10.0
 - **Database**: Maria DB 10.11
-- **ORM**: ADO.NET with Npgsql
+- **ORM**: ADO.NET with MySqlConnector
 - **MVVM**: CommunityToolkit.Mvvm
 - **Containerization**: Docker & Docker Compose
 
