@@ -15,6 +15,11 @@ public partial class EmployeeView : UserControl
         InitializeComponent();
     }
 
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
     private async void SelectImage_Click(object? sender, RoutedEventArgs e)
     {
         var topLevel = TopLevel.GetTopLevel(this);
@@ -24,7 +29,7 @@ public partial class EmployeeView : UserControl
         {
             Title = "Select Image",
             AllowMultiple = false,
-             FileTypeFilter = new[] { FilePickerFileTypes.ImageAll }
+            FileTypeFilter = new[] { FilePickerFileTypes.ImageAll }
         });
 
         if (files.Count >= 1)
