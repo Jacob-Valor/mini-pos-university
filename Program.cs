@@ -6,14 +6,29 @@ using Avalonia.ReactiveUI;
 
 namespace mini_pos;
 
+/// <summary>
+/// Main application entry point for the Mini POS Avalonia application.
+/// Handles application initialization, GUI session detection, and error handling.
+/// </summary>
 sealed class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
+    /// <summary>
+    /// Application entry point. Initializes and starts the Avalonia application.
+    /// Includes platform-specific checks for GUI session availability on Linux.
+    /// </summary>
+    /// <param name="args">Command line arguments passed to the application.</param>
+    /// <returns>
+    /// Returns 0 on successful execution, 1 on error or missing GUI session.
+    /// </returns>
+    /// <remarks>
+    /// On Linux, this method checks for the presence of DISPLAY or WAYLAND_DISPLAY
+    /// environment variables before attempting to start the GUI. If running in a
+    /// headless environment (SSH, CI/CD), use xvfb-run to provide a virtual display.
+    /// </remarks>
     [STAThread]
     public static int Main(string[] args)
     {
+        // Check for GUI session on Linux to prevent startup failures
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !HasGuiSession())
         {
             Console.Error.WriteLine("No graphical session detected (missing DISPLAY/WAYLAND_DISPLAY).");
@@ -25,8 +40,7 @@ sealed class Program
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-            return 0;
-        }
+            return 0;        }
         catch (Exception ex) when (IsLikelyDisplayConnectionFailure(ex))
         {
             Console.Error.WriteLine("Failed to connect to a graphical display.");
@@ -36,13 +50,28 @@ sealed class Program
         }
         catch (System.Threading.Tasks.TaskCanceledException ex)
         {
+            // DBus connection cancellation is expected on some Linux configurations
             Console.Error.WriteLine("DBus connection cancelled - this is expected on some Linux configurations.");
             Console.Error.WriteLine($"Details: {ex.Message}");
             return 0;
         }
     }
 
-    // Avalonia configuration, don't remove; also used by visual designer.
+    /// <summary>
+    /// Configures and builds the Avalonia application instance.
+    /// </summary>
+    /// <returns>An <see cref="AppBuilder"/> configured for the Mini POS application.</returns>
+    /// <remarks>
+    /// This method is used by both the application runtime and the Avalonia visual designer.
+    /// Do not remove or modify without understanding the impact on designer functionality.
+    /// 
+    /// Configuration includes:
+    /// - Platform detection for cross-platform support
+    /// - Inter font family integration
+    /// - Logging to trace output
+    /// - DBus-safe synchronization context for Linux
+    /// - ReactiveUI integration for MVVM support
+    /// </remarks>
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
@@ -51,6 +80,17 @@ sealed class Program
             .AfterPlatformServicesSetup(_ => DbusSafeSynchronizationContext.InstallIfNeeded())
             .UseReactiveUI();
 
+    /// <summary>
+    /// Checks if a graphical user session is available by examining environment variables.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> if DISPLAY (X11) or WAYLAND_DISPLAY environment variables are set;
+    /// <c>false</c> otherwise, indicating a headless environment.
+    /// </returns>
+    /// <remarks>
+    /// This method is Linux-specific and helps prevent startup failures when running
+    /// in SSH sessions or containerized environments without display servers.
+    /// </remarks>
     private static bool HasGuiSession()
     {
         string? x11Display = Environment.GetEnvironmentVariable("DISPLAY");
@@ -58,6 +98,18 @@ sealed class Program
         return !string.IsNullOrWhiteSpace(x11Display) || !string.IsNullOrWhiteSpace(waylandDisplay);
     }
 
+    /// <summary>
+    /// Determines if an exception is likely caused by a display connection failure.
+    /// </summary>
+    /// <param name="ex">The exception to examine.</param>
+    /// <returns>
+    /// <c>true</c> if the exception or any of its inner exceptions contain messages
+    /// indicating X11 display connection failure; <c>false</c> otherwise.
+    /// </returns>
+    /// <remarks>
+    /// This method recursively checks the exception chain for known X11/display-related
+    /// error messages to provide more helpful error output to users.
+    /// </remarks>
     private static bool IsLikelyDisplayConnectionFailure(Exception ex)
     {
         for (Exception? current = ex; current is not null; current = current.InnerException)
