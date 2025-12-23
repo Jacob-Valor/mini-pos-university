@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+// using CommunityToolkit.Mvvm.ComponentModel;
 using mini_pos.Models;
 using ReactiveUI;
 
@@ -17,11 +17,11 @@ public partial class BrandViewModel : ViewModelBase
         get => _selectedBrand;
         set
         {
-             this.RaiseAndSetIfChanged(ref _selectedBrand, value);
-             if (value != null)
-             {
-                 BrandName = value.Name;
-             }
+            this.RaiseAndSetIfChanged(ref _selectedBrand, value);
+            if (value != null)
+            {
+                BrandName = value.Name;
+            }
         }
     }
 
@@ -36,7 +36,7 @@ public partial class BrandViewModel : ViewModelBase
     public string SearchText
     {
         get => _searchText;
-        set 
+        set
         {
             this.RaiseAndSetIfChanged(ref _searchText, value);
             FilterBrands();
@@ -58,11 +58,11 @@ public partial class BrandViewModel : ViewModelBase
         AllBrands.Add(new Brand { Id = 2, Name = "Samsung" });
         AllBrands.Add(new Brand { Id = 3, Name = "Sony" });
         AllBrands.Add(new Brand { Id = 4, Name = "Dell" });
-        
+
         FilterBrands();
 
         AddCommand = ReactiveCommand.Create(Add);
-        
+
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedBrand)
                                   .Select(x => x != null);
 
@@ -90,9 +90,9 @@ public partial class BrandViewModel : ViewModelBase
             // Force refresh if needed, or simple property change notification is enough if Model implements INPC (it doesn't currently, but for this simple mock it might be fine or we might need to replace the item)
             // For now, let's just refresh the list view effectively
             var index = AllBrands.IndexOf(SelectedBrand);
-            if (index != -1) 
+            if (index != -1)
             {
-               AllBrands[index] = new Brand { Id = SelectedBrand.Id, Name = BrandName };
+                AllBrands[index] = new Brand { Id = SelectedBrand.Id, Name = BrandName };
             }
             FilterBrands();
             Cancel();
@@ -119,7 +119,7 @@ public partial class BrandViewModel : ViewModelBase
     {
         Brands.Clear();
         var query = AllBrands.AsEnumerable();
-        
+
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             query = query.Where(b => b.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));

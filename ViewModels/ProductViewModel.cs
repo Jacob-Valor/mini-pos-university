@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+// using CommunityToolkit.Mvvm.ComponentModel;
 using mini_pos.Models;
 using ReactiveUI;
 
@@ -27,7 +27,7 @@ public partial class ProductViewModel : ViewModelBase
                 ProductMinQuantity = value.MinQuantity;
                 ProductCostPrice = value.CostPrice;
                 ProductSellingPrice = value.SellingPrice;
-                
+
                 SelectedBrandItem = Brands.FirstOrDefault(b => b.Name == value.Brand);
                 SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Name == value.Type);
                 SelectedStatusItem = value.Status;
@@ -118,7 +118,7 @@ public partial class ProductViewModel : ViewModelBase
 
     public ObservableCollection<Product> AllProducts { get; } = new();
     public ObservableCollection<Product> Products { get; } = new();
-    
+
     public ObservableCollection<Brand> Brands { get; } = new();
     public ObservableCollection<ProductType> ProductTypes { get; } = new();
     public ObservableCollection<string> Statuses { get; } = new();
@@ -144,38 +144,38 @@ public partial class ProductViewModel : ViewModelBase
         Statuses.Add("ໝົດ"); // Out of Stock
 
         // Mock Product Data
-        AllProducts.Add(new Product 
-        { 
-            Id = "001", 
-            Name = "Pepsi 330ml", 
-            Unit = "Can", 
-            Quantity = 50, 
-            MinQuantity = 10, 
-            CostPrice = 4000, 
-            SellingPrice = 5000, 
-            Brand = "Pepsi", 
-            Type = "Drinks", 
-            Status = "ມີ" 
+        AllProducts.Add(new Product
+        {
+            Id = "001",
+            Name = "Pepsi 330ml",
+            Unit = "Can",
+            Quantity = 50,
+            MinQuantity = 10,
+            CostPrice = 4000,
+            SellingPrice = 5000,
+            Brand = "Pepsi",
+            Type = "Drinks",
+            Status = "ມີ"
         });
-        
-         AllProducts.Add(new Product 
-        { 
-            Id = "002", 
-            Name = "Lays Classic", 
-            Unit = "Pack", 
-            Quantity = 20, 
-            MinQuantity = 5, 
-            CostPrice = 8000, 
-            SellingPrice = 10000, 
-            Brand = "Lays", 
-            Type = "Snacks", 
-            Status = "ມີ" 
+
+        AllProducts.Add(new Product
+        {
+            Id = "002",
+            Name = "Lays Classic",
+            Unit = "Pack",
+            Quantity = 20,
+            MinQuantity = 5,
+            CostPrice = 8000,
+            SellingPrice = 10000,
+            Brand = "Lays",
+            Type = "Snacks",
+            Status = "ມີ"
         });
 
         FilterProducts();
 
         AddCommand = ReactiveCommand.Create(Add);
-        
+
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedProduct)
                                   .Select(x => x != null);
 
@@ -188,7 +188,7 @@ public partial class ProductViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(ProductId) || string.IsNullOrWhiteSpace(ProductName)) return;
 
-        var newProduct = new Product 
+        var newProduct = new Product
         {
             Id = ProductId,
             Name = ProductName,
@@ -204,9 +204,9 @@ public partial class ProductViewModel : ViewModelBase
 
         AllProducts.Add(newProduct);
         FilterProducts();
-        
+
         // Reset inputs
-        Cancel(); 
+        Cancel();
     }
 
     private void Edit()
@@ -268,8 +268,8 @@ public partial class ProductViewModel : ViewModelBase
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            query = query.Where(p => 
-                p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || 
+            query = query.Where(p =>
+                p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 p.Id.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 

@@ -3,8 +3,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
+// using Avalonia.Controls;
+// using CommunityToolkit.Mvvm.ComponentModel;
 using mini_pos.Models;
 using ReactiveUI;
 
@@ -86,7 +86,7 @@ public class EmployeeViewModel : ViewModelBase
         get => _employeePassword;
         set => this.RaiseAndSetIfChanged(ref _employeePassword, value);
     }
-    
+
     private string _employeeImagePath = string.Empty;
     public string EmployeeImagePath
     {
@@ -180,7 +180,7 @@ public class EmployeeViewModel : ViewModelBase
             Village = "ບຸ່ງກ້າວ",
             Password = "",
             Position = "Admin",
-            ImagePath = "" 
+            ImagePath = ""
         });
 
         AllEmployees.Add(new Employee
@@ -196,13 +196,13 @@ public class EmployeeViewModel : ViewModelBase
             Village = "ວັດນາກ",
             Password = "",
             Position = "Employee",
-            ImagePath = "" 
+            ImagePath = ""
         });
 
         FilterEmployees();
 
         AddCommand = ReactiveCommand.Create(Add);
-        
+
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedEmployee)
                                   .Select(x => x != null);
 

@@ -1,0 +1,150 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:mini_pos.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="mini_pos.Views.ExchangeRateView"
+             x:DataType="vm:ExchangeRateViewModel"
+             FontFamily="{StaticResource LaoFont}">
+
+    <UserControl.Styles>
+        <Style Selector="Button.action">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="TextBlock.label">
+             <Setter Property="VerticalAlignment" Value="Center"/>
+             <Setter Property="Width" Value="80"/>
+             <Setter Property="TextAlignment" Value="Right"/>
+             <Setter Property="Margin" Value="0,0,10,0"/>
+             <Setter Property="Foreground" Value="{DynamicResource TextMutedColor}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="*, 2*" Margin="20" ShowGridLines="False">
+        
+        <!-- Left Side: Manage Form -->
+        <Border Grid.Column="0" 
+                BorderBrush="{DynamicResource BorderColor}" 
+                BorderThickness="1" 
+                CornerRadius="4" 
+                Padding="20" 
+                VerticalAlignment="Top" 
+                Margin="0,0,20,0"
+                Background="{DynamicResource SurfaceColor}">
+            
+            <StackPanel Spacing="20">
+                <TextBlock Text="ຈັດການຂໍ້ມູນອັດຕາແລກປ່ຽນ" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextColor}"/>
+                
+                <StackPanel Spacing="15" Margin="0,20,0,0">
+                    <!-- USD Rate Input -->
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ເງິນໂດລາ" Classes="label"/>
+                        <TextBox Classes="input" Width="200" Text="{Binding UsdRateInput}"/>
+                    </StackPanel>
+                    
+                    <!-- THB Rate Input -->
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ເງິນບາດ" Classes="label"/>
+                        <TextBox Classes="input" Width="200" Text="{Binding ThbRateInput}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center" Margin="0,30,0,0">
+                    <!-- Add Button (Blue) -->
+                    <Button Classes="action" Background="#0D47A1" Command="{Binding AddCommand}">
+                        <TextBlock Text="ເພີ່ມ"/>
+                    </Button>
+                    
+                    <!-- Cancel Button (Green in Image? Actually looks Green in image for Cancel/Reset or Delete? 
+                         Wait, the image has 'ເພີ່ມ' (Blue) and 'ຍົກເລີກ' (Green). 
+                         Let's follow the image colors. -->
+                    <Button Classes="action" Background="#1B5E20" Command="{Binding CancelCommand}">
+                        <TextBlock Text="ຍົກເລີກ"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Right Side: List/Table -->
+        <Grid Grid.Column="1" RowDefinitions="Auto, *" VerticalAlignment="Stretch">
+            
+            <!-- Search Bar -->
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Left" Margin="0,0,0,10">
+                <TextBlock Text="ຄົ້ນຫາ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
+                <TextBox Classes="input" Width="250" Text="{Binding SearchText}"/>
+                <!-- Refresh Button (Grey) -->
+                <Button Classes="action" Width="80" Height="32" Background="#616161" Command="{Binding AddCommand}" IsEnabled="False" Content="Refresh" Foreground="White"/> 
+                <!-- Note: Using 'Refresh' text as per image, but binding/logic might be optional, just visual for now -->
+            </StackPanel>
+
+            <!-- Table Header -->
+            <Border Grid.Row="1" VerticalAlignment="Top" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,1,1,0">
+                <Grid RowDefinitions="Auto, *">
+                    <!-- Header Row -->
+                    <Border Grid.Row="0" Background="#FFB74D" Height="40">
+                         <Grid ColumnDefinitions="20, 50, 120, 120, *, 50">
+                             <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0"/>
+                             <Border Grid.Column="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
+                                 <TextBlock Text="ລຳດັບ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             </Border>
+                             <Border Grid.Column="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
+                                 <TextBlock Text="ໂດລາ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             </Border>
+                             <Border Grid.Column="3" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
+                                 <TextBlock Text="ບາດ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             </Border>
+                             <Border Grid.Column="4" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
+                                 <TextBlock Text="ວັນທີ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             </Border>
+                             <TextBlock Grid.Column="5" Text="ລຶບ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                         </Grid>
+                    </Border>
+                    
+                    <!-- Data List -->
+                    <ListBox Grid.Row="1" ItemsSource="{Binding ExchangeRates}" SelectedItem="{Binding SelectedExchangeRate}" Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="20, 50, 120, 120, *, 50">
+                                    <PathIcon Data="M0,0 L8,5 L0,10 Z" Width="8" Height="10" Foreground="{DynamicResource TextColor}" 
+                                              IsVisible="{Binding $parent[ListBoxItem].IsSelected}" 
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    
+                                    <TextBlock Grid.Column="1" Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    
+                                    <TextBlock Grid.Column="2" Text="{Binding UsdRate, StringFormat='{}{0:N2}'}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    
+                                    <TextBlock Grid.Column="3" Text="{Binding ThbRate, StringFormat='{}{0:N2}'}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    
+                                    <TextBlock Grid.Column="4" Text="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy hh:mm:ss tt}'}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+
+                                    <!-- Delete Icon -->
+                                     <Button Grid.Column="5" Classes="icon" Background="Transparent" Command="{Binding $parent[UserControl].((vm:ExchangeRateViewModel)DataContext).DeleteCommand}" HorizontalAlignment="Center">
+                                        <PathIcon Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Width="16" Height="16" Foreground="#D32F2F"/>
+                                    </Button>
+
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.Styles>
+                             <Style Selector="ListBoxItem">
+                                 <Setter Property="Padding" Value="0,10"/>
+                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                 <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                             </Style>
+                        </ListBox.Styles>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
+</UserControl>

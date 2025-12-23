@@ -7,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
         x:Class="mini_pos.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="avares://mini_pos/Assets/twitch.ico"
 	        Title="mini_pos"
 	        WindowState="Maximized"
 	        Background="{DynamicResource BackgroundColor}"
@@ -127,8 +127,8 @@
                     <MenuItem Header="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ" Command="{Binding GoToProductTypeCommand}" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ຈັດການຂໍ້ມູນສິນຄ້າ" Command="{Binding GoToProductCommand}" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ຈັດການຂໍ້ມູນພະນັກງານ" Command="{Binding GoToEmployeeCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນອັດຕາແລກປ່ຽນ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນຜູ້ສະໜອງ" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem Header="ຈັດການຂໍ້ມູນອັດຕາແລກປ່ຽນ" Command="{Binding GoToExchangeRateCommand}" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem Header="ຈັດການຂໍ້ມູນຜູ້ສະໜອງ" Command="{Binding GoToSupplierCommand}" FontFamily="{StaticResource LaoFont}"/>
                 </MenuItem>
 
 <!-- 3. Import/Order -->

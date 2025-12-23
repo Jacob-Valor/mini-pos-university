@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+// using CommunityToolkit.Mvvm.ComponentModel;
 using mini_pos.Models;
 using ReactiveUI;
 
@@ -17,11 +17,11 @@ public partial class ProductTypeViewModel : ViewModelBase
         get => _selectedProductType;
         set
         {
-             this.RaiseAndSetIfChanged(ref _selectedProductType, value);
-             if (value != null)
-             {
-                 ProductTypeName = value.Name;
-             }
+            this.RaiseAndSetIfChanged(ref _selectedProductType, value);
+            if (value != null)
+            {
+                ProductTypeName = value.Name;
+            }
         }
     }
 
@@ -36,7 +36,7 @@ public partial class ProductTypeViewModel : ViewModelBase
     public string SearchText
     {
         get => _searchText;
-        set 
+        set
         {
             this.RaiseAndSetIfChanged(ref _searchText, value);
             FilterProductTypes();
@@ -58,11 +58,11 @@ public partial class ProductTypeViewModel : ViewModelBase
         AllProductTypes.Add(new ProductType { Id = 2, Name = "Clothing" });
         AllProductTypes.Add(new ProductType { Id = 3, Name = "Beverages" });
         AllProductTypes.Add(new ProductType { Id = 4, Name = "Food" });
-        
+
         FilterProductTypes();
 
         AddCommand = ReactiveCommand.Create(Add);
-        
+
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedProductType)
                                   .Select(x => x != null);
 
@@ -88,9 +88,9 @@ public partial class ProductTypeViewModel : ViewModelBase
         {
             SelectedProductType.Name = ProductTypeName;
             var index = AllProductTypes.IndexOf(SelectedProductType);
-            if (index != -1) 
+            if (index != -1)
             {
-               AllProductTypes[index] = new ProductType { Id = SelectedProductType.Id, Name = ProductTypeName };
+                AllProductTypes[index] = new ProductType { Id = SelectedProductType.Id, Name = ProductTypeName };
             }
             FilterProductTypes();
             Cancel();
@@ -117,7 +117,7 @@ public partial class ProductTypeViewModel : ViewModelBase
     {
         ProductTypes.Clear();
         var query = AllProductTypes.AsEnumerable();
-        
+
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             query = query.Where(b => b.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
