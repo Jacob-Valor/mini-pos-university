@@ -40,14 +40,14 @@
             <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Background="Transparent" Margin="10">
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <!-- Icon placeholder if needed, image shows WP icon -->
-                    <PathIcon Data="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6Z" 
+                    <PathIcon Data="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6Z"
                               Width="20" Height="20" Foreground="#0D47A1"/>
                     <TextBlock Text="ຂໍ້ມູນຜູ້ສະຫນອງ" VerticalAlignment="Center" FontWeight="Bold"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
                    <Button Background="Transparent" Command="{Binding CancelCommand}" Padding="5">
-                        <PathIcon Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Width="10" Height="10" Foreground="Black"/> 
+                        <PathIcon Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Width="10" Height="10" Foreground="Black"/>
                    </Button>
                 </StackPanel>
             </Grid>
@@ -58,7 +58,7 @@
 
                 <Grid ColumnDefinitions="Auto, *">
                     <TextBlock Classes="label" Text="ລະຫັດຜູ້ສະຫນອງ"/>
-                    <TextBox Grid.Column="1" Text="{Binding CurrentSupplier.Id}" IsReadOnly="False"/> 
+                    <TextBox Grid.Column="1" Text="{Binding CurrentSupplier.Id}" IsReadOnly="False"/>
                     <!-- Assuming User can edit, or maybe read only if auto-generated? Image shows it filled. -->
                 </Grid>
 
@@ -71,12 +71,12 @@
                     <TextBlock Classes="label" Text="ຊື່ຜູ້ປະສານງານ"/>
                     <TextBox Grid.Column="1" Text="{Binding CurrentSupplier.ContactName}"/>
                 </Grid>
-                
+
                 <Grid ColumnDefinitions="Auto, *">
                     <TextBlock Classes="label" Text="ອີເມວ"/>
                     <TextBox Grid.Column="1" Text="{Binding CurrentSupplier.Email}"/>
                 </Grid>
-                
+
                 <Grid ColumnDefinitions="Auto, *">
                     <TextBlock Classes="label" Text="ເບີໂທລະສັບ"/>
                     <TextBox Grid.Column="1" Text="{Binding CurrentSupplier.Phone}"/>
@@ -94,8 +94,8 @@
                 <Button Classes="action" Background="#0D47A1" Command="{Binding SaveCommand}">
                     <TextBlock Text="ເພີ່ມ"/>
                 </Button>
-                <!-- Image shows Add(Blue) Edit(Yellow) Cancel(DarkGrey) all together. 
-                     Usually we toggle Add/Edit visibility. 
+                <!-- Image shows Add(Blue) Edit(Yellow) Cancel(DarkGrey) all together.
+                     Usually we toggle Add/Edit visibility.
                      For strictly following image, I will put them there. -->
                  <Button Classes="action" Background="#FBC02D" Command="{Binding SaveCommand}" Foreground="Black">
                     <TextBlock Text="ແກ້ໄຂ"/>

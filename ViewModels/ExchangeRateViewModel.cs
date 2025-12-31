@@ -60,10 +60,10 @@ public class ExchangeRateViewModel : ViewModelBase
         FilterExchangeRates();
 
         AddCommand = ReactiveCommand.Create(Add);
-        
+
         var canDelete = this.WhenAnyValue(x => x.SelectedExchangeRate)
                             .Select(x => x != null);
-        
+
         DeleteCommand = ReactiveCommand.Create(Delete, canDelete);
         CancelCommand = ReactiveCommand.Create(Cancel);
     }
@@ -111,11 +111,11 @@ public class ExchangeRateViewModel : ViewModelBase
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            // Simple search by ID or maybe date string? Or verify if user wants to search by Rates logic? 
+            // Simple search by ID or maybe date string? Or verify if user wants to search by Rates logic?
             // Usually search is for text fields. Let's just search by Date converted to string for now or ID.
             query = query.Where(x => x.CreatedDate.ToString().Contains(SearchText) || x.Id.ToString().Contains(SearchText));
         }
-        
+
         // Order by latest
         query = query.OrderByDescending(x => x.CreatedDate);
 

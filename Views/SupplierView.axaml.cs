@@ -1,5 +1,5 @@
 using Avalonia;
-using Avalonia.Controls;
+// using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using mini_pos.ViewModels;
@@ -41,12 +41,12 @@ public partial class SupplierView : ReactiveUserControl<SupplierViewModel>
         }
 
         var mainWindow = (Application.Current?.ApplicationLifetime as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.MainWindow;
-        
+
         if (mainWindow != null)
         {
             await dialog.ShowDialog(mainWindow);
         }
-        
+
         interaction.SetOutput(System.Reactive.Unit.Default);
     }
 }
