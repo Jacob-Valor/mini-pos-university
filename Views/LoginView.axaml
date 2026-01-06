@@ -51,11 +51,12 @@
                   Margin="0,0,15,5"
                   VerticalAlignment="Bottom"/>
 
-        <TextBox Grid.Column="1"
+        <TextBox x:Name="UsernameTextBox"
+                 Grid.Column="1"
                  Classes="input"
                  Text="{Binding Username}"
                  Watermark="ບັນຊີເຂົ້າໃຊ້"
-                 />
+                 KeyDown="OnTextBoxKeyDown"/>
       </Grid>
 
       <!-- Password Field -->
@@ -68,15 +69,19 @@
                   VerticalAlignment="Bottom"/>
 
          <Panel Grid.Column="1">
-             <TextBox Classes="input"
+             <TextBox x:Name="PasswordTextBox"
+                      Classes="input"
                       Text="{Binding Password}"
                       Watermark="ລະຫັດຜ່ານ"
                       PasswordChar="•"
-                      IsVisible="{Binding !ShowPassword}"/>
-             <TextBox Classes="input"
+                      IsVisible="{Binding !ShowPassword}"
+                      KeyDown="OnPasswordKeyDown"/>
+             <TextBox x:Name="PasswordVisibleTextBox"
+                      Classes="input"
                       Text="{Binding Password}"
                       Watermark="ລະຫັດຜ່ານ"
-                      IsVisible="{Binding ShowPassword}"/>
+                      IsVisible="{Binding ShowPassword}"
+                      KeyDown="OnPasswordKeyDown"/>
          </Panel>
       </Grid>
 
@@ -100,6 +105,14 @@
                 FontWeight="Bold"
                 VerticalAlignment="Center"/>
       </Grid>
+
+      <!-- Error Message -->
+      <TextBlock Text="{Binding ErrorMessage}"
+                 Foreground="#EF5350"
+                 FontSize="14"
+                 HorizontalAlignment="Center"
+                 Margin="0,15,0,0"
+                 IsVisible="{Binding HasError}"/>
 
     </StackPanel>
 
