@@ -55,7 +55,7 @@ public class MainWindowViewModel : ViewModelBase
         ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
         ImportCommand = ReactiveCommand.Create(() => Console.WriteLine("Import clicked"));
         CustomersCommand = ReactiveCommand.Create(() => { CurrentPage = new CustomerViewModel(); });
-        SaleCommand = ReactiveCommand.Create(() => Console.WriteLine("Sale clicked"));
+        SaleCommand = ReactiveCommand.Create(() => { CurrentPage = new SalesViewModel(); });
         SearchCommand = ReactiveCommand.Create(() => Console.WriteLine("Search clicked"));
         ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
         ProfileCommand = ReactiveCommand.Create(() => Console.WriteLine("Profile clicked"));

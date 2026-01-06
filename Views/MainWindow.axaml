@@ -136,7 +136,7 @@
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#3366BB6A" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconImport}" Width="20" Height="20" Foreground="#FF66BB6A" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconImport}" Width="20" Height="20" Foreground="#FF66BB6A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ສັ່ງຊື້-ນຳເຂົ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -150,7 +150,7 @@
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#33FFA726" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconCustomer}" Width="20" Height="20" Foreground="#FFFFA726" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconCustomer}" Width="20" Height="20" Foreground="#FFFFA726" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ລູກຄ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -162,7 +162,7 @@
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#3326A69A" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconProduct}" Width="20" Height="20" Foreground="#FF26A69A" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconProduct}" Width="20" Height="20" Foreground="#FF26A69A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ຂາຍສິນຄ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -174,7 +174,7 @@
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#33AB47BC" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconSearch}" Width="20" Height="20" Foreground="#FFAB47BC" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconSearch}" Width="20" Height="20" Foreground="#FFAB47BC" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ຄົ້ນຫາສິນຄ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -186,7 +186,7 @@
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#33FF7043" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconReport}" Width="20" Height="20" Foreground="#FFFF7043" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconReport}" Width="20" Height="20" Foreground="#FFFF7043" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ລາຍງານ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -206,7 +206,7 @@
                      <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#3378909C" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconProfile}" Width="20" Height="20" Foreground="#FF78909C" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconProfile}" Width="20" Height="20" Foreground="#FF78909C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ໂປຣໄຟລ໌" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -218,7 +218,7 @@
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#33BDBDBD" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconSettings}" Width="20" Height="20" Foreground="#FFBDBDBD" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconSettings}" Width="20" Height="20" Foreground="#FFBDBDBD" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ຕັ້ງຄ່າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -228,13 +228,13 @@
                     <MenuItem Header="ພູມດ້ານລຸ່ມ" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ພູມດ້ານຂວາ" FontFamily="{StaticResource LaoFont}"/>
                 </MenuItem>
-                
+
 <!-- 10. Logout -->
 	                <MenuItem Classes="topnav" Command="{Binding LogoutCommand}">
                     <MenuItem.Header>
                         <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
                              <Border Width="34" Height="34" CornerRadius="10" Background="#33EF5350" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconLogout}" Width="20" Height="20" Foreground="#FFEF5350" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                                 <PathIcon Data="{StaticResource IconLogout}" Width="20" Height="20" Foreground="#FFEF5350" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                              </Border>
                              <TextBlock Text="ອອກລະບົບ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
@@ -246,15 +246,15 @@
 
         <!-- Main Content -->
         <Grid Background="{DynamicResource BackgroundColor}">
-             <TextBlock Text="{Binding Greeting}" 
+             <TextBlock Text="{Binding Greeting}"
                         IsVisible="{Binding CurrentPage, Converter={x:Static conv:ObjectConverters.IsNull}}"
-                        HorizontalAlignment="Center" 
-                        VerticalAlignment="Center" 
-                        FontSize="48" 
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="48"
                         FontWeight="Bold"
                         Foreground="{DynamicResource TextColor}"
                         FontFamily="{StaticResource LaoFont}"/>
-             
+
              <TransitioningContentControl Content="{Binding CurrentPage}" />
         </Grid>
 

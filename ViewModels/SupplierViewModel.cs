@@ -64,8 +64,8 @@ public class SupplierViewModel : ViewModelBase
         AddCommand = ReactiveCommand.CreateFromTask(async () =>
         {
             _isEditMode = false;
-            CurrentSupplier = new Supplier 
-            { 
+            CurrentSupplier = new Supplier
+            {
                 Id = $"SUP{AllSuppliers.Count + 1:D3}",
                 Sequence = AllSuppliers.Count + 1
             };
