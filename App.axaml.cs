@@ -7,6 +7,7 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 
+using mini_pos.Models;
 using mini_pos.ViewModels;
 using mini_pos.Views;
 
@@ -41,7 +42,7 @@ public partial class App : Application
 
         loginViewModel.LoginSuccessful += (s, e) =>
         {
-            ShowMainWindow(desktop);
+            ShowMainWindow(desktop, loginViewModel.CurrentEmployee);
             loginView.Close();
         };
 
@@ -49,9 +50,9 @@ public partial class App : Application
         loginView.Show();
     }
 
-    private void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
+    private void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop, Employee? employee)
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(employee);
         var mainWindow = new MainWindow
         {
             DataContext = mainWindowViewModel,

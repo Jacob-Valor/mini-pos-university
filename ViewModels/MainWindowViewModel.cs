@@ -1,6 +1,7 @@
 using ReactiveUI;
 using System.Reactive;
 using System;
+using mini_pos.Models;
 
 namespace mini_pos.ViewModels;
 
@@ -17,11 +18,17 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> ReportsCommand { get; }
     public ReactiveCommand<Unit, Unit> ProfileCommand { get; }
     public ReactiveCommand<Unit, Unit> SettingsCommand { get; }
-    public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
+public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
 
     public event EventHandler? LogoutRequested;
 
-    public string CurrentUser { get; } = "ສຸກສະຫວັນ ຈຸນດາລີ"; // Example user from image
+    private string _currentUser = string.Empty;
+    public string CurrentUser
+    {
+        get => _currentUser;
+        set => this.RaiseAndSetIfChanged(ref _currentUser, value);
+    }
+
     public string CurrentDate { get; } = DateTime.Now.ToString("dddd, MMMM dd, yyyy h:mm:ss tt");
 
     public ViewModelBase? CurrentPage
@@ -37,10 +44,16 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> GoToProductCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToEmployeeCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToExchangeRateCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
+public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(Employee? employee = null)
     {
+        // Set the current user from the logged-in employee
+        if (employee != null)
+        {
+            CurrentUser = $"{employee.Name} {employee.Surname}";
+        }
+
         // Default to Home (or just empty for now, or keep the greeting logic separate?
         // For simplicity, let's make a simple HomeViewModel later or just use null to show the default greeting if we keep it,
         // but replacing the main content means we probably want a HomeViewModel.
