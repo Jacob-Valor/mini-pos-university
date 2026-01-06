@@ -24,10 +24,19 @@ sealed class Program
     /// On Linux, this method checks for the presence of DISPLAY or WAYLAND_DISPLAY
     /// environment variables before attempting to start the GUI. If running in a
     /// headless environment (SSH, CI/CD), use xvfb-run to provide a virtual display.
+    /// 
+    /// Use --test-db argument to run database connection tests without starting the GUI.
     /// </remarks>
     [STAThread]
     public static int Main(string[] args)
     {
+        // Check for database test mode
+        if (args.Length > 0 && args[0] == "--test-db")
+        {
+            DatabaseConnectionTest.RunTestAsync().GetAwaiter().GetResult();
+            return 0;
+        }
+
         // Check for GUI session on Linux to prevent startup failures
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !HasGuiSession())
         {

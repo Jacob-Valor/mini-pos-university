@@ -53,11 +53,11 @@ public partial class BrandViewModel : ViewModelBase
 
     public BrandViewModel()
     {
-        // Mock Data
-        AllBrands.Add(new Brand { Id = 1, Name = "Apple" });
-        AllBrands.Add(new Brand { Id = 2, Name = "Samsung" });
-        AllBrands.Add(new Brand { Id = 3, Name = "Sony" });
-        AllBrands.Add(new Brand { Id = 4, Name = "Dell" });
+        // Mock Data (using string IDs to match database format: B001, B002, etc.)
+        AllBrands.Add(new Brand { Id = "B001", Name = "Apple" });
+        AllBrands.Add(new Brand { Id = "B002", Name = "Samsung" });
+        AllBrands.Add(new Brand { Id = "B003", Name = "Sony" });
+        AllBrands.Add(new Brand { Id = "B004", Name = "Dell" });
 
         FilterBrands();
 
@@ -75,7 +75,11 @@ public partial class BrandViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(BrandName)) return;
 
-        var newId = AllBrands.Any() ? AllBrands.Max(b => b.Id) + 1 : 1;
+        // Generate new ID based on existing brands (B001, B002, etc.)
+        var maxId = AllBrands.Any() 
+            ? AllBrands.Max(b => int.TryParse(b.Id.Replace("B", ""), out var num) ? num : 0) + 1 
+            : 1;
+        var newId = $"B{maxId:D3}";
         var brand = new Brand { Id = newId, Name = BrandName };
         AllBrands.Add(brand);
         FilterBrands();

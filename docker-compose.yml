@@ -5,18 +5,17 @@
 # It includes the MariaDB database and the Avalonia desktop application.
 #
 # Usage:
-#   Start services:    docker-compose up -d
-#   Stop services:     docker-compose down
-#   View logs:         docker-compose logs -f
-#   Reset database:    docker-compose down -v (WARNING: Deletes all data!)
+#   Start database only:  docker-compose up -d mariadb
+#   Start all services:   docker-compose up -d
+#   Stop services:        docker-compose down
+#   View logs:            docker-compose logs -f
+#   Reset database:       docker-compose down -v (WARNING: Deletes all data!)
 # ================================================================================================
 
-version: '3.8'
-
 services:
-  # ================================================================================================
+  # ==============================================================================================
   # MariaDB Database Service
-  # ================================================================================================
+  # ==============================================================================================
   # This service runs the MariaDB database server that stores all POS data including
   # products, employees, customers, and transactions.
   mariadb:
@@ -45,7 +44,7 @@ services:
 
       # Initialize database with schema and sample data on first startup
       # SQL files in /docker-entrypoint-initdb.d/ are executed automatically
-      - ./databases/workshop.sql:/docker-entrypoint-initdb.d/workshop.sql
+      - ./db/workshop.sql:/docker-entrypoint-initdb.d/workshop.sql
 
     # Network Configuration
     networks:
@@ -54,18 +53,28 @@ services:
     # Restart Policy
     # Automatically restart unless explicitly stopped
     restart: unless-stopped
-    # Health Check (optional, uncomment to enable)
-    # healthcheck:
-    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
 
-    # ================================================================================================
-    # Mini POS Application Service
-    # ================================================================================================
-    # This service runs the Avalonia desktop application in a container.
-    # Note: Running GUI applications in Docker requires X11 forwarding configuration.
+    # Health Check
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ==============================================================================================
+  # Mini POS Application Service
+  # ==============================================================================================
+  # This service runs the Avalonia desktop application in a container.
+  # Note: Running GUI applications in Docker requires X11 forwarding configuration.
+  #
+  # For Development:
+  #   Consider running the app locally and only containerizing the database:
+  #   docker-compose up -d mariadb
+  #
+  # For Production:
+  #   GUI apps in Docker are not recommended for end-user deployment.
+  #   Use Docker only for the database and deploy the app natively.
   mini-pos:
     # Build Configuration
     build:
@@ -88,7 +97,8 @@ services:
     # Service Dependencies
     # Ensure MariaDB starts before the application
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
 
     # Network Configuration
     networks:
@@ -96,33 +106,21 @@ services:
 
     # Restart Policy
     restart: unless-stopped
-    # ================================================================================================
-    # GUI Application Notes
-    # ================================================================================================
-    # Running GUI applications in Docker requires additional configuration:
-    #
-    # For Linux (X11):
-    #   1. Allow local connections: xhost +local:docker
-    #   2. Add volume mount: - /tmp/.X11-unix:/tmp/.X11-unix
-    #   3. Add environment: - DISPLAY=$DISPLAY
-    #
-    # For Development:
-    #   Consider running the app locally and only containerizing the database:
-    #   docker-compose up mariadb
-    #
-    # For Production:
-    #   GUI apps in Docker are not recommended for end-user deployment.
-    #   Use Docker only for the database and deploy the app natively.
-    # ================================================================================================
 
-    # ================================================================================================
-    # Named Volumes
-    # ================================================================================================
-    # Persistent storage for database data that survives container removal
+    # GUI Configuration for Linux (X11)
+    # Uncomment the following lines to enable X11 forwarding:
+    # volumes:
+    #   - /tmp/.X11-unix:/tmp/.X11-unix
+    # environment:
+    #   - DISPLAY=${DISPLAY}
+
+# ================================================================================================
+# Named Volumes
+# ================================================================================================
+# Persistent storage for database data that survives container removal
 volumes:
   mariadb_data:
     driver: local
-    # Optional: Add labels for organization
     labels:
       com.minipos.description: "MariaDB persistent data storage"
 
@@ -134,6 +132,5 @@ volumes:
 networks:
   pos_network:
     driver: bridge
-    # Optional: Add labels for organization
     labels:
       com.minipos.description: "Mini POS application network"

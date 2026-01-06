@@ -130,15 +130,15 @@ public partial class ProductViewModel : ViewModelBase
 
     public ProductViewModel()
     {
-        // Mock Reference Data
-        Brands.Add(new Brand { Id = 1, Name = "Pepsi" });
-        Brands.Add(new Brand { Id = 2, Name = "Coca-Cola" });
-        Brands.Add(new Brand { Id = 3, Name = "Nestle" });
-        Brands.Add(new Brand { Id = 4, Name = "Lao Brewery" });
+        // Mock Reference Data (using string IDs to match database format)
+        Brands.Add(new Brand { Id = "B012", Name = "Pepsi" });
+        Brands.Add(new Brand { Id = "B001", Name = "Coca-Cola" });
+        Brands.Add(new Brand { Id = "B003", Name = "Nestle" });
+        Brands.Add(new Brand { Id = "B016", Name = "Lao Brewery" });
 
-        ProductTypes.Add(new ProductType { Id = 1, Name = "Drinks" });
-        ProductTypes.Add(new ProductType { Id = 2, Name = "Snacks" });
-        ProductTypes.Add(new ProductType { Id = 3, Name = "Household" });
+        ProductTypes.Add(new ProductType { Id = "C001", Name = "Drinks" });
+        ProductTypes.Add(new ProductType { Id = "C005", Name = "Snacks" });
+        ProductTypes.Add(new ProductType { Id = "C011", Name = "Household" });
 
         Statuses.Add("ມີ"); // Available
         Statuses.Add("ໝົດ"); // Out of Stock

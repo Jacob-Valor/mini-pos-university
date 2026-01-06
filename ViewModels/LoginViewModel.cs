@@ -3,6 +3,9 @@ using System.Reactive;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
+using mini_pos.Services;
+using mini_pos.Models;
 
 namespace mini_pos.ViewModels
 {
@@ -43,6 +46,18 @@ namespace mini_pos.ViewModels
             set => this.RaiseAndSetIfChanged(ref _hasError, value);
         }
 
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => this.RaiseAndSetIfChanged(ref _isLoading, value);
+        }
+
+        /// <summary>
+        /// The currently logged in employee (set after successful login).
+        /// </summary>
+        public Employee? CurrentEmployee { get; private set; }
+
         public ReactiveCommand<Unit, Unit> LoginCommand { get; }
         public ReactiveCommand<Unit, Unit> ClearCommand { get; }
 
@@ -50,7 +65,7 @@ namespace mini_pos.ViewModels
 
         public LoginViewModel()
         {
-            LoginCommand = ReactiveCommand.Create(Login);
+            LoginCommand = ReactiveCommand.CreateFromTask(LoginAsync);
             ClearCommand = ReactiveCommand.Create(Clear);
         }
 
@@ -65,7 +80,7 @@ namespace mini_pos.ViewModels
             return Convert.ToHexString(hashBytes).ToLower();
         }
 
-        private void Login()
+        private async Task LoginAsync()
         {
             // Clear previous error
             HasError = false;
@@ -79,16 +94,41 @@ namespace mini_pos.ViewModels
                 return;
             }
 
-            // Hash password using MD5 (matches database storage format)
-            string hashedPassword = ComputeMd5Hash(Password);
-            
-            Console.WriteLine($"Login attempted with username: {Username}");
-            Console.WriteLine($"Password hash (MD5): {hashedPassword}");
+            IsLoading = true;
 
-            // TODO: Implement actual database verification
-            // Compare hashedPassword with employee.password from database
-            // For now, trigger success event
-            LoginSuccessful?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                // Hash password using MD5 (matches database storage format)
+                string hashedPassword = ComputeMd5Hash(Password);
+                
+                Console.WriteLine($"Login attempted with username: {Username}");
+
+                // Validate credentials against database
+                var employee = await DatabaseService.Instance.ValidateLoginAsync(Username, hashedPassword);
+
+                if (employee != null)
+                {
+                    CurrentEmployee = employee;
+                    Console.WriteLine($"Login successful for: {employee.Name} {employee.Surname}");
+                    LoginSuccessful?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    HasError = true;
+                    ErrorMessage = "ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ";
+                    Console.WriteLine("Login failed: Invalid credentials");
+                }
+            }
+            catch (Exception ex)
+            {
+                HasError = true;
+                ErrorMessage = $"ເກີດຂໍ້ຜິດພາດ: {ex.Message}";
+                Console.Error.WriteLine($"Login error: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private void Clear()
@@ -98,6 +138,7 @@ namespace mini_pos.ViewModels
             ShowPassword = false;
             HasError = false;
             ErrorMessage = null;
+            IsLoading = false;
         }
     }
 }

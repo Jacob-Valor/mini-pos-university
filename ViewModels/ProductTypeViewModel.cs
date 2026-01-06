@@ -53,11 +53,11 @@ public partial class ProductTypeViewModel : ViewModelBase
 
     public ProductTypeViewModel()
     {
-        // Mock Data
-        AllProductTypes.Add(new ProductType { Id = 1, Name = "Electronics" });
-        AllProductTypes.Add(new ProductType { Id = 2, Name = "Clothing" });
-        AllProductTypes.Add(new ProductType { Id = 3, Name = "Beverages" });
-        AllProductTypes.Add(new ProductType { Id = 4, Name = "Food" });
+        // Mock Data (using string IDs to match database format: C001, C002, etc.)
+        AllProductTypes.Add(new ProductType { Id = "C001", Name = "Electronics" });
+        AllProductTypes.Add(new ProductType { Id = "C002", Name = "Clothing" });
+        AllProductTypes.Add(new ProductType { Id = "C003", Name = "Beverages" });
+        AllProductTypes.Add(new ProductType { Id = "C004", Name = "Food" });
 
         FilterProductTypes();
 
@@ -75,7 +75,11 @@ public partial class ProductTypeViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(ProductTypeName)) return;
 
-        var newId = AllProductTypes.Any() ? AllProductTypes.Max(b => b.Id) + 1 : 1;
+        // Generate new ID based on existing types (C001, C002, etc.)
+        var maxId = AllProductTypes.Any() 
+            ? AllProductTypes.Max(t => int.TryParse(t.Id.Replace("C", ""), out var num) ? num : 0) + 1 
+            : 1;
+        var newId = $"C{maxId:D3}";
         var newType = new ProductType { Id = newId, Name = ProductTypeName };
         AllProductTypes.Add(newType);
         FilterProductTypes();
