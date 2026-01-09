@@ -19,7 +19,7 @@ public class ImagePathToBitmapConverter : IValueConverter
                     // Handle resource paths if needed
                     return new Bitmap(AssetLoader.Open(new Uri(path)));
                 }
-                
+
                 // Handle local file paths
                 return new Bitmap(path);
             }
