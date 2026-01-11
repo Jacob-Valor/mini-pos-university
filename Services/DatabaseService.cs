@@ -29,11 +29,13 @@ public interface IDatabaseService
     Task<bool> AddProductAsync(Product product);
     Task<bool> UpdateProductAsync(Product product);
     Task<bool> DeleteProductAsync(string barcode);
+    Task<bool> ProductExistsAsync(string barcode);
 
     // Customer Operations
     Task<bool> AddCustomerAsync(Customer customer);
     Task<bool> UpdateCustomerAsync(Customer customer);
     Task<bool> DeleteCustomerAsync(string customerId);
+    Task<List<Customer>> SearchCustomersAsync(string keyword);
     
     // Brand Operations (GetBrandsAsync defined earlier)
     Task<bool> AddBrandAsync(Brand brand);
@@ -239,6 +241,7 @@ public class DatabaseService : IDatabaseService
             const string query = @"
                 SELECT p.barcode, p.product_name, p.unit, p.quantity, p.quantity_min,
                        p.cost_price, p.retail_price, p.status,
+                       p.brand_id, p.category_id,
                        b.brand_name, c.category_name
                 FROM product p
                 LEFT JOIN brand b ON p.brand_id = b.brand_id
@@ -259,7 +262,9 @@ public class DatabaseService : IDatabaseService
                     QuantityMin = reader.GetInt32("quantity_min"),
                     CostPrice = reader.GetDecimal("cost_price"),
                     RetailPrice = reader.GetDecimal("retail_price"),
+                    BrandId = reader.IsDBNull("brand_id") ? "" : reader.GetString("brand_id"),
                     BrandName = reader.IsDBNull("brand_name") ? "" : reader.GetString("brand_name"),
+                    CategoryId = reader.IsDBNull("category_id") ? "" : reader.GetString("category_id"),
                     CategoryName = reader.IsDBNull("category_name") ? "" : reader.GetString("category_name"),
                     Status = reader.GetString("status")
                 });
@@ -289,6 +294,7 @@ public class DatabaseService : IDatabaseService
             const string query = @"
                 SELECT p.barcode, p.product_name, p.unit, p.quantity, p.quantity_min,
                        p.cost_price, p.retail_price, p.status,
+                       p.brand_id, p.category_id,
                        b.brand_name, c.category_name
                 FROM product p
                 LEFT JOIN brand b ON p.brand_id = b.brand_id
@@ -310,7 +316,9 @@ public class DatabaseService : IDatabaseService
                     QuantityMin = reader.GetInt32("quantity_min"),
                     CostPrice = reader.GetDecimal("cost_price"),
                     RetailPrice = reader.GetDecimal("retail_price"),
+                    BrandId = reader.IsDBNull("brand_id") ? "" : reader.GetString("brand_id"),
                     BrandName = reader.IsDBNull("brand_name") ? "" : reader.GetString("brand_name"),
+                    CategoryId = reader.IsDBNull("category_id") ? "" : reader.GetString("category_id"),
                     CategoryName = reader.IsDBNull("category_name") ? "" : reader.GetString("category_name"),
                     Status = reader.GetString("status")
                 };
@@ -664,6 +672,24 @@ public class DatabaseService : IDatabaseService
 
     #region Product Operations
 
+    public async Task<bool> ProductExistsAsync(string barcode)
+    {
+        try
+        {
+            await using var connection = await GetConnectionAsync();
+            const string query = "SELECT COUNT(1) FROM product WHERE barcode = @id";
+            await using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@id", barcode);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result) > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error checking product existence: {ex.Message}");
+            return false;
+        }
+    }
+
     public async Task<bool> AddProductAsync(Product p)
     {
         try
@@ -690,8 +716,8 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@price", p.SellingPrice);
             
             // Just use the values passed (ViewModel should ensure these are IDs)
-            command.Parameters.AddWithValue("@brand", p.Brand); 
-            command.Parameters.AddWithValue("@type", p.Type);
+            command.Parameters.AddWithValue("@brand", p.BrandId); 
+            command.Parameters.AddWithValue("@type", p.CategoryId);
             command.Parameters.AddWithValue("@status", p.Status);
 
             await command.ExecuteNonQueryAsync();
@@ -723,8 +749,8 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@min", p.MinQuantity);
             command.Parameters.AddWithValue("@cost", p.CostPrice);
             command.Parameters.AddWithValue("@price", p.SellingPrice);
-            command.Parameters.AddWithValue("@brand", p.Brand);
-            command.Parameters.AddWithValue("@type", p.Type);
+            command.Parameters.AddWithValue("@brand", p.BrandId);
+            command.Parameters.AddWithValue("@type", p.CategoryId);
             command.Parameters.AddWithValue("@status", p.Status);
 
             await command.ExecuteNonQueryAsync();
@@ -855,6 +881,42 @@ public class DatabaseService : IDatabaseService
              Console.Error.WriteLine($"Error deleting customer: {ex.Message}");
              return false;
         }
+    }
+
+    public async Task<List<Customer>> SearchCustomersAsync(string keyword)
+    {
+        var list = new List<Customer>();
+        try
+        {
+            await using var connection = await GetConnectionAsync();
+            const string query = @"
+                SELECT cus_id, cus_name, cus_lname, gender, address, tel 
+                FROM customer 
+                WHERE cus_id LIKE @kw OR cus_name LIKE @kw OR tel LIKE @kw
+                LIMIT 20";
+
+            await using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@kw", $"%{keyword}%");
+            
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                list.Add(new Customer
+                {
+                    Id = reader.GetString("cus_id"),
+                    Name = reader.IsDBNull("cus_name") ? "" : reader.GetString("cus_name"),
+                    Surname = reader.GetString("cus_lname"),
+                    Gender = reader.GetString("gender"),
+                    Address = reader.GetString("address"),
+                    PhoneNumber = reader.IsDBNull("tel") ? "" : reader.GetString("tel")
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error searching customers: {ex.Message}");
+        }
+        return list;
     }
 
     #endregion

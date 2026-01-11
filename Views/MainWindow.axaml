@@ -26,18 +26,31 @@
                 BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Border Width="22" Height="22" CornerRadius="8" Background="#18FFFFFF" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
-                        <PathIcon Data="{StaticResource IconProfile}" Width="14" Height="14" Foreground="{DynamicResource PrimaryColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Width="28" Height="28" CornerRadius="14" Background="#18FFFFFF" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                         <PathIcon Data="{StaticResource IconProfile}" Width="16" Height="16" Foreground="{DynamicResource PrimaryColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <StackPanel Spacing="1">
-                        <TextBlock Text="ຜູ້ເຂົ້າໃຊ້" FontWeight="SemiBold" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextMutedColor}" FontSize="11"/>
-                        <TextBlock Text="{Binding CurrentUser}" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource PrimaryColor}" FontWeight="Bold" FontSize="11"/>
+                    <StackPanel Spacing="0" VerticalAlignment="Center">
+                         <TextBlock Text="ຜູ້ເຂົ້າໃຊ້: " FontWeight="Normal" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextMutedColor}" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
+                        <TextBlock Text="{Binding CurrentUser}" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextColor}" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock Text="Admin" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource PrimaryColor}" FontSize="10" Opacity="0.8"/>
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                    <Ellipse Width="6" Height="6" Fill="{DynamicResource PrimaryColor}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding CurrentDate}" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}" FontFamily="{StaticResource LaoFont}" FontSize="11"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                     <Border Background="#18FFFFFF" CornerRadius="4" Padding="8,4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="ເວລາເຂົ້າລະບົບ:" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextMutedColor}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding LoginTime}" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource PrimaryColor}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    
+                     <Border Background="#18FFFFFF" CornerRadius="4" Padding="8,4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" 
+                                      Width="14" Height="14" Foreground="{DynamicResource PrimaryColor}"/>
+                            <TextBlock Text="{Binding CurrentDate}" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" FontFamily="{StaticResource LaoFont}" FontSize="14" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Grid>
         </Border>

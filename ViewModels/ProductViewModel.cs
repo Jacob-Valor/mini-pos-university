@@ -39,8 +39,8 @@ public partial class ProductViewModel : ViewModelBase
                 // Let's check DatabaseService.GetProductsAsync implementation.
                 // It does `reader.GetString("brand_id")`. So value.Brand holds the ID (e.g., "B001").
                 
-                SelectedBrandItem = Brands.FirstOrDefault(b => b.Id == value.Brand);
-                SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Id == value.Type);
+                SelectedBrandItem = Brands.FirstOrDefault(b => b.Id == value.BrandId);
+                SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Id == value.CategoryId);
                 SelectedStatusItem = value.Status;
             }
         }
@@ -194,9 +194,40 @@ public partial class ProductViewModel : ViewModelBase
         FilterProducts();
     }
 
+    private string _errorMessage = string.Empty;
+    public string ErrorMessage
+    {
+        get => _errorMessage;
+        set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+    }
+
+    private bool _hasError;
+    public bool HasError
+    {
+        get => _hasError;
+        set => this.RaiseAndSetIfChanged(ref _hasError, value);
+    }
+
     private async Task AddAsync()
     {
-        if (string.IsNullOrWhiteSpace(ProductId) || string.IsNullOrWhiteSpace(ProductName)) return;
+        HasError = false;
+        ErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(ProductId) || string.IsNullOrWhiteSpace(ProductName)) 
+        {
+            HasError = true;
+            ErrorMessage = "ກະລຸນາປ້ອນລະຫັດ ແລະ ຊື່ສິນຄ້າ";
+            return;
+        }
+
+        // Check for duplicate barcode
+        bool exists = await _databaseService.ProductExistsAsync(ProductId);
+        if (exists)
+        {
+            HasError = true;
+            ErrorMessage = $"ລະຫັດສິນຄ້າ {ProductId} ມີຢູ່ໃນລະບົບແລ້ວ (Duplicate Barcode)";
+            return;
+        }
 
         var newProduct = new Product
         {
@@ -207,8 +238,8 @@ public partial class ProductViewModel : ViewModelBase
             MinQuantity = ProductMinQuantity,
             CostPrice = ProductCostPrice,
             SellingPrice = ProductSellingPrice,
-            Brand = SelectedBrandItem?.Id ?? "",
-            Type = SelectedTypeItem?.Id ?? "",
+            BrandId = SelectedBrandItem?.Id ?? "",
+            CategoryId = SelectedTypeItem?.Id ?? "",
             Status = SelectedStatusItem ?? ""
         };
 
@@ -233,8 +264,8 @@ public partial class ProductViewModel : ViewModelBase
                 MinQuantity = ProductMinQuantity,
                 CostPrice = ProductCostPrice,
                 SellingPrice = ProductSellingPrice,
-                Brand = SelectedBrandItem?.Id ?? "",
-                Type = SelectedTypeItem?.Id ?? "",
+                BrandId = SelectedBrandItem?.Id ?? "",
+                CategoryId = SelectedTypeItem?.Id ?? "",
                 Status = SelectedStatusItem ?? ""
             };
             

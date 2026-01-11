@@ -48,7 +48,7 @@ public partial class App : Application
 
         // Register ViewModels
         services.AddTransient<LoginViewModel>();
-        // MainWindowViewModel requires Employee parameter, so we might create it manually using the provider for dependencies
+        services.AddTransient<MainWindowViewModel>(); // Registered for ActivatorUtilities/DI support
     }
 
     private void ShowLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -73,10 +73,14 @@ public partial class App : Application
 
     private void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop, Employee? employee)
     {
-        // MainWindowViewModel needs IDatabaseService + Employee
-        // We can manually resolve the service
-        var dbService = ServiceProvider!.GetRequiredService<IDatabaseService>();
-        var mainWindowViewModel = new MainWindowViewModel(employee, dbService);
+        // Use ActivatorUtilities to create MainWindowViewModel with mixed dependencies
+        // (IDatabaseService from DI, Employee passed manually)
+        // Note: We check if employee is null, although generally it shouldn't be here.
+        // If it is, ActivatorUtilities might warn but it will pass null to constructor.
+        var mainWindowViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>(
+            ServiceProvider!, 
+            employee! 
+        );
 
         var mainWindow = new MainWindow
         {

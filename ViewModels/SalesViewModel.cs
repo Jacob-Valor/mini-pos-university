@@ -38,7 +38,27 @@ public class SalesViewModel : ViewModelBase
     public string Barcode
     {
         get => _barcode;
-        set => this.RaiseAndSetIfChanged(ref _barcode, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _barcode, value);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                _ = LookupProductByBarcode(value);
+            }
+        }
+    }
+
+    private async Task LookupProductByBarcode(string code)
+    {
+        if (_databaseService == null) return;
+        var product = await _databaseService.GetProductByBarcodeAsync(code);
+        if (product != null)
+        {
+            ProductName = product.Name;
+            Unit = product.Unit;
+            // Apply price logic
+            UnitPrice = product.SellingPrice; 
+        }
     }
 
     private string _productName = string.Empty;
@@ -206,31 +226,109 @@ public class SalesViewModel : ViewModelBase
         }
     }
 
-    private void SearchCustomer()
-
+    private async Task SearchCustomerAsync()
     {
-        // TODO: Implement customer search logic
-        // For now, auto-generate customer code when name is entered
-        if (!string.IsNullOrWhiteSpace(CustomerName))
+        if (string.IsNullOrWhiteSpace(CustomerName)) return;
+
+        var results = await _databaseService.SearchCustomersAsync(CustomerName);
+        
+        if (results.Any())
         {
-            CustomerCode = $"CUST{DateTime.Now:yyyyMMddHHmmss}";
+            // For now, auto-select the first match
+            var customer = results.First();
+            CustomerCode = customer.Id;
+            CustomerName = $"{customer.Name} {customer.Surname}"; // Show full name
+            Console.WriteLine($"Customer found: {CustomerName}");
         }
+        else
+        {
+            Console.WriteLine("Customer not found.");
+            // Optional: Generate code for new customer or clear
+            // CustomerCode = $"CUST{DateTime.Now:yyyyMMddHHmmss}";
+        }
+    }
+
+    private void SearchCustomer()
+    {
+        _ = SearchCustomerAsync();
+    }
+
+    private string _errorMessage = string.Empty;
+    public string ErrorMessage
+    {
+        get => _errorMessage;
+        set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+    }
+
+    private bool _hasError;
+    public bool HasError
+    {
+        get => _hasError;
+        set => this.RaiseAndSetIfChanged(ref _hasError, value);
+    }
+
+    private async Task AddProductAsync()
+    {
+        HasError = false;
+        ErrorMessage = string.Empty;
+
+        // 1. Validate Barcode or Name logic
+        // If we have barcode but no product details, try to find it first
+        if (!string.IsNullOrWhiteSpace(Barcode) && string.IsNullOrWhiteSpace(ProductName))
+        {
+            var product = await _databaseService.GetProductByBarcodeAsync(Barcode);
+            if (product != null)
+            {
+                ProductName = product.Name;
+                Unit = product.Unit;
+                UnitPrice = product.SellingPrice; // Or wholesale logic
+                
+                // Stock Validation
+                int currentCartQty = CartItems.Where(c => c.Barcode == Barcode).Sum(c => c.Quantity);
+                if (product.Quantity < (Quantity + currentCartQty))
+                {
+                    HasError = true;
+                    ErrorMessage = $"ສິນຄ້າບໍ່ພຽງພໍ! ມີເຫຼືອ: {product.Quantity} (Stock low)";
+                    return;
+                }
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = "ບໍ່ພົບສິນຄ້າ (Product not found)";
+                return;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(ProductName)) return;
+
+        // 2. Add to Cart
+        var total = Quantity * UnitPrice;
+        var existingItem = CartItems.FirstOrDefault(c => c.Barcode == Barcode);
+        
+        if (existingItem != null)
+        {
+            existingItem.Quantity += Quantity;
+        }
+        else
+        {
+            var newItem = new CartItemViewModel
+            {
+                Barcode = Barcode,
+                ProductName = ProductName,
+                Unit = Unit,
+                Quantity = Quantity,
+                UnitPrice = UnitPrice
+            };
+            CartItems.Add(newItem);
+        }
+
+        ClearInputs();
     }
 
     private void AddProduct()
     {
-        var total = Quantity * UnitPrice;
-        var newItem = new CartItemViewModel
-        {
-            Barcode = Barcode,
-            ProductName = ProductName,
-            Unit = Unit,
-            Quantity = Quantity,
-            UnitPrice = UnitPrice
-        };
-
-        CartItems.Add(newItem);
-        ClearInputs();
+        _ = AddProductAsync();
     }
 
     private void RemoveProduct()

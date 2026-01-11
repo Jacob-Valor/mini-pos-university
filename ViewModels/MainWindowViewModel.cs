@@ -33,6 +33,13 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _currentUser, value);
     }
 
+    private string _loginTime = string.Empty;
+    public string LoginTime
+    {
+        get => _loginTime;
+        set => this.RaiseAndSetIfChanged(ref _loginTime, value);
+    }
+
     private string _currentDate = string.Empty;
     public string CurrentDate
     {
@@ -62,6 +69,19 @@ public class MainWindowViewModel : ViewModelBase
         _databaseService = databaseService;
         // Set the current user from the logged-in employee
         _loggedInEmployee = employee;
+        if (_loggedInEmployee != null)
+        {
+            CurrentUser = $"{_loggedInEmployee.Name} {_loggedInEmployee.Surname}";
+        }
+        else
+        {
+            CurrentUser = "Guest";
+        }
+        
+        LoginTime = DateTime.Now.ToString("HH:mm:ss");
+
+        // Start clock
+        _ = UpdateDatePeriodicallyAsync();
 
         // Default Page (Dashboard or Empty)
         // Pass Dependencies to Child ViewModels
@@ -109,8 +129,13 @@ public class MainWindowViewModel : ViewModelBase
         GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(_databaseService); });
         GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(_databaseService); });
 
-        // Initialize placeholder commands to avoid warnings
-        HomeCommand = ReactiveCommand.Create(() => Console.WriteLine("Home clicked"));
+        // Initialize commands
+        HomeCommand = ReactiveCommand.Create(() => 
+        { 
+            // Reset CurrentPage to null to show the welcome screen (Greeting)
+            CurrentPage = null; 
+        });
+        
         ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
         ImportCommand = ReactiveCommand.Create(() => Console.WriteLine("Import clicked"));
         ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
@@ -121,7 +146,9 @@ public class MainWindowViewModel : ViewModelBase
     /// </summary>
     private void UpdateCurrentDate()
     {
-        CurrentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy h:mm:ss tt");
+        // Lao format example: ວັນຈັນ, 12 ມັງກອນ 2026 10:30:00 AM
+        // Using standard format for now
+        CurrentDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
     }
 
     /// <summary>
