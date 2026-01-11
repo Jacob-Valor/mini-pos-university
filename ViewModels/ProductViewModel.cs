@@ -3,14 +3,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-// using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
 public partial class ProductViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+
     private Product? _selectedProduct;
     public Product? SelectedProduct
     {
@@ -28,8 +31,16 @@ public partial class ProductViewModel : ViewModelBase
                 ProductCostPrice = value.CostPrice;
                 ProductSellingPrice = value.SellingPrice;
 
-                SelectedBrandItem = Brands.FirstOrDefault(b => b.Name == value.Brand);
-                SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Name == value.Type);
+                // When selecting, we try to match the Name to select the item in ComboBox
+                // But internally we want to store the ID when saving.
+                // The ComboBox binds to SelectedBrandItem (Brand object).
+                // So we find the Brand object where Name matches value.Brand (which currently holds Name from DB read?)
+                // Actually GetProductsAsync returns Brand ID in the Brand property? 
+                // Let's check DatabaseService.GetProductsAsync implementation.
+                // It does `reader.GetString("brand_id")`. So value.Brand holds the ID (e.g., "B001").
+                
+                SelectedBrandItem = Brands.FirstOrDefault(b => b.Id == value.Brand);
+                SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Id == value.Type);
                 SelectedStatusItem = value.Status;
             }
         }
@@ -128,63 +139,62 @@ public partial class ProductViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public ProductViewModel()
+    public ProductViewModel(IDatabaseService databaseService)
     {
-        // Mock Reference Data (using string IDs to match database format)
-        Brands.Add(new Brand { Id = "B012", Name = "Pepsi" });
-        Brands.Add(new Brand { Id = "B001", Name = "Coca-Cola" });
-        Brands.Add(new Brand { Id = "B003", Name = "Nestle" });
-        Brands.Add(new Brand { Id = "B016", Name = "Lao Brewery" });
+        _databaseService = databaseService;
 
-        ProductTypes.Add(new ProductType { Id = "C001", Name = "Drinks" });
-        ProductTypes.Add(new ProductType { Id = "C005", Name = "Snacks" });
-        ProductTypes.Add(new ProductType { Id = "C011", Name = "Household" });
-
-        Statuses.Add("ມີ"); // Available
-        Statuses.Add("ໝົດ"); // Out of Stock
-
-        // Mock Product Data
-        AllProducts.Add(new Product
-        {
-            Id = "001",
-            Name = "Pepsi 330ml",
-            Unit = "Can",
-            Quantity = 50,
-            MinQuantity = 10,
-            CostPrice = 4000,
-            SellingPrice = 5000,
-            Brand = "Pepsi",
-            Type = "Drinks",
-            Status = "ມີ"
-        });
-
-        AllProducts.Add(new Product
-        {
-            Id = "002",
-            Name = "Lays Classic",
-            Unit = "Pack",
-            Quantity = 20,
-            MinQuantity = 5,
-            CostPrice = 8000,
-            SellingPrice = 10000,
-            Brand = "Lays",
-            Type = "Snacks",
-            Status = "ມີ"
-        });
-
-        FilterProducts();
-
-        AddCommand = ReactiveCommand.Create(Add);
-
+        AddCommand = ReactiveCommand.CreateFromTask(AddAsync);
+        
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedProduct)
                                   .Select(x => x != null);
 
-        EditCommand = ReactiveCommand.Create(Edit, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.Create(Delete, canEditOrDelete);
+        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
+        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
         CancelCommand = ReactiveCommand.Create(Cancel);
+        
+        // Initialize Statuses
+        Statuses.Add("ມີ"); // Available
+        Statuses.Add("ໝົດ"); // Out of Stock
+
+        // Load Data
+        _ = LoadDataAsync();
     }
 
-    private void Add()
+    public ProductViewModel() : this(null!)
+    {
+        // Design-time
+    }
+
+    private async Task LoadDataAsync()
+    {
+        if (_databaseService == null) return;
+
+        // 1. Load Reference Data
+        Brands.Clear();
+        var brands = await _databaseService.GetBrandsAsync();
+        foreach (var b in brands) Brands.Add(b);
+
+        ProductTypes.Clear();
+        var types = await _databaseService.GetProductTypesAsync();
+        foreach (var t in types) ProductTypes.Add(t);
+
+        // 2. Load Products
+        await RefreshProductList();
+    }
+    
+    private async Task RefreshProductList()
+    {
+        AllProducts.Clear();
+        var products = await _databaseService.GetProductsAsync();
+        foreach (var p in products)
+        {
+            // Map DB ID to Object for display if needed, but current model stores ID in Brand/Type properties
+            AllProducts.Add(p);
+        }
+        FilterProducts();
+    }
+
+    private async Task AddAsync()
     {
         if (string.IsNullOrWhiteSpace(ProductId) || string.IsNullOrWhiteSpace(ProductName)) return;
 
@@ -197,52 +207,56 @@ public partial class ProductViewModel : ViewModelBase
             MinQuantity = ProductMinQuantity,
             CostPrice = ProductCostPrice,
             SellingPrice = ProductSellingPrice,
-            Brand = SelectedBrandItem?.Name ?? "",
-            Type = SelectedTypeItem?.Name ?? "",
+            Brand = SelectedBrandItem?.Id ?? "",
+            Type = SelectedTypeItem?.Id ?? "",
             Status = SelectedStatusItem ?? ""
         };
 
-        AllProducts.Add(newProduct);
-        FilterProducts();
-
-        // Reset inputs
-        Cancel();
-    }
-
-    private void Edit()
-    {
-        if (SelectedProduct != null)
+        bool success = await _databaseService.AddProductAsync(newProduct);
+        if (success)
         {
-            var index = AllProducts.IndexOf(SelectedProduct);
-            if (index != -1)
-            {
-                var updatedProduct = new Product
-                {
-                    Id = ProductId,
-                    Name = ProductName,
-                    Unit = ProductUnit,
-                    Quantity = ProductQuantity,
-                    MinQuantity = ProductMinQuantity,
-                    CostPrice = ProductCostPrice,
-                    SellingPrice = ProductSellingPrice,
-                    Brand = SelectedBrandItem?.Name ?? "",
-                    Type = SelectedTypeItem?.Name ?? "",
-                    Status = SelectedStatusItem ?? ""
-                };
-                AllProducts[index] = updatedProduct;
-            }
-            FilterProducts();
+            await RefreshProductList();
             Cancel();
         }
     }
 
-    private void Delete()
+    private async Task EditAsync()
     {
         if (SelectedProduct != null)
         {
-            AllProducts.Remove(SelectedProduct);
-            FilterProducts();
-            Cancel();
+            var updatedProduct = new Product
+            {
+                Id = ProductId, // PK usually shouldn't change, assuming Barcode is immutable for now
+                Name = ProductName,
+                Unit = ProductUnit,
+                Quantity = ProductQuantity,
+                MinQuantity = ProductMinQuantity,
+                CostPrice = ProductCostPrice,
+                SellingPrice = ProductSellingPrice,
+                Brand = SelectedBrandItem?.Id ?? "",
+                Type = SelectedTypeItem?.Id ?? "",
+                Status = SelectedStatusItem ?? ""
+            };
+            
+            bool success = await _databaseService.UpdateProductAsync(updatedProduct);
+            if (success)
+            {
+                await RefreshProductList();
+                Cancel();
+            }
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (SelectedProduct != null)
+        {
+            bool success = await _databaseService.DeleteProductAsync(SelectedProduct.Id);
+            if (success)
+            {
+                await RefreshProductList();
+                Cancel();
+            }
         }
     }
 

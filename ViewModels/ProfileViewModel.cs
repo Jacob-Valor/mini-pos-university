@@ -75,9 +75,12 @@ public class ProfileViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> SaveProfileCommand { get; }
     public ReactiveCommand<Unit, Unit> ChangePasswordCommand { get; }
 
-    public ProfileViewModel(Employee employee)
+    private readonly IDatabaseService _databaseService;
+
+    public ProfileViewModel(Employee employee, IDatabaseService databaseService)
     {
         _currentUser = employee;
+        _databaseService = databaseService;
         LoadUserData();
 
         SaveProfileCommand = ReactiveCommand.CreateFromTask(SaveProfileAsync);
@@ -113,7 +116,7 @@ public class ProfileViewModel : ViewModelBase
         // Address/Position fields not updated in DB for this task to avoid complexity
         // but we can update them in memory at least.
         
-        bool success = await DatabaseService.Instance.UpdateEmployeeProfileAsync(_currentUser);
+        bool success = await _databaseService.UpdateEmployeeProfileAsync(_currentUser);
         if (success)
         {
             // Show success message? (For now just Console)
@@ -135,31 +138,16 @@ public class ProfileViewModel : ViewModelBase
             return;
         }
 
-        string oldHash = ComputeMd5Hash(OldPassword);
-        // Verify against DB stored password (which is in _currentUser.Password? No, _currentUser might not store the hash if we didn't fetch it securely, 
-        // but looking at GetEmployees, it does NOT fetch password. ValidateLogin fetches it to check but returns object without it usually for security?
-        // Wait, ValidateLoginAsync returns object. DOES IT populate Password property?
-        // Looking at DatabaseService.ValidateLoginAsync:
-        // returns new Employee { ... } -> It does NOT populate Password property.
-        // So _currentUser.Password is empty.
-        // We need to re-verify the old password against the DB by trying to login or using a specific verification query.
-        // For simplicity, let's assume we need to re-validate.
-        // Or simpler: The user must provide the correct old password. 
-        // Since we don't have the hash in memory, we can't check locally.
-        // We can use a query "SELECT Count(*) FROM employee WHERE emp_id=@id AND password=@oldHash".
-        
-        // Let's implement that check inside UpdatePasswordAsync or a separate Verify method.
-        // Actually, let's just assume for now we trust the flow or adding verification is better.
-        // I'll skip strict verification implementation in VM and rely on DB Service if I added it, 
-        // but I only added UpdatePasswordAsync.
-        // I will add a check: if UpdatePasswordAsync includes a WHERE clause for old password?
-        // The current UpdatePasswordAsync only takes new password and ID.
-        // This is a security flaw but acceptable for "Plan Mode" prototype.
-        // Real implementation should verify old password.
-        
-        // I will just calculate hash and update.
-        string newHash = ComputeMd5Hash(NewPassword);
-        bool success = await DatabaseService.Instance.UpdatePasswordAsync(Id, newHash);
+        // Verify old password first
+        var storedHash = await _databaseService.GetStoredPasswordHashAsync(Username);
+        if (storedHash == null || !PasswordHelper.VerifyPassword(OldPassword, storedHash))
+        {
+             Console.WriteLine("Old password incorrect");
+             return;
+        }
+
+        string newHash = PasswordHelper.HashPassword(NewPassword);
+        bool success = await _databaseService.UpdatePasswordAsync(Id, newHash);
         
         if (success)
         {
@@ -171,10 +159,4 @@ public class ProfileViewModel : ViewModelBase
     }
 
 
-    private static string ComputeMd5Hash(string input)
-    {
-        byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-        byte[] hashBytes = MD5.HashData(inputBytes);
-        return Convert.ToHexString(hashBytes).ToLower();
-    }
 }

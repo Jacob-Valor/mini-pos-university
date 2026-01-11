@@ -3,7 +3,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
@@ -13,6 +15,8 @@ namespace mini_pos.ViewModels;
 /// </summary>
 public class CustomerViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+
     #region Private Fields
 
     private string _customerId = string.Empty;
@@ -114,8 +118,10 @@ public class CustomerViewModel : ViewModelBase
 
     #region Constructor
 
-    public CustomerViewModel()
+    public CustomerViewModel(IDatabaseService databaseService)
     {
+        _databaseService = databaseService;
+
         // Initialize commands with proper canExecute observables
         var canAdd = this.WhenAnyValue(x => x.Name)
                          .Select(name => !string.IsNullOrWhiteSpace(name));
@@ -123,47 +129,42 @@ public class CustomerViewModel : ViewModelBase
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedCustomer)
                                   .Select(customer => customer != null);
 
-        AddCommand = ReactiveCommand.Create(Add, canAdd);
-        EditCommand = ReactiveCommand.Create(Edit, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.Create(Delete, canEditOrDelete);
+        AddCommand = ReactiveCommand.CreateFromTask(AddAsync, canAdd);
+        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
+        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
         CancelCommand = ReactiveCommand.Create(ClearForm);
 
-        // Load mock data
-        LoadMockData();
-        GenerateNewId();
+        // Load data
+        _ = LoadDataAsync();
+    }
+
+    public CustomerViewModel() : this(null!)
+    {
+        // Design-time
     }
 
     #endregion
 
     #region Private Methods
 
-    private void LoadMockData()
+    private async Task LoadDataAsync()
     {
-        AllCustomers.Add(new Customer 
-        { 
-            Id = "CUS0000001", 
-            Name = "ສົມໃຈ", 
-            Surname = "ໃຈດີ", 
-            Gender = "ຊາຍ", 
-            PhoneNumber = "02055555555", 
-            Address = "ວຽງຈັນ" 
-        });
+        if (_databaseService == null) return;
         
-        AllCustomers.Add(new Customer 
-        { 
-            Id = "CUS0000002", 
-            Name = "ມະນີ", 
-            Surname = "ແກ້ວ", 
-            Gender = "ຍິງ", 
-            PhoneNumber = "02099999999", 
-            Address = "ປາກເຊ" 
-        });
-
+        AllCustomers.Clear();
+        var customers = await _databaseService.GetCustomersAsync();
+        foreach (var c in customers)
+        {
+            AllCustomers.Add(c);
+        }
         FilterCustomers();
+        GenerateNewId();
     }
 
     private void GenerateNewId()
     {
+        // In a real app, we might query MAX(id) from DB or use AutoIncrement
+        // For now, simple counting logic based on loaded list
         int count = AllCustomers.Count + 1;
         CustomerId = $"CUS{count:D7}";
     }
@@ -198,7 +199,7 @@ public class CustomerViewModel : ViewModelBase
         }
     }
 
-    private void Add()
+    private async Task AddAsync()
     {
         var newCustomer = new Customer
         {
@@ -210,41 +211,46 @@ public class CustomerViewModel : ViewModelBase
             Address = Address
         };
 
-        AllCustomers.Add(newCustomer);
-        FilterCustomers();
-        ClearForm();
-    }
-
-    private void Edit()
-    {
-        if (SelectedCustomer == null) return;
-
-        // Find and update the customer in the master list
-        var index = AllCustomers.IndexOf(SelectedCustomer);
-        if (index >= 0)
+        bool success = await _databaseService.AddCustomerAsync(newCustomer);
+        if (success)
         {
-            AllCustomers[index] = new Customer
-            {
-                Id = SelectedCustomer.Id,
-                Name = Name,
-                Surname = Surname,
-                Gender = Gender,
-                PhoneNumber = PhoneNumber,
-                Address = Address
-            };
+            await LoadDataAsync();
+            ClearForm();
         }
-
-        FilterCustomers();
-        ClearForm();
     }
 
-    private void Delete()
+    private async Task EditAsync()
     {
         if (SelectedCustomer == null) return;
 
-        AllCustomers.Remove(SelectedCustomer);
-        FilterCustomers();
-        ClearForm();
+        var updateCustomer = new Customer
+        {
+            Id = SelectedCustomer.Id,
+            Name = Name,
+            Surname = Surname,
+            Gender = Gender,
+            PhoneNumber = PhoneNumber,
+            Address = Address
+        };
+
+        bool success = await _databaseService.UpdateCustomerAsync(updateCustomer);
+        if (success)
+        {
+            await LoadDataAsync();
+            ClearForm();
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (SelectedCustomer == null) return;
+
+        bool success = await _databaseService.DeleteCustomerAsync(SelectedCustomer.Id);
+        if (success)
+        {
+            await LoadDataAsync();
+            ClearForm();
+        }
     }
 
     private void ClearForm()

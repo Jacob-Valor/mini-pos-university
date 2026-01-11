@@ -342,7 +342,7 @@ CREATE TABLE `employee` (
   `start_date` date NOT NULL,
   `picture` longblob DEFAULT NULL,
   `username` varchar(25) NOT NULL,
-  `password` varchar(32) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `status` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

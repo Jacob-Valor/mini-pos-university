@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 using Avalonia;
 using Avalonia.ReactiveUI;
@@ -30,6 +31,15 @@ sealed class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Handle unobserved task exceptions (often from DBus on Linux)
+        TaskScheduler.UnobservedTaskException += (sender, e) =>
+        {
+            if (e.Exception.InnerException is TaskCanceledException)
+            {
+                e.SetObserved();
+            }
+        };
+
         // Check for database test mode
         if (args.Length > 0 && args[0] == "--test-db")
         {

@@ -95,7 +95,7 @@ docker-compose logs -f
 mini_pos/
 ├── Assets/                 # Application resources (fonts, icons)
 ├── Converters/            # Value converters for data binding
-├── databases/             # Database schemas and initialization
+├── db/                    # Database schemas and initialization
 │   └── workshop.sql       # Database schema and sample data
 ├── Models/                # Data models (Employee, Product, etc.)
 ├── ViewModels/            # MVVM view models
@@ -136,7 +136,7 @@ See `.env.example` for all available configuration options:
 
 ### Initialize Database
 
-The database is automatically initialized with the schema from `databases/workshop.sql` when first started.
+The database is automatically initialized with the schema from `db/workshop.sql` when first started.
 
 ### Reset Database
 
@@ -238,7 +238,7 @@ xvfb-run -a dotnet run
 1. Ensure database container is running: `docker ps`
 2. Check database logs: `docker-compose logs mariadb`
 3. Verify connection string in `appsettings.json`
-4. Ensure database has been initialized (check `databases/workshop.sql` was loaded)
+4. Ensure database has been initialized (check `db/workshop.sql` was loaded)
 
 ### Docker build fails
 

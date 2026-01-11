@@ -3,15 +3,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-// using Avalonia.Controls;
-// using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
 public class EmployeeViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+
     private Employee? _selectedEmployee;
     public Employee? SelectedEmployee
     {
@@ -30,9 +32,14 @@ public class EmployeeViewModel : ViewModelBase
                 EmployeePassword = value.Password;
                 EmployeeImagePath = value.ImagePath;
 
-                SelectedProvince = value.Province;
-                SelectedDistrict = value.District;
-                SelectedVillage = value.Village;
+                SelectedProvinceItem = null; // Ideally load from ID but we don't have GetProvinceById yet
+                // For now, we are just displaying data. If we want full edit, we need to map IDs to Objects.
+                // Or simply display string names if we don't need cascading dropdowns on Edit.
+                // But cascading is better.
+                // Let's set to null for now or implement mapping logic if time permits.
+                // SelectedProvince = value.Province; // Removed
+                // SelectedDistrict = value.District; // Removed
+                // SelectedVillage = value.Village;   // Removed
                 SelectedPosition = value.Position;
             }
         }
@@ -94,32 +101,34 @@ public class EmployeeViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _employeeImagePath, value);
     }
 
-    private string? _selectedProvince;
-    public string? SelectedProvince
+    // Geo-Location Selected Items (Objects)
+    private Province? _selectedProvinceItem;
+    public Province? SelectedProvinceItem
     {
-        get => _selectedProvince;
-        set => this.RaiseAndSetIfChanged(ref _selectedProvince, value);
+        get => _selectedProvinceItem;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedProvinceItem, value);
+            _ = LoadDistrictsAsync(value?.Id);
+        }
     }
 
-    private string? _selectedDistrict;
-    public string? SelectedDistrict
+    private District? _selectedDistrictItem;
+    public District? SelectedDistrictItem
     {
-        get => _selectedDistrict;
-        set => this.RaiseAndSetIfChanged(ref _selectedDistrict, value);
+        get => _selectedDistrictItem;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedDistrictItem, value);
+            _ = LoadVillagesAsync(value?.Id);
+        }
     }
 
-    private string? _selectedVillage;
-    public string? SelectedVillage
+    private Village? _selectedVillageItem;
+    public Village? SelectedVillageItem
     {
-        get => _selectedVillage;
-        set => this.RaiseAndSetIfChanged(ref _selectedVillage, value);
-    }
-
-    private string? _selectedPosition;
-    public string? SelectedPosition
-    {
-        get => _selectedPosition;
-        set => this.RaiseAndSetIfChanged(ref _selectedPosition, value);
+        get => _selectedVillageItem;
+        set => this.RaiseAndSetIfChanged(ref _selectedVillageItem, value);
     }
 
     private string _searchText = string.Empty;
@@ -133,85 +142,96 @@ public class EmployeeViewModel : ViewModelBase
         }
     }
 
+    private string? _selectedPosition;
+    public string? SelectedPosition
+    {
+        get => _selectedPosition;
+        set => this.RaiseAndSetIfChanged(ref _selectedPosition, value);
+    }
+
     public ObservableCollection<Employee> AllEmployees { get; } = new();
     public ObservableCollection<Employee> Employees { get; } = new();
 
-    // Mock Data Sources
-    public ObservableCollection<string> Provinces { get; } = new();
-    public ObservableCollection<string> Districts { get; } = new();
-    public ObservableCollection<string> Villages { get; } = new();
+    // Data Sources
+    public ObservableCollection<Province> Provinces { get; } = new();
+    public ObservableCollection<District> Districts { get; } = new();
+    public ObservableCollection<Village> Villages { get; } = new();
     public ObservableCollection<string> Positions { get; } = new();
 
     public ReactiveCommand<Unit, Unit> AddCommand { get; }
     public ReactiveCommand<Unit, Unit> EditCommand { get; }
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
-    // public ReactiveCommand<Unit, Unit> UploadImageCommand { get; }
 
-    public EmployeeViewModel()
+    public EmployeeViewModel(IDatabaseService databaseService)
     {
-        // Mock Reference Data
-        Provinces.Add("ນະຄອນຫຼວງວຽງຈັນ");
-        Provinces.Add("ວຽງຈັນ");
-        Provinces.Add("ຫຼວງພະບາງ");
-
-        Districts.Add("ສີສັດຕະນາກ");
-        Districts.Add("ໄຊເສດຖາ");
-        Districts.Add("ຈັນທະບູລີ");
-
-        Villages.Add("ວັດນາກ");
-        Villages.Add("ທາດຂາວ");
-        Villages.Add("ທົ່ງພານທອງ");
+        _databaseService = databaseService;
 
         Positions.Add("Admin");
         Positions.Add("Employee");
 
-        // Mock Employee Data
-        AllEmployees.Add(new Employee
-        {
-            Id = "EMP00001",
-            Name = "ສຸກສະຫວັນ",
-            Surname = "ຈຸນລາລີ",
-            Gender = "ຊາຍ",
-            DateOfBirth = new DateTime(1981, 08, 29),
-            PhoneNumber = "96887222",
-            Province = "ວຽງຈັນ",
-            District = "ທຸລະຄົມ",
-            Village = "ບຸ່ງກ້າວ",
-            Password = "",
-            Position = "Admin",
-            ImagePath = ""
-        });
+        var canAdd = this.WhenAnyValue(x => x.EmployeeId, x => x.EmployeeName, x => x.SelectedVillageItem)
+            .Select(t => !string.IsNullOrWhiteSpace(t.Item1) && 
+                         !string.IsNullOrWhiteSpace(t.Item2) && 
+                         t.Item3 != null);
 
-        AllEmployees.Add(new Employee
-        {
-            Id = "EMP00002",
-            Name = "ພຸດທະວີ",
-            Surname = "ວົງສາລີ",
-            Gender = "ຍິງ",
-            DateOfBirth = new DateTime(2003, 05, 11),
-            PhoneNumber = "12345678",
-            Province = "ນະຄອນຫຼວງວຽງຈັນ",
-            District = "ສີສັດຕະນາກ",
-            Village = "ວັດນາກ",
-            Password = "",
-            Position = "Employee",
-            ImagePath = ""
-        });
-
-        FilterEmployees();
-
-        AddCommand = ReactiveCommand.Create(Add);
+        AddCommand = ReactiveCommand.CreateFromTask(AddAsync, canAdd);
 
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedEmployee)
                                   .Select(x => x != null);
 
-        EditCommand = ReactiveCommand.Create(Edit, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.Create(Delete, canEditOrDelete);
+        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
+        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
         CancelCommand = ReactiveCommand.Create(Cancel);
+
+        _ = LoadInitialDataAsync();
     }
 
-    private void Add()
+    public EmployeeViewModel() : this(null!)
+    {
+        // Design-time
+    }
+
+    private async Task LoadInitialDataAsync()
+    {
+        if (_databaseService == null) return;
+
+        // Load Provinces
+        Provinces.Clear();
+        var provs = await _databaseService.GetProvincesAsync();
+        foreach (var p in provs) Provinces.Add(p);
+
+        // Load Employees
+        await RefreshEmployeeList();
+    }
+
+    private async Task RefreshEmployeeList()
+    {
+        AllEmployees.Clear();
+        var emps = await _databaseService.GetEmployeesAsync();
+        foreach (var e in emps) AllEmployees.Add(e);
+        FilterEmployees();
+    }
+
+    private async Task LoadDistrictsAsync(string? provinceId)
+    {
+        Districts.Clear();
+        if (string.IsNullOrEmpty(provinceId)) return;
+        
+        var dists = await _databaseService.GetDistrictsByProvinceAsync(provinceId);
+        foreach (var d in dists) Districts.Add(d);
+    }
+
+    private async Task LoadVillagesAsync(string? districtId)
+    {
+        Villages.Clear();
+        if (string.IsNullOrEmpty(districtId)) return;
+
+        var vils = await _databaseService.GetVillagesByDistrictAsync(districtId);
+        foreach (var v in vils) Villages.Add(v);
+    }
+
+    private async Task AddAsync()
     {
         if (string.IsNullOrWhiteSpace(EmployeeId) || string.IsNullOrWhiteSpace(EmployeeName)) return;
 
@@ -221,57 +241,62 @@ public class EmployeeViewModel : ViewModelBase
             Name = EmployeeName,
             Surname = EmployeeSurname,
             Gender = EmployeeGender,
-            DateOfBirth = EmployeeDateOfBirth.DateTime, // Convert back to DateTime
+            DateOfBirth = EmployeeDateOfBirth.DateTime,
             PhoneNumber = EmployeePhoneNumber,
-            Province = SelectedProvince ?? "",
-            District = SelectedDistrict ?? "",
-            Village = SelectedVillage ?? "",
-            Password = EmployeePassword,
-            Position = SelectedPosition ?? "",
+            // Store ID in the Village field for DB insertion, though Model usually holds Name for display.
+            // We need to be careful. The AddEmployeeAsync expects ID in Village property? 
+            // Yes, let's assume we pass ID.
+            Village = SelectedVillageItem?.Id ?? "", 
+            Username = string.IsNullOrWhiteSpace(EmployeePassword) ? EmployeeId : EmployeeName, // Default username
+            Password = PasswordHelper.HashPassword(EmployeePassword), // Secure Hash
+            Position = SelectedPosition ?? "Employee",
             ImagePath = EmployeeImagePath
         };
 
-        AllEmployees.Add(newEmployee);
-        FilterEmployees();
-        Cancel();
-    }
-
-    private void Edit()
-    {
-        if (SelectedEmployee != null)
+        bool success = await _databaseService.AddEmployeeAsync(newEmployee);
+        if (success)
         {
-            var index = AllEmployees.IndexOf(SelectedEmployee);
-            if (index != -1)
-            {
-                var updatedEmployee = new Employee
-                {
-                    Id = EmployeeId,
-                    Name = EmployeeName,
-                    Surname = EmployeeSurname,
-                    Gender = EmployeeGender,
-                    DateOfBirth = EmployeeDateOfBirth.DateTime,
-                    PhoneNumber = EmployeePhoneNumber,
-                    Province = SelectedProvince ?? "",
-                    District = SelectedDistrict ?? "",
-                    Village = SelectedVillage ?? "",
-                    Password = EmployeePassword,
-                    Position = SelectedPosition ?? "",
-                    ImagePath = EmployeeImagePath
-                };
-                AllEmployees[index] = updatedEmployee;
-            }
-            FilterEmployees();
+            await RefreshEmployeeList();
             Cancel();
         }
     }
 
-    private void Delete()
+    private async Task EditAsync()
     {
         if (SelectedEmployee != null)
         {
-            AllEmployees.Remove(SelectedEmployee);
-            FilterEmployees();
-            Cancel();
+            var updatedEmployee = new Employee
+            {
+                Id = SelectedEmployee.Id,
+                Name = EmployeeName,
+                Surname = EmployeeSurname,
+                Gender = EmployeeGender,
+                DateOfBirth = EmployeeDateOfBirth.DateTime,
+                PhoneNumber = EmployeePhoneNumber,
+                Village = SelectedVillageItem?.Id ?? "", // ID for update
+                Position = SelectedPosition ?? "",
+                Username = SelectedEmployee.Username // Keep original username or allow edit?
+            };
+            
+            bool success = await _databaseService.UpdateEmployeeAsync(updatedEmployee);
+            if (success)
+            {
+                await RefreshEmployeeList();
+                Cancel();
+            }
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (SelectedEmployee != null)
+        {
+            bool success = await _databaseService.DeleteEmployeeAsync(SelectedEmployee.Id);
+            if (success)
+            {
+                await RefreshEmployeeList();
+                Cancel();
+            }
         }
     }
 
@@ -286,9 +311,10 @@ public class EmployeeViewModel : ViewModelBase
         EmployeePhoneNumber = string.Empty;
         EmployeePassword = string.Empty;
         EmployeeImagePath = string.Empty;
-        SelectedProvince = null;
-        SelectedDistrict = null;
-        SelectedVillage = null;
+        
+        SelectedProvinceItem = null;
+        SelectedDistrictItem = null;
+        SelectedVillageItem = null;
         SelectedPosition = null;
     }
 

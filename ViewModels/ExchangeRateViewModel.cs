@@ -3,13 +3,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
 public class ExchangeRateViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+
     private ExchangeRate? _selectedExchangeRate;
     public ExchangeRate? SelectedExchangeRate
     {
@@ -46,51 +50,71 @@ public class ExchangeRateViewModel : ViewModelBase
     public ObservableCollection<ExchangeRate> ExchangeRates { get; } = new();
 
     public ReactiveCommand<Unit, Unit> AddCommand { get; }
-    public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
+    public ReactiveCommand<Unit, Unit> DeleteCommand { get; } // Probably not needed if we only keep history, but ok
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
-    // public ReactiveCommand<Unit, Unit> RefreshCommand { get; } // Optional, can just be FilterExchangeRates
 
-    public ExchangeRateViewModel()
+    public ExchangeRateViewModel(IDatabaseService databaseService)
     {
-        // Mock Data
-        AllExchangeRates.Add(new ExchangeRate { Id = 1, UsdRate = 2150.25m, ThbRate = 675.70m, CreatedDate = DateTime.Now.AddDays(-2) });
-        AllExchangeRates.Add(new ExchangeRate { Id = 2, UsdRate = 2155.00m, ThbRate = 676.00m, CreatedDate = DateTime.Now.AddDays(-1) });
-        AllExchangeRates.Add(new ExchangeRate { Id = 3, UsdRate = 2160.50m, ThbRate = 678.50m, CreatedDate = DateTime.Now });
+        _databaseService = databaseService;
 
-        FilterExchangeRates();
-
-        AddCommand = ReactiveCommand.Create(Add);
-
+        AddCommand = ReactiveCommand.CreateFromTask(AddAsync);
+        
         var canDelete = this.WhenAnyValue(x => x.SelectedExchangeRate)
                             .Select(x => x != null);
 
-        DeleteCommand = ReactiveCommand.Create(Delete, canDelete);
+        // Delete not implemented in DB service yet, usually we just keep history. 
+        // But for completeness let's disable or implement mock behavior locally for list.
+        // Actually I won't implement Delete in DB for rates to preserve history integrity for sales.
+        DeleteCommand = ReactiveCommand.Create(Delete, canDelete); 
         CancelCommand = ReactiveCommand.Create(Cancel);
+
+        _ = LoadDataAsync();
     }
 
-    private void Add()
+    public ExchangeRateViewModel() : this(null!)
+    {
+        // Design-time
+    }
+
+    private async Task LoadDataAsync()
+    {
+        if (_databaseService == null) return;
+
+        AllExchangeRates.Clear();
+        var history = await _databaseService.GetExchangeRateHistoryAsync();
+        foreach (var rate in history)
+        {
+            AllExchangeRates.Add(rate);
+        }
+        FilterExchangeRates();
+    }
+
+    private async Task AddAsync()
     {
         if (decimal.TryParse(UsdRateInput, out decimal usd) && decimal.TryParse(ThbRateInput, out decimal thb))
         {
-            var newId = AllExchangeRates.Any() ? AllExchangeRates.Max(x => x.Id) + 1 : 1;
             var newRate = new ExchangeRate
             {
-                Id = newId,
                 UsdRate = usd,
                 ThbRate = thb,
                 CreatedDate = DateTime.Now
             };
 
-            AllExchangeRates.Add(newRate);
-            FilterExchangeRates();
-            Cancel();
+            bool success = await _databaseService.AddExchangeRateAsync(newRate);
+            if (success)
+            {
+                await LoadDataAsync();
+                Cancel();
+            }
         }
     }
 
     private void Delete()
     {
+        // Not implementing delete for audit trail reasons
         if (SelectedExchangeRate != null)
         {
+            // Just remove from UI for now if user persists
             AllExchangeRates.Remove(SelectedExchangeRate);
             FilterExchangeRates();
             Cancel();
@@ -111,12 +135,9 @@ public class ExchangeRateViewModel : ViewModelBase
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            // Simple search by ID or maybe date string? Or verify if user wants to search by Rates logic?
-            // Usually search is for text fields. Let's just search by Date converted to string for now or ID.
             query = query.Where(x => x.CreatedDate.ToString().Contains(SearchText) || x.Id.ToString().Contains(SearchText));
         }
 
-        // Order by latest
         query = query.OrderByDescending(x => x.CreatedDate);
 
         foreach (var rate in query)

@@ -3,12 +3,19 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
+using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
 public class SalesViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+    private readonly Employee _currentEmployee;
+    private ExchangeRate? _currentExchangeRate;
+
     private const decimal DefaultDollarRate = 23000m;
     private const decimal DefaultBahtRate = 626m;
 
@@ -154,8 +161,11 @@ public class SalesViewModel : ViewModelBase
     // Events
     public event Action<ReceiptViewModel>? ShowReceiptRequested;
 
-    public SalesViewModel()
+    public SalesViewModel(Employee employee, IDatabaseService databaseService)
     {
+        _currentEmployee = employee;
+        _databaseService = databaseService;
+
         var canAddProduct = this.WhenAnyValue(
             x => x.ProductName,
             x => x.Quantity,
@@ -178,9 +188,26 @@ public class SalesViewModel : ViewModelBase
         PaymentCommand = ReactiveCommand.Create(Payment, canClearCart);
 
         CartItems.CollectionChanged += (s, e) => UpdateTotals();
+        
+        // Load exchange rate on startup
+        _ = LoadExchangeRateAsync();
+    }
+
+    private async Task LoadExchangeRateAsync()
+    {
+        if (_databaseService != null)
+        {
+            _currentExchangeRate = await _databaseService.GetLatestExchangeRateAsync();
+            if (_currentExchangeRate != null)
+            {
+                ExchangeRateDollar = _currentExchangeRate.UsdRate;
+                ExchangeRateBaht = _currentExchangeRate.ThbRate;
+            }
+        }
     }
 
     private void SearchCustomer()
+
     {
         // TODO: Implement customer search logic
         // For now, auto-generate customer code when name is entered
@@ -241,11 +268,55 @@ public class SalesViewModel : ViewModelBase
         MoneyReceived = 0;
     }
 
+    private async Task SaveSaleAsync()
+    {
+        if (CartItems.Count == 0) return;
+
+        // Ensure we have exchange rate
+        if (_currentExchangeRate == null)
+        {
+            _currentExchangeRate = await _databaseService.GetLatestExchangeRateAsync();
+        }
+
+        // Prepare Sale Model
+        var sale = new Sale
+        {
+            ExchangeRateId = _currentExchangeRate?.Id ?? 0, // Should handle if null, but schema might require it.
+            CustomerId = string.IsNullOrWhiteSpace(CustomerCode) ? "CUS0000001" : CustomerCode, // Default generic customer if empty
+            EmployeeId = _currentEmployee.Id,
+            DateSale = DateTime.Now,
+            SubTotal = TotalAmount,
+            Pay = MoneyReceived,
+            Change = Change
+        };
+
+        // Prepare Details
+        var details = CartItems.Select(item => new SaleDetail
+        {
+            ProductId = item.Barcode,
+            Quantity = item.Quantity,
+            Price = item.UnitPrice,
+            Total = item.TotalPrice
+        }).ToList();
+
+        // Save to DB
+        bool success = await _databaseService.CreateSaleAsync(sale, details);
+
+        if (success)
+        {
+            Console.WriteLine("Sale saved successfully!");
+            ClearAll();
+        }
+        else
+        {
+            Console.Error.WriteLine("Failed to save sale.");
+            // Ideally show error dialog
+        }
+    }
+
     private void SaveSale()
     {
-        // TODO: Implement save to database logic
-        // For now, just clear after save
-        ClearAll();
+        _ = SaveSaleAsync();
     }
 
     private void Payment()
