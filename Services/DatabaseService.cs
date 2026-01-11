@@ -127,7 +127,8 @@ public class DatabaseService
                     Gender = reader.GetString("gender"),
                     DateOfBirth = reader.GetDateTime("date_of_b"),
                     PhoneNumber = reader.GetString("tel"),
-                    Position = reader.GetString("status")
+                    Position = reader.GetString("status"),
+                    Username = reader.GetString("username")
                 };
             }
             return null;
@@ -175,7 +176,8 @@ public class DatabaseService
                     Village = reader.IsDBNull("village_name") ? "" : reader.GetString("village_name"),
                     District = reader.IsDBNull("district_name") ? "" : reader.GetString("district_name"),
                     Province = reader.IsDBNull("province_name") ? "" : reader.GetString("province_name"),
-                    Position = reader.GetString("status")
+                    Position = reader.GetString("status"),
+                    Username = reader.GetString("username")
                 });
             }
         }
@@ -427,6 +429,74 @@ public class DatabaseService
         {
             Console.Error.WriteLine($"Error executing scalar query: {ex.Message}");
             return default;
+        }
+    }
+
+    #endregion
+
+    #region Profile Operations
+
+    /// <summary>
+    /// Updates employee profile information.
+    /// </summary>
+    public async Task<bool> UpdateEmployeeProfileAsync(Employee emp)
+    {
+        try
+        {
+            await using var connection = await GetConnectionAsync();
+            const string query = @"
+                UPDATE employee 
+                SET emp_name = @name, 
+                    emp_lname = @surname, 
+                    gender = @gender, 
+                    date_of_b = @dob, 
+                    tel = @tel,
+                    username = @username
+                WHERE emp_id = @id";
+
+            // Note: Not updating address (village_id) or picture/status here to simplify, 
+            // as we need IDs for address and logic for picture blob.
+
+            await using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@name", emp.Name);
+            command.Parameters.AddWithValue("@surname", emp.Surname);
+            command.Parameters.AddWithValue("@gender", emp.Gender);
+            command.Parameters.AddWithValue("@dob", emp.DateOfBirth);
+            command.Parameters.AddWithValue("@tel", emp.PhoneNumber);
+            command.Parameters.AddWithValue("@username", emp.Username);
+            command.Parameters.AddWithValue("@id", emp.Id);
+
+            int rows = await command.ExecuteNonQueryAsync();
+            return rows > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating profile: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates employee password.
+    /// </summary>
+    public async Task<bool> UpdatePasswordAsync(string empId, string newPasswordHash)
+    {
+        try
+        {
+            await using var connection = await GetConnectionAsync();
+            const string query = "UPDATE employee SET password = @pwd WHERE emp_id = @id";
+
+            await using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@pwd", newPasswordHash);
+            command.Parameters.AddWithValue("@id", empId);
+
+            int rows = await command.ExecuteNonQueryAsync();
+            return rows > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating password: {ex.Message}");
+            return false;
         }
     }
 

@@ -1,0 +1,166 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:mini_pos.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+             x:Class="mini_pos.Views.ProfileView"
+             x:DataType="vm:ProfileViewModel"
+             FontFamily="{StaticResource LaoFont}">
+
+    <UserControl.Styles>
+        <Style Selector="TextBox.form">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="ComboBox.form">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
+        </Style>
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#009688"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover">
+            <Setter Property="Background" Value="#00796B"/>
+        </Style>
+        <Style Selector="Button.warning">
+            <Setter Property="Background" Value="#FFA000"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="15,6"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="2*, 1*" Margin="20" Background="{DynamicResource BackgroundColor}">
+
+        <!-- Left Column: Profile Details -->
+        <Border Grid.Column="0" Margin="0,0,20,0"
+                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="4"
+                Background="{DynamicResource SurfaceColor}" Padding="20">
+            <Grid RowDefinitions="Auto, *">
+                <TextBlock Grid.Row="0" Text="ລາຍລະອຽດບັນຊີເຂົ້າໃຊ້" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
+                    <!-- Image Section -->
+                    <StackPanel Grid.Column="0" Margin="0,0,30,0" Width="150">
+                        <Border Width="140" Height="160" Background="#ECEFF1" CornerRadius="4" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Margin="0,0,0,10">
+                            <!-- Image Placeholder or Binding -->
+                            <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathToBitmapConverter}}" Stretch="UniformToFill"/>
+                        </Border>
+                        <Button Classes="warning" Content="ເລືອກຮູບ" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="SelectImage_Click"/>
+                    </StackPanel>
+
+                    <!-- Form Section -->
+                    <Grid Grid.Column="1" ColumnDefinitions="*, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+
+                        <!-- Row 1 -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Classes="label" Text="ລະຫັດພະນັກງານ"/>
+                            <TextBox Classes="form" Text="{Binding Id}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="15,0,0,0">
+                            <TextBlock Classes="label" Text="ວັນ, ເດືອນ, ປີເກີດ"/>
+                            <DatePicker SelectedDate="{Binding DateOfBirth}" HorizontalAlignment="Stretch" Margin="0,0,0,15"/>
+                        </StackPanel>
+
+                        <!-- Row 2 -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Classes="label" Text="ບັນຊີເຂົ້າໃຊ້"/>
+                            <TextBox Classes="form" Text="{Binding Username}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="15,0,0,0">
+                            <TextBlock Classes="label" Text="ມື້ເຂົ້າການ"/>
+                            <DatePicker SelectedDate="{Binding StartDate}" HorizontalAlignment="Stretch" Margin="0,0,0,15"/>
+                        </StackPanel>
+
+                        <!-- Row 3 -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Classes="label" Text="ຊື່ພະນັກງານ"/>
+                            <TextBox Classes="form" Text="{Binding Name}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="15,0,0,0">
+                            <TextBlock Classes="label" Text="ແຂວງ"/>
+                            <ComboBox Classes="form" ItemsSource="{Binding Provinces}" SelectedItem="{Binding Province}"/>
+                        </StackPanel>
+
+                        <!-- Row 4 -->
+                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Classes="label" Text="ນາມສະກຸນ"/>
+                            <TextBox Classes="form" Text="{Binding Surname}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Grid.Column="1" Margin="15,0,0,0">
+                            <TextBlock Classes="label" Text="ເມືອງ"/>
+                            <ComboBox Classes="form" ItemsSource="{Binding Districts}" SelectedItem="{Binding District}"/>
+                        </StackPanel>
+
+                        <!-- Row 5 -->
+                        <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Classes="label" Text="ເພດ"/>
+                            <StackPanel Orientation="Horizontal" Spacing="20" Margin="0,5,0,15">
+                                <RadioButton Content="ຊາຍ" GroupName="Gender" IsChecked="{Binding Gender, Converter={StaticResource StringToBoolConverter}, ConverterParameter=ຊາຍ}"/>
+                                <RadioButton Content="ຍິງ" GroupName="Gender" IsChecked="{Binding Gender, Converter={StaticResource StringToBoolConverter}, ConverterParameter=ຍິງ}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Row="4" Grid.Column="1" Margin="15,0,0,0">
+                            <TextBlock Classes="label" Text="ບ້ານ"/>
+                            <ComboBox Classes="form" ItemsSource="{Binding Villages}" SelectedItem="{Binding Village}"/>
+                        </StackPanel>
+
+                        <!-- Row 6 -->
+                        <StackPanel Grid.Row="5" Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Classes="label" Text="ສະຖານະ"/>
+                            <TextBox Classes="form" Text="{Binding Position}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="5" Grid.Column="1" Margin="15,0,0,0">
+                            <TextBlock Classes="label" Text="ເບີໂທລະສັບ"/>
+                            <TextBox Classes="form" Text="{Binding PhoneNumber}"/>
+                        </StackPanel>
+
+                        <!-- Save Button -->
+                        <Button Grid.Row="6" Grid.ColumnSpan="2" Classes="primary" Content="ບັນທຶກ ແກ້ໄຂ" HorizontalAlignment="Left" Margin="0,10,0,0" Command="{Binding SaveProfileCommand}"/>
+
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Right Column: Change Password -->
+        <Border Grid.Column="1" Margin="20,0,0,0" Height="380" VerticalAlignment="Top"
+                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="4"
+                Background="{DynamicResource SurfaceColor}" Padding="20">
+            <StackPanel>
+                <TextBlock Text="ປ່ຽນລະຫັດຜ່ານ" FontSize="18" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                <TextBlock Classes="label" Text="ລະຫັດຜ່ານເກົ່າ"/>
+                <TextBox Classes="form" Text="{Binding OldPassword}" PasswordChar="•" RevealPassword="True"/>
+
+                <TextBlock Classes="label" Text="ລະຫັດຜ່ານໃໝ່"/>
+                <TextBox Classes="form" Text="{Binding NewPassword}" PasswordChar="•" RevealPassword="True"/>
+
+                <TextBlock Classes="label" Text="ຢືນຢັນລະຫັດຜ່ານ"/>
+                <TextBox Classes="form" Text="{Binding ConfirmPassword}" PasswordChar="•" RevealPassword="True"/>
+
+                <Button Classes="primary" Content="ບັນທຶກ ແກ້ໄຂ" HorizontalAlignment="Left" Margin="0,10,0,0" Command="{Binding ChangePasswordCommand}"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>

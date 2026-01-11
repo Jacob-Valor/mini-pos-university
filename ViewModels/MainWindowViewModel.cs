@@ -18,9 +18,11 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> ReportsCommand { get; }
     public ReactiveCommand<Unit, Unit> ProfileCommand { get; }
     public ReactiveCommand<Unit, Unit> SettingsCommand { get; }
-public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
+    public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
 
     public event EventHandler? LogoutRequested;
+
+    private Employee? _loggedInEmployee;
 
     private string _currentUser = string.Empty;
     public string CurrentUser
@@ -44,25 +46,16 @@ public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToProductCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToEmployeeCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToExchangeRateCommand { get; }
-public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
 
     public MainWindowViewModel(Employee? employee = null)
     {
         // Set the current user from the logged-in employee
         if (employee != null)
         {
+            _loggedInEmployee = employee;
             CurrentUser = $"{employee.Name} {employee.Surname}";
         }
-
-        // Default to Home (or just empty for now, or keep the greeting logic separate?
-        // For simplicity, let's make a simple HomeViewModel later or just use null to show the default greeting if we keep it,
-        // but replacing the main content means we probably want a HomeViewModel.
-        // For this task, I'll just initialize it to something empty or null and handle null in View?
-        // Actually, to keep the Greeting, I might want to NOT replace everything, or move the Greeting to a HomeViewModel.
-        // Let's create a placeholder for Home, but for now I'll just focus on Brand.
-        // To avoid breaking the current "Greeting" display, we can make the View use a converter or triggers,
-        // but simpler is to just have the Greeting be the default "Home" view logic.
-        // I will make CurrentPage null by default, and if null, the View shows the Greeting.
 
         HomeCommand = ReactiveCommand.Create(() => { CurrentPage = null; });
         ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
@@ -71,7 +64,19 @@ public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
         SaleCommand = ReactiveCommand.Create(() => { CurrentPage = new SalesViewModel(); });
         SearchCommand = ReactiveCommand.Create(() => Console.WriteLine("Search clicked"));
         ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
-        ProfileCommand = ReactiveCommand.Create(() => Console.WriteLine("Profile clicked"));
+        
+        ProfileCommand = ReactiveCommand.Create(() => 
+        { 
+            if (_loggedInEmployee != null)
+            {
+                CurrentPage = new ProfileViewModel(_loggedInEmployee); 
+            }
+            else
+            {
+                Console.WriteLine("No logged in employee to show profile for.");
+            }
+        });
+
         SettingsCommand = ReactiveCommand.Create(() => Console.WriteLine("Settings clicked"));
         LogoutCommand = ReactiveCommand.Create(() =>
         {
