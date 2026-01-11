@@ -7,7 +7,7 @@
 
 A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featuring a MariaDB database backend. The application is designed for desktop deployment with Docker support for the database layer.
 
-## Features
+## ✨ Features
 
 - 🛒 **Product Management** - Manage inventory, categories, and brands
 - 👥 **Employee Management** - Track staff information and credentials
@@ -17,38 +17,38 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 - 🐳 **Docker Support** - Containerized database deployment
 - 🌏 **Localization** - Support for Lao language (lo-LA)
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: Avalonia UI 11.3.9 (Cross-platform .NET XAML framework)
-- **Backend**: .NET 10.0
-- **Database**: Maria DB 10.11
-- **ORM**: ADO.NET with MySqlConnector
-- **MVVM**: CommunityToolkit.Mvvm
-- **Containerization**: Docker & Docker Compose
+- 🖥️ **Frontend**: Avalonia UI 11.3.9 (Cross-platform .NET XAML framework)
+- 🔙 **Backend**: .NET 10.0
+- 🗄️ **Database**: Maria DB 10.11
+- 🔌 **ORM**: ADO.NET with MySqlConnector
+- 🏗️ **MVVM**: CommunityToolkit.Mvvm
+- 📦 **Containerization**: Docker & Docker Compose
 
-## Prerequisites
+## 📋 Prerequisites
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/) (for database)
-- Linux/macOS/Windows with GUI support
+- 📦 [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- 🐳 [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/) (for database)
+- 🖥️ Linux/macOS/Windows with GUI support
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Clone the Repository
+### 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/your-repo/mini_pos.git
 cd mini_pos
 ```
 
-### 2. Setup Environment Variables
+### 2️⃣ Setup Environment Variables
 
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
-### 3. Start the Database
+### 3️⃣ Start the Database
 
 ```bash
 # Start MariaDB with Docker Compose
@@ -58,7 +58,7 @@ docker-compose up mariadb -d
 docker-compose logs -f mariadb
 ```
 
-### 4. Run the Application
+### 4️⃣ Run the Application
 
 ```bash
 # Restore dependencies and run
@@ -68,16 +68,16 @@ dotnet run
 
 Alternatively, use your IDE (Visual Studio, Rider, VS Code) to build and run the project.
 
-## Docker Deployment
+## 🐳 Docker Deployment
 
-### Database Only (Recommended for Development)
+### 🗄️ Database Only (Recommended for Development)
 
 ```bash
 # Start only the database service
 docker-compose up mariadb -d
 ```
 
-### Full Stack (Requires X11 Forwarding)
+### 🚀 Full Stack (Requires X11 Forwarding)
 
 ```bash
 # Build and start all services
@@ -89,7 +89,7 @@ docker-compose logs -f
 
 **Note**: Running GUI applications in Docker requires additional setup. See [Docker GUI Configuration](#docker-gui-configuration) below.
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 mini_pos/
@@ -108,9 +108,9 @@ mini_pos/
 └── mini_pos.csproj       # Project file
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-### Database Connection
+### 🔌 Database Connection
 
 Edit `appsettings.json` or set environment variables:
 
@@ -122,7 +122,7 @@ Edit `appsettings.json` or set environment variables:
 }
 ```
 
-### Environment Variables
+### 📝 Environment Variables
 
 See `.env.example` for all available configuration options:
 
@@ -132,13 +132,13 @@ See `.env.example` for all available configuration options:
 - `DB_USER` - Database username
 - `DB_PASSWORD` - Database password
 
-## Database Management
+## 🗃️ Database Management
 
-### Initialize Database
+### 🆕 Initialize Database
 
 The database is automatically initialized with the schema from `db/workshop.sql` when first started.
 
-### Reset Database
+### 🔄 Reset Database
 
 ```bash
 # WARNING: This will delete all data!
@@ -146,7 +146,7 @@ docker-compose down -v
 docker-compose up mariadb -d
 ```
 
-### Access Database
+### 🔍 Access Database
 
 ```bash
 # Using docker exec
@@ -156,11 +156,11 @@ docker exec -it mini_pos_db mysql -u root -p mini_pos
 # Host: localhost, Port: 3306, Database: mini_pos
 ```
 
-## Docker GUI Configuration
+## 🖥️ Docker GUI Configuration
 
 Running the Avalonia UI application in Docker requires X11 forwarding:
 
-### Linux (X11)
+### 🐧 Linux (X11)
 
 ```bash
 # Allow local connections
@@ -173,7 +173,7 @@ xhost +local:docker
 #   - DISPLAY=$DISPLAY
 ```
 
-### Alternative: Local Development
+### 💻 Alternative: Local Development
 
 For the best development experience, run the database in Docker and the application locally:
 
@@ -185,9 +185,9 @@ docker-compose up mariadb -d
 dotnet run
 ```
 
-## Development
+## 💻 Development
 
-### Building
+### 🔨 Building
 
 ```bash
 # Debug build
@@ -197,7 +197,7 @@ dotnet build
 dotnet build -c Release
 ```
 
-### Running
+### ▶️ Running
 
 ```bash
 # Development mode
@@ -207,15 +207,15 @@ dotnet run
 dotnet watch run
 ```
 
-### Adding NuGet Packages
+### 📦 Adding NuGet Packages
 
 ```bash
 dotnet add package PackageName
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-### Application won't start on Linux
+### ❌ Application won't start on Linux
 
 **Issue**: "No graphical session detected"
 
@@ -230,7 +230,7 @@ Alternatively, use `xvfb` for headless environments:
 xvfb-run -a dotnet run
 ```
 
-### Database connection failed
+### 🔌 Database connection failed
 
 **Issue**: Cannot connect to MariaDB
 
@@ -240,7 +240,7 @@ xvfb-run -a dotnet run
 3. Verify connection string in `appsettings.json`
 4. Ensure database has been initialized (check `db/workshop.sql` was loaded)
 
-### Docker build fails
+### 🏗️ Docker build fails
 
 **Issue**: Build errors during `docker build`
 
@@ -249,7 +249,7 @@ xvfb-run -a dotnet run
 2. Rebuild without cache: `docker-compose build --no-cache`
 3. Check Docker has enough disk space
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -257,17 +257,17 @@ xvfb-run -a dotnet run
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - Built with [Avalonia UI](https://avaloniaui.net/)
 - Database: [MariaDB](https://mariadb.org/)
 - Icons and fonts: Various open-source resources
 
-## Support
+## 💬 Support
 
 For issues, questions, or contributions, please open an issue on the GitHub repository.
 
