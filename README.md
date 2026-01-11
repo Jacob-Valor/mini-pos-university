@@ -1,4 +1,4 @@
-# Mini POS System
+# 🏪 Mini POS System
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![Avalonia UI](https://img.shields.io/badge/Avalonia-11.3.9-purple)](https://avaloniaui.net/)
