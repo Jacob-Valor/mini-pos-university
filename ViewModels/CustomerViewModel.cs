@@ -16,6 +16,7 @@ namespace mini_pos.ViewModels;
 public class CustomerViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     #region Private Fields
 
@@ -118,9 +119,10 @@ public class CustomerViewModel : ViewModelBase
 
     #region Constructor
 
-    public CustomerViewModel(IDatabaseService databaseService)
+    public CustomerViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         // Initialize commands with proper canExecute observables
         var canAdd = this.WhenAnyValue(x => x.Name)
@@ -138,7 +140,7 @@ public class CustomerViewModel : ViewModelBase
         _ = LoadDataAsync();
     }
 
-    public CustomerViewModel() : this(null!)
+    public CustomerViewModel() : this(null!, null)
     {
         // Design-time
     }
@@ -216,6 +218,14 @@ public class CustomerViewModel : ViewModelBase
         {
             await LoadDataAsync();
             ClearForm();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມລູກຄ້າສຳເລັດ (Customer added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມລູກຄ້າບໍ່ສຳເລັດ (Failed to add customer)");
         }
     }
 
@@ -238,6 +248,14 @@ public class CustomerViewModel : ViewModelBase
         {
             await LoadDataAsync();
             ClearForm();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ແກ້ໄຂລູກຄ້າສຳເລັດ (Customer updated)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ແກ້ໄຂລູກຄ້າບໍ່ສຳເລັດ (Failed to update customer)");
         }
     }
 
@@ -245,11 +263,27 @@ public class CustomerViewModel : ViewModelBase
     {
         if (SelectedCustomer == null) return;
 
+        bool confirm = true;
+        if (_dialogService != null)
+        {
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບລູກຄ້າ {SelectedCustomer.Name} {SelectedCustomer.Surname} ຫຼືບໍ່?");
+        }
+
+        if (!confirm) return;
+
         bool success = await _databaseService.DeleteCustomerAsync(SelectedCustomer.Id);
         if (success)
         {
             await LoadDataAsync();
             ClearForm();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ລຶບລູກຄ້າສຳເລັດ (Customer deleted)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ລຶບລູກຄ້າບໍ່ສຳເລັດ (Failed to delete customer)");
         }
     }
 

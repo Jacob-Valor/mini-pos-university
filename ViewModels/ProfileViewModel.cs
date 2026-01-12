@@ -15,6 +15,7 @@ namespace mini_pos.ViewModels;
 public class ProfileViewModel : ViewModelBase
 {
     private readonly Employee _currentUser;
+    private readonly IDialogService? _dialogService;
 
     // Profile Fields
     private string _id = string.Empty;
@@ -77,10 +78,11 @@ public class ProfileViewModel : ViewModelBase
 
     private readonly IDatabaseService _databaseService;
 
-    public ProfileViewModel(Employee employee, IDatabaseService databaseService)
+    public ProfileViewModel(Employee employee, IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _currentUser = employee;
         _databaseService = databaseService;
+        _dialogService = dialogService;
         LoadUserData();
 
         SaveProfileCommand = ReactiveCommand.CreateFromTask(SaveProfileAsync);
@@ -119,22 +121,34 @@ public class ProfileViewModel : ViewModelBase
         bool success = await _databaseService.UpdateEmployeeProfileAsync(_currentUser);
         if (success)
         {
-            // Show success message? (For now just Console)
-            Console.WriteLine("Profile updated successfully");
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ອັບເດດໂປຣໄຟລ໌ສຳເລັດ (Profile updated)");
+            }
         }
-        else
+        else if (_dialogService != null)
         {
-            Console.Error.WriteLine("Failed to update profile");
+            await _dialogService.ShowErrorAsync("ອັບເດດໂປຣໄຟລ໌ບໍ່ສຳເລັດ (Failed to update profile)");
         }
     }
 
     private async Task ChangePasswordAsync()
     {
-        if (string.IsNullOrWhiteSpace(OldPassword) || string.IsNullOrWhiteSpace(NewPassword)) return;
+        if (string.IsNullOrWhiteSpace(OldPassword) || string.IsNullOrWhiteSpace(NewPassword))
+        {
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນລະຫັດຜ່ານເກົ່າ ແລະ ລະຫັດໃໝ່");
+            }
+            return;
+        }
         
         if (NewPassword != ConfirmPassword)
         {
-            Console.WriteLine("Passwords do not match");
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານໃໝ່ບໍ່ຕົງກັນ");
+            }
             return;
         }
 
@@ -142,8 +156,11 @@ public class ProfileViewModel : ViewModelBase
         var storedHash = await _databaseService.GetStoredPasswordHashAsync(Username);
         if (storedHash == null || !PasswordHelper.VerifyPassword(OldPassword, storedHash))
         {
-             Console.WriteLine("Old password incorrect");
-             return;
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານເກົ່າບໍ່ຖືກຕ້ອງ");
+            }
+            return;
         }
 
         string newHash = PasswordHelper.HashPassword(NewPassword);
@@ -154,7 +171,14 @@ public class ProfileViewModel : ViewModelBase
             OldPassword = "";
             NewPassword = "";
             ConfirmPassword = "";
-            Console.WriteLine("Password changed successfully");
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ປ່ຽນລະຫັດຜ່ານສຳເລັດ (Password changed)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ປ່ຽນລະຫັດຜ່ານບໍ່ສຳເລັດ");
         }
     }
 

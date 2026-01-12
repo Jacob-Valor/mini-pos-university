@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public class SalesViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
     private readonly Employee _currentEmployee;
     private ExchangeRate? _currentExchangeRate;
 
@@ -57,7 +58,7 @@ public class SalesViewModel : ViewModelBase
             ProductName = product.Name;
             Unit = product.Unit;
             // Apply price logic
-            UnitPrice = product.SellingPrice; 
+            UnitPrice = product.SellingPrice;
         }
     }
 
@@ -181,10 +182,11 @@ public class SalesViewModel : ViewModelBase
     // Events
     public event Action<ReceiptViewModel>? ShowReceiptRequested;
 
-    public SalesViewModel(Employee employee, IDatabaseService databaseService)
+    public SalesViewModel(Employee employee, IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _currentEmployee = employee;
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         var canAddProduct = this.WhenAnyValue(
             x => x.ProductName,
@@ -208,7 +210,7 @@ public class SalesViewModel : ViewModelBase
         PaymentCommand = ReactiveCommand.Create(Payment, canClearCart);
 
         CartItems.CollectionChanged += (s, e) => UpdateTotals();
-        
+
         // Load exchange rate on startup
         _ = LoadExchangeRateAsync();
     }
@@ -231,20 +233,20 @@ public class SalesViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(CustomerName)) return;
 
         var results = await _databaseService.SearchCustomersAsync(CustomerName);
-        
+
         if (results.Any())
         {
             // For now, auto-select the first match
             var customer = results.First();
             CustomerCode = customer.Id;
             CustomerName = $"{customer.Name} {customer.Surname}"; // Show full name
-            Console.WriteLine($"Customer found: {CustomerName}");
         }
         else
         {
-            Console.WriteLine("Customer not found.");
-            // Optional: Generate code for new customer or clear
-            // CustomerCode = $"CUST{DateTime.Now:yyyyMMddHHmmss}";
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ບໍ່ພົບລູກຄ້າ (Customer not found)");
+            }
         }
     }
 
@@ -282,13 +284,17 @@ public class SalesViewModel : ViewModelBase
                 ProductName = product.Name;
                 Unit = product.Unit;
                 UnitPrice = product.SellingPrice; // Or wholesale logic
-                
+
                 // Stock Validation
                 int currentCartQty = CartItems.Where(c => c.Barcode == Barcode).Sum(c => c.Quantity);
                 if (product.Quantity < (Quantity + currentCartQty))
                 {
                     HasError = true;
                     ErrorMessage = $"ສິນຄ້າບໍ່ພຽງພໍ! ມີເຫຼືອ: {product.Quantity} (Stock low)";
+                    if (_dialogService != null)
+                    {
+                        await _dialogService.ShowErrorAsync(ErrorMessage);
+                    }
                     return;
                 }
             }
@@ -296,6 +302,10 @@ public class SalesViewModel : ViewModelBase
             {
                 HasError = true;
                 ErrorMessage = "ບໍ່ພົບສິນຄ້າ (Product not found)";
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowErrorAsync(ErrorMessage);
+                }
                 return;
             }
         }
@@ -305,7 +315,7 @@ public class SalesViewModel : ViewModelBase
         // 2. Add to Cart
         var total = Quantity * UnitPrice;
         var existingItem = CartItems.FirstOrDefault(c => c.Barcode == Barcode);
-        
+
         if (existingItem != null)
         {
             existingItem.Quantity += Quantity;
@@ -402,13 +412,18 @@ public class SalesViewModel : ViewModelBase
 
         if (success)
         {
-            Console.WriteLine("Sale saved successfully!");
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ບັນທຶກການຂາຍສຳເລັດ (Sale saved successfully)");
+            }
             ClearAll();
         }
         else
         {
-            Console.Error.WriteLine("Failed to save sale.");
-            // Ideally show error dialog
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ບັນທຶກການຂາຍບໍ່ສຳເລັດ (Failed to save sale)");
+            }
         }
     }
 

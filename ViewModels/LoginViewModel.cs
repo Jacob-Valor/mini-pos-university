@@ -64,15 +64,17 @@ namespace mini_pos.ViewModels
         public event EventHandler? LoginSuccessful;
 
         private readonly IDatabaseService _databaseService;
+        private readonly IDialogService? _dialogService;
 
-        public LoginViewModel(IDatabaseService databaseService)
+        public LoginViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
         {
             _databaseService = databaseService;
+            _dialogService = dialogService;
             LoginCommand = ReactiveCommand.CreateFromTask(LoginAsync);
             ClearCommand = ReactiveCommand.Create(Clear);
         }
 
-        public LoginViewModel() : this(null!) 
+        public LoginViewModel() : this(null!, null)
         {
             // Design-time constructor
             // In a real scenario we might want a MockDatabaseService here
@@ -121,6 +123,10 @@ namespace mini_pos.ViewModels
             {
                 HasError = true;
                 ErrorMessage = validationResult.ErrorMessage;
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowErrorAsync(ErrorMessage ?? string.Empty);
+                }
                 return;
             }
 
@@ -181,12 +187,20 @@ namespace mini_pos.ViewModels
                 // Fallback for failed login
                 HasError = true;
                 ErrorMessage = "ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ";
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowErrorAsync(ErrorMessage);
+                }
                 Console.WriteLine("Login failed: Invalid credentials");
             }
             catch (Exception ex)
             {
                 HasError = true;
                 ErrorMessage = $"ເກີດຂໍ້ຜິດພາດ: {ex.Message}";
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowErrorAsync(ErrorMessage);
+                }
                 Console.Error.WriteLine($"Login error: {ex.Message}");
             }
             finally

@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public class ExchangeRateViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     private ExchangeRate? _selectedExchangeRate;
     public ExchangeRate? SelectedExchangeRate
@@ -53,9 +54,10 @@ public class ExchangeRateViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; } // Probably not needed if we only keep history, but ok
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public ExchangeRateViewModel(IDatabaseService databaseService)
+    public ExchangeRateViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         AddCommand = ReactiveCommand.CreateFromTask(AddAsync);
         
@@ -65,13 +67,13 @@ public class ExchangeRateViewModel : ViewModelBase
         // Delete not implemented in DB service yet, usually we just keep history. 
         // But for completeness let's disable or implement mock behavior locally for list.
         // Actually I won't implement Delete in DB for rates to preserve history integrity for sales.
-        DeleteCommand = ReactiveCommand.Create(Delete, canDelete); 
+        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canDelete); 
         CancelCommand = ReactiveCommand.Create(Cancel);
 
         _ = LoadDataAsync();
     }
 
-    public ExchangeRateViewModel() : this(null!)
+    public ExchangeRateViewModel() : this(null!, null)
     {
         // Design-time
     }
@@ -91,29 +93,51 @@ public class ExchangeRateViewModel : ViewModelBase
 
     private async Task AddAsync()
     {
-        if (decimal.TryParse(UsdRateInput, out decimal usd) && decimal.TryParse(ThbRateInput, out decimal thb))
+        if (!decimal.TryParse(UsdRateInput, out decimal usd) || !decimal.TryParse(ThbRateInput, out decimal thb))
         {
-            var newRate = new ExchangeRate
+            if (_dialogService != null)
             {
-                UsdRate = usd,
-                ThbRate = thb,
-                CreatedDate = DateTime.Now
-            };
-
-            bool success = await _databaseService.AddExchangeRateAsync(newRate);
-            if (success)
-            {
-                await LoadDataAsync();
-                Cancel();
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນອັດຕາແລກປ່ຽນທີ່ຖືກຕ້ອງ (Invalid exchange rate)");
             }
+            return;
+        }
+
+        var newRate = new ExchangeRate
+        {
+            UsdRate = usd,
+            ThbRate = thb,
+            CreatedDate = DateTime.Now
+        };
+
+        bool success = await _databaseService.AddExchangeRateAsync(newRate);
+        if (success)
+        {
+            await LoadDataAsync();
+            Cancel();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມອັດຕາແລກປ່ຽນສຳເລັດ (Rate added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມອັດຕາແລກປ່ຽນບໍ່ສຳເລັດ (Failed to add rate)");
         }
     }
 
-    private void Delete()
+    private async Task DeleteAsync()
     {
         // Not implementing delete for audit trail reasons
         if (SelectedExchangeRate != null)
         {
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", "ຈະລຶບອັດຕາແລກປ່ຽນຈາກລາຍການຊົ່ວຄາວບໍ?");
+            }
+
+            if (!confirm) return;
+
             // Just remove from UI for now if user persists
             AllExchangeRates.Remove(SelectedExchangeRate);
             FilterExchangeRates();

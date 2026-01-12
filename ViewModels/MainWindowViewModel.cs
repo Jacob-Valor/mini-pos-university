@@ -54,7 +54,6 @@ public class MainWindowViewModel : ViewModelBase
     }
     private ViewModelBase? _currentPage;
 
-    // Commands for specific pages
     public ReactiveCommand<Unit, Unit> GoToBrandCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToProductTypeCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToProductCommand { get; }
@@ -63,11 +62,13 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
 
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService _dialogService;
 
-    public MainWindowViewModel(Employee? employee, IDatabaseService databaseService)
+    public MainWindowViewModel(Employee? employee, IDatabaseService databaseService, IDialogService dialogService)
     {
         _databaseService = databaseService;
-        // Set the current user from the logged-in employee
+        _dialogService = dialogService;
+
         _loggedInEmployee = employee;
         if (_loggedInEmployee != null)
         {
@@ -77,41 +78,37 @@ public class MainWindowViewModel : ViewModelBase
         {
             CurrentUser = "Guest";
         }
-        
+
         LoginTime = DateTime.Now.ToString("HH:mm:ss");
 
-        // Start clock
         _ = UpdateDatePeriodicallyAsync();
 
-        // Default Page (Dashboard or Empty)
-        // Pass Dependencies to Child ViewModels
-        CustomersCommand = ReactiveCommand.Create(() => { CurrentPage = new CustomerViewModel(_databaseService); });
-        SaleCommand = ReactiveCommand.Create(() => 
-        { 
+        CustomersCommand = ReactiveCommand.Create(() => { CurrentPage = new CustomerViewModel(_databaseService, _dialogService); });
+        SaleCommand = ReactiveCommand.Create(() =>
+        {
             if (_loggedInEmployee != null)
             {
-                CurrentPage = new SalesViewModel(_loggedInEmployee, _databaseService); 
+                CurrentPage = new SalesViewModel(_loggedInEmployee, _databaseService, _dialogService);
             }
             else
             {
-                Console.WriteLine("Cannot open Sales: No logged in user.");
+                _ = _dialogService.ShowErrorAsync("ບໍ່ສາມາດຂາຍໄດ້: ບໍ່ມີຜູ້ໃຊ້ເຂົ້າສູ່ລະບົບ");
             }
         });
-        SearchCommand = ReactiveCommand.Create(() => 
-        { 
-             CurrentPage = new ProductViewModel(_databaseService);
+        SearchCommand = ReactiveCommand.Create(() =>
+        {
+            CurrentPage = new ProductViewModel(_databaseService, _dialogService);
         });
-        
-        ProfileCommand = ReactiveCommand.Create(() => 
 
-        { 
+        ProfileCommand = ReactiveCommand.Create(() =>
+        {
             if (_loggedInEmployee != null)
             {
-                CurrentPage = new ProfileViewModel(_loggedInEmployee, _databaseService); 
+                CurrentPage = new ProfileViewModel(_loggedInEmployee, _databaseService, _dialogService);
             }
             else
             {
-                Console.WriteLine("No logged in employee to show profile for.");
+                _ = _dialogService.ShowErrorAsync("ບໍ່ມີຂໍ້ມູນຜູ້ໃຊ້");
             }
         });
 
@@ -122,38 +119,28 @@ public class MainWindowViewModel : ViewModelBase
             LogoutRequested?.Invoke(this, EventArgs.Empty);
         });
 
-        GoToBrandCommand = ReactiveCommand.Create(() => { CurrentPage = new BrandViewModel(_databaseService); });
-        GoToProductTypeCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductTypeViewModel(_databaseService); });
-        GoToProductCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductViewModel(_databaseService); });
-        GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(_databaseService); });
-        GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(_databaseService); });
-        GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(_databaseService); });
+        GoToBrandCommand = ReactiveCommand.Create(() => { CurrentPage = new BrandViewModel(_databaseService, _dialogService); });
+        GoToProductTypeCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductTypeViewModel(_databaseService, _dialogService); });
+        GoToProductCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductViewModel(_databaseService, _dialogService); });
+        GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(_databaseService, _dialogService); });
+        GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(_databaseService, _dialogService); });
+        GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(_databaseService, _dialogService); });
 
-        // Initialize commands
-        HomeCommand = ReactiveCommand.Create(() => 
-        { 
-            // Reset CurrentPage to null to show the welcome screen (Greeting)
-            CurrentPage = null; 
+        HomeCommand = ReactiveCommand.Create(() =>
+        {
+            CurrentPage = null;
         });
-        
+
         ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
         ImportCommand = ReactiveCommand.Create(() => Console.WriteLine("Import clicked"));
         ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
     }
 
-    /// <summary>
-    /// Updates the current date/time display.
-    /// </summary>
     private void UpdateCurrentDate()
     {
-        // Lao format example: ວັນຈັນ, 12 ມັງກອນ 2026 10:30:00 AM
-        // Using standard format for now
         CurrentDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
     }
 
-    /// <summary>
-    /// Updates date/time display every second.
-    /// </summary>
     private async Task UpdateDatePeriodicallyAsync()
     {
         while (true)

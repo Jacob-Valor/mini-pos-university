@@ -1,9 +1,11 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using Avalonia;
 using Avalonia.ReactiveUI;
+using Serilog;
 
 namespace mini_pos;
 
@@ -31,26 +33,51 @@ sealed class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // 1. Initialize Serilog (Logging)
+        string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "log-.txt");
+        
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7)
+            .CreateLogger();
+
+        Log.Information("Application Starting Up...");
+
         // Handle unobserved task exceptions (often from DBus on Linux)
         TaskScheduler.UnobservedTaskException += (sender, e) =>
         {
             if (e.Exception.InnerException is TaskCanceledException)
             {
                 e.SetObserved();
+                Log.Warning("Unobserved TaskCanceledException (DBus): {Message}", e.Exception.Message);
+            }
+            else 
+            {
+                Log.Error(e.Exception, "Unobserved Task Exception");
             }
         };
 
         // Check for database test mode
         if (args.Length > 0 && args[0] == "--test-db")
         {
-            DatabaseConnectionTest.RunTestAsync().GetAwaiter().GetResult();
-            return 0;
+            Log.Information("Running in DB Test Mode");
+            try 
+            {
+                DatabaseConnectionTest.RunTestAsync().GetAwaiter().GetResult();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "DB Test Failed");
+                return 1;
+            }
         }
 
         // Check for GUI session on Linux to prevent startup failures
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !HasGuiSession())
         {
-            Console.Error.WriteLine("No graphical session detected (missing DISPLAY/WAYLAND_DISPLAY).");
+            Log.Fatal("No graphical session detected (missing DISPLAY/WAYLAND_DISPLAY).");
             Console.Error.WriteLine("This Avalonia app needs a GUI session to run.");
             Console.Error.WriteLine("If you're on SSH/CI, try: `xvfb-run -a dotnet run` (requires xvfb).");
             return 1;
@@ -58,21 +85,29 @@ sealed class Program
 
         try
         {
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-            return 0;        }
+            var exitCode = BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            Log.Information("Application Exiting Safely (Code: {Code})", exitCode);
+            return exitCode;
+        }
         catch (Exception ex) when (IsLikelyDisplayConnectionFailure(ex))
         {
-            Console.Error.WriteLine("Failed to connect to a graphical display.");
+            Log.Fatal(ex, "Failed to connect to a graphical display.");
             Console.Error.WriteLine("If you're on SSH/CI, try: `xvfb-run -a dotnet run` (requires xvfb).");
-            Console.Error.WriteLine($"Details: {ex.Message}");
             return 1;
         }
         catch (System.Threading.Tasks.TaskCanceledException ex)
         {
-            // DBus connection cancellation is expected on some Linux configurations
-            Console.Error.WriteLine("DBus connection cancelled - this is expected on some Linux configurations.");
-            Console.Error.WriteLine($"Details: {ex.Message}");
+            Log.Warning("DBus connection cancelled: {Message}", ex.Message);
             return 0;
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Unhandled Application Crash");
+            return 1;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
         }
     }
 

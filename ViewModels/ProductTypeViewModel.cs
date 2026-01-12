@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public partial class ProductTypeViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     private ProductType? _selectedProductType;
     public ProductType? SelectedProductType
@@ -54,9 +55,10 @@ public partial class ProductTypeViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public ProductTypeViewModel(IDatabaseService databaseService)
+    public ProductTypeViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         var canAdd = this.WhenAnyValue(x => x.ProductTypeName)
                          .Select(name => !string.IsNullOrWhiteSpace(name));
@@ -73,7 +75,7 @@ public partial class ProductTypeViewModel : ViewModelBase
         _ = LoadDataAsync();
     }
 
-    public ProductTypeViewModel() : this(null!)
+    public ProductTypeViewModel() : this(null!, null)
     {
         // Design-time
     }
@@ -105,6 +107,14 @@ public partial class ProductTypeViewModel : ViewModelBase
         {
             await LoadDataAsync();
             Cancel();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມປະເພດສິນຄ້າສຳເລັດ (Type added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to add type)");
         }
     }
 
@@ -118,6 +128,14 @@ public partial class ProductTypeViewModel : ViewModelBase
             {
                 await LoadDataAsync();
                 Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂປະເພດສິນຄ້າສຳເລັດ (Type updated)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to update type)");
             }
         }
     }
@@ -126,11 +144,27 @@ public partial class ProductTypeViewModel : ViewModelBase
     {
         if (SelectedProductType != null)
         {
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບປະເພດ {SelectedProductType.Name} ຫຼືບໍ່?");
+            }
+
+            if (!confirm) return;
+
             bool success = await _databaseService.DeleteProductTypeAsync(SelectedProductType.Id);
             if (success)
             {
                 await LoadDataAsync();
                 Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ລຶບປະເພດສິນຄ້າສຳເລັດ (Type deleted)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລຶບປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to delete type)");
             }
         }
     }

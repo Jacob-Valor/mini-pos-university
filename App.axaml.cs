@@ -45,10 +45,12 @@ public partial class App : Application
     {
         // Register Services
         services.AddSingleton<IDatabaseService, DatabaseService>();
+        services.AddSingleton<IDialogService, DialogService>();
 
         // Register ViewModels
         services.AddTransient<LoginViewModel>();
-        services.AddTransient<MainWindowViewModel>(); // Registered for ActivatorUtilities/DI support
+        services.AddTransient<MainWindowViewModel>(); 
+        services.AddTransient<ProductViewModel>();
     }
 
     private void ShowLogin(IClassicDesktopStyleApplicationLifetime desktop)

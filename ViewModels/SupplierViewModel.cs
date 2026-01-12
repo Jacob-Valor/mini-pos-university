@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public class SupplierViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     private Supplier? _selectedSupplier;
     public Supplier? SelectedSupplier
@@ -54,9 +55,10 @@ public class SupplierViewModel : ViewModelBase
 
     private bool _isEditMode;
 
-    public SupplierViewModel(IDatabaseService databaseService)
+    public SupplierViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedSupplier)
                                   .Select(x => x != null);
@@ -106,7 +108,7 @@ public class SupplierViewModel : ViewModelBase
         _ = LoadDataAsync();
     }
 
-    public SupplierViewModel() : this(null!)
+    public SupplierViewModel() : this(null!, null)
     {
         // Design-time
     }
@@ -126,7 +128,14 @@ public class SupplierViewModel : ViewModelBase
 
     private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(CurrentSupplier.Name)) return;
+        if (string.IsNullOrWhiteSpace(CurrentSupplier.Name))
+        {
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ຜູ້ສົ່ງ (Supplier name required)");
+            }
+            return;
+        }
 
         bool success;
         if (_isEditMode)
@@ -142,6 +151,14 @@ public class SupplierViewModel : ViewModelBase
         {
             await LoadDataAsync();
             CloseDialogAction?.Invoke();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ບັນທຶກຜູ້ສົ່ງສຳເລັດ (Supplier saved)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ບັນທຶກຜູ້ສົ່ງບໍ່ສຳເລັດ (Failed to save supplier)");
         }
     }
 
@@ -154,10 +171,26 @@ public class SupplierViewModel : ViewModelBase
     {
         if (SelectedSupplier != null)
         {
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຜູ້ສົ່ງ {SelectedSupplier.Name} ຫຼືບໍ່?");
+            }
+
+            if (!confirm) return;
+
             bool success = await _databaseService.DeleteSupplierAsync(SelectedSupplier.Id);
             if (success)
             {
                 await LoadDataAsync();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ລຶບຜູ້ສົ່ງສຳເລັດ (Supplier deleted)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລຶບຜູ້ສົ່ງບໍ່ສຳເລັດ (Failed to delete supplier)");
             }
         }
     }

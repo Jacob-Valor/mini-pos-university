@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public class EmployeeViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     private Employee? _selectedEmployee;
     public Employee? SelectedEmployee
@@ -163,9 +164,10 @@ public class EmployeeViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public EmployeeViewModel(IDatabaseService databaseService)
+    public EmployeeViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         Positions.Add("Admin");
         Positions.Add("Employee");
@@ -187,7 +189,7 @@ public class EmployeeViewModel : ViewModelBase
         _ = LoadInitialDataAsync();
     }
 
-    public EmployeeViewModel() : this(null!)
+    public EmployeeViewModel() : this(null!, null)
     {
         // Design-time
     }
@@ -258,6 +260,14 @@ public class EmployeeViewModel : ViewModelBase
         {
             await RefreshEmployeeList();
             Cancel();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມພະນັກງານສຳເລັດ (Employee added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມພະນັກງານບໍ່ສຳເລັດ (Failed to add employee)");
         }
     }
 
@@ -283,6 +293,14 @@ public class EmployeeViewModel : ViewModelBase
             {
                 await RefreshEmployeeList();
                 Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂພະນັກງານສຳເລັດ (Employee updated)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂພະນັກງານບໍ່ສຳເລັດ (Failed to update employee)");
             }
         }
     }
@@ -291,11 +309,27 @@ public class EmployeeViewModel : ViewModelBase
     {
         if (SelectedEmployee != null)
         {
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບພະນັກງານ {SelectedEmployee.Name} {SelectedEmployee.Surname} ຫຼືບໍ່?");
+            }
+
+            if (!confirm) return;
+
             bool success = await _databaseService.DeleteEmployeeAsync(SelectedEmployee.Id);
             if (success)
             {
                 await RefreshEmployeeList();
                 Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ລຶບພະນັກງານສຳເລັດ (Employee deleted)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລຶບພະນັກງານບໍ່ສຳເລັດ (Failed to delete employee)");
             }
         }
     }

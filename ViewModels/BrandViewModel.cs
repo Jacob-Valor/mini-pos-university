@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public partial class BrandViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     private Brand? _selectedBrand;
     public Brand? SelectedBrand
@@ -54,9 +55,10 @@ public partial class BrandViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public BrandViewModel(IDatabaseService databaseService)
+    public BrandViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         var canAdd = this.WhenAnyValue(x => x.BrandName)
                          .Select(name => !string.IsNullOrWhiteSpace(name));
@@ -73,7 +75,7 @@ public partial class BrandViewModel : ViewModelBase
         _ = LoadDataAsync();
     }
 
-    public BrandViewModel() : this(null!)
+    public BrandViewModel() : this(null!, null)
     {
         // Design-time
     }
@@ -108,6 +110,14 @@ public partial class BrandViewModel : ViewModelBase
         {
             await LoadDataAsync();
             Cancel();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມຍີ່ຫໍ້ສຳເລັດ (Brand added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to add brand)");
         }
     }
 
@@ -121,6 +131,14 @@ public partial class BrandViewModel : ViewModelBase
             {
                 await LoadDataAsync();
                 Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂຍີ່ຫໍ້ສຳເລັດ (Brand updated)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to update brand)");
             }
         }
     }
@@ -129,11 +147,27 @@ public partial class BrandViewModel : ViewModelBase
     {
         if (SelectedBrand != null)
         {
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຍີ່ຫໍ້ {SelectedBrand.Name} ຫຼືບໍ່?");
+            }
+
+            if (!confirm) return;
+
             bool success = await _databaseService.DeleteBrandAsync(SelectedBrand.Id);
             if (success)
             {
                 await LoadDataAsync();
                 Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ລຶບຍີ່ຫໍ້ສຳເລັດ (Brand deleted)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລຶບຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to delete brand)");
             }
         }
     }

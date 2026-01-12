@@ -4,6 +4,7 @@ using System.Data;
 using System.Threading.Tasks;
 using mini_pos.Models;
 using MySqlConnector;
+using Serilog;
 
 namespace mini_pos.Services;
 
@@ -75,6 +76,140 @@ public interface IDatabaseService
 /// </summary>
 public class DatabaseService : IDatabaseService
 {
+    private static class SqlQueries
+    {
+        public const string ConnectionTest = "SELECT 1";
+
+        public const string ValidateLogin = @"
+                SELECT emp_id, emp_name, emp_lname, gender, date_of_b, 
+                       village_id, tel, start_date, username, status
+                FROM employee 
+                WHERE username = @username AND password = @password";
+
+        public const string Employees = @"
+                SELECT e.emp_id, e.emp_name, e.emp_lname, e.gender, e.date_of_b,
+                       e.tel, e.start_date, e.username, e.status,
+                       v.vname as village_name, d.distname as district_name, p.provname as province_name
+                FROM employee e
+                LEFT JOIN villages v ON e.village_id = v.vid
+                LEFT JOIN districts d ON v.distid = d.distid
+                LEFT JOIN provinces p ON d.provid = p.provid
+                ORDER BY e.emp_id";
+
+        public const string Products = @"
+                SELECT p.barcode, p.product_name, p.unit, p.quantity, p.quantity_min,
+                       p.cost_price, p.retail_price, p.status,
+                       p.brand_id, p.category_id,
+                       b.brand_name, c.category_name
+                FROM product p
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
+                LEFT JOIN category c ON p.category_id = c.category_id
+                ORDER BY p.barcode";
+
+        public const string ProductByBarcode = @"
+                SELECT p.barcode, p.product_name, p.unit, p.quantity, p.quantity_min,
+                       p.cost_price, p.retail_price, p.status,
+                       p.brand_id, p.category_id,
+                       b.brand_name, c.category_name
+                FROM product p
+                LEFT JOIN brand b ON p.brand_id = b.brand_id
+                LEFT JOIN category c ON p.category_id = c.category_id
+                WHERE p.barcode = @barcode";
+
+        public const string Customers = @"
+                SELECT cus_id, cus_name, cus_lname, gender, address, tel
+                FROM customer
+                ORDER BY cus_id";
+
+        public const string Brands = "SELECT brand_id, brand_name FROM brand ORDER BY brand_id";
+        public const string ProductTypes = "SELECT category_id, category_name FROM category";
+
+        public const string LatestExchangeRate = "SELECT id, dolar, bath, ex_date FROM exchange_rate ORDER BY ex_date DESC LIMIT 1";
+        public const string ExchangeRateHistory = "SELECT id, dolar, bath, ex_date FROM exchange_rate ORDER BY ex_date DESC LIMIT 50";
+
+        public const string ProductExists = "SELECT COUNT(1) FROM product WHERE barcode = @id";
+        public const string InsertProduct = @"
+                INSERT INTO product (barcode, product_name, unit, quantity, quantity_min, cost_price, retail_price, brand_id, category_id, status)
+                VALUES (@id, @name, @unit, @qty, @min, @cost, @price, @brand, @type, @status)";
+        public const string UpdateProduct = @"
+                UPDATE product SET 
+                    product_name=@name, unit=@unit, quantity=@qty, quantity_min=@min, 
+                    cost_price=@cost, retail_price=@price, brand_id=@brand, category_id=@type, status=@status
+                WHERE barcode=@id";
+        public const string DeleteProduct = "DELETE FROM product WHERE barcode = @id";
+
+        public const string InsertCustomer = @"
+                INSERT INTO customer (cus_id, cus_name, cus_lname, gender, address, tel)
+                VALUES (@id, @name, @surname, @gender, @addr, @tel)";
+        public const string UpdateCustomer = @"
+                UPDATE customer SET 
+                    cus_name=@name, cus_lname=@surname, gender=@gender, address=@addr, tel=@tel
+                WHERE cus_id=@id";
+        public const string DeleteCustomer = "DELETE FROM customer WHERE cus_id = @id";
+        public const string SearchCustomers = @"
+                SELECT cus_id, cus_name, cus_lname, gender, address, tel 
+                FROM customer 
+                WHERE cus_id LIKE @kw OR cus_name LIKE @kw OR tel LIKE @kw
+                LIMIT 20";
+
+        public const string InsertBrand = "INSERT INTO brand (brand_id, brand_name) VALUES (@id, @name)";
+        public const string UpdateBrand = "UPDATE brand SET brand_name = @name WHERE brand_id = @id";
+        public const string DeleteBrand = "DELETE FROM brand WHERE brand_id = @id";
+
+        public const string InsertProductType = "INSERT INTO category (category_id, category_name) VALUES (@id, @name)";
+        public const string UpdateProductType = "UPDATE category SET category_name = @name WHERE category_id = @id";
+        public const string DeleteProductType = "DELETE FROM category WHERE category_id = @id";
+
+        public const string Provinces = "SELECT provid, provname FROM provinces ORDER BY provname";
+        public const string DistrictsByProvince = "SELECT distid, distname, provid FROM districts WHERE provid = @pid ORDER BY distname";
+        public const string VillagesByDistrict = "SELECT vid, vname, distid FROM villages WHERE distid = @did ORDER BY vname";
+
+        public const string InsertEmployee = @"
+                INSERT INTO employee 
+                (emp_id, emp_name, emp_lname, gender, date_of_b, village_id, tel, start_date, username, password, status)
+                VALUES 
+                (@id, @name, @surname, @gender, @dob, @vid, @tel, @start, @user, @pass, @status)";
+        public const string UpdateEmployee = @"
+                UPDATE employee SET 
+                    emp_name=@name, emp_lname=@surname, gender=@gender, date_of_b=@dob, 
+                    village_id=@vid, tel=@tel, status=@status
+                WHERE emp_id=@id";
+        public const string DeleteEmployee = "DELETE FROM employee WHERE emp_id = @id";
+        public const string UpdateEmployeeProfile = @"
+                UPDATE employee 
+                SET emp_name = @name, 
+                    emp_lname = @surname, 
+                    gender = @gender, 
+                    date_of_b = @dob, 
+                    tel = @tel,
+                    username = @username
+                WHERE emp_id = @id";
+        public const string UpdateEmployeePassword = "UPDATE employee SET password = @pwd WHERE emp_id = @id";
+        public const string StoredPasswordHash = "SELECT password FROM employee WHERE username = @username";
+
+        public const string Suppliers = "SELECT sup_id, sup_name, contract_name, email, telephone, address FROM supplier ORDER BY sup_id";
+        public const string InsertSupplier = @"
+                INSERT INTO supplier (sup_id, sup_name, contract_name, email, telephone, address)
+                VALUES (@id, @name, @contact, @email, @tel, @addr)";
+        public const string UpdateSupplier = @"
+                UPDATE supplier SET 
+                    sup_name=@name, contract_name=@contact, email=@email, telephone=@tel, address=@addr
+                WHERE sup_id=@id";
+        public const string DeleteSupplier = "DELETE FROM supplier WHERE sup_id = @id";
+
+        public const string InsertExchangeRate = "INSERT INTO exchange_rate (dolar, bath, ex_date) VALUES (@usd, @thb, @date)";
+
+        public const string InsertSale = @"
+                INSERT INTO sales (ex_id, cus_id, emp_id, date_sale, subtotal, pay, money_change)
+                VALUES (@exId, @cusId, @empId, @date, @sub, @pay, @change);
+                SELECT LAST_INSERT_ID();";
+        public const string InsertSaleDetail = @"
+                INSERT INTO sales_product (sales_id, product_id, qty, price, total)
+                VALUES (@saleId, @prodId, @qty, @price, @total)";
+        public const string UpdateStock = @"
+                UPDATE product SET quantity = quantity - @qty WHERE barcode = @prodId";
+    }
+
     private readonly string _connectionString;
 
     public DatabaseService()
@@ -104,16 +239,19 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            await using var command = new MySqlCommand("SELECT 1", connection);
+            await using var command = new MySqlCommand(SqlQueries.ConnectionTest, connection);
             await command.ExecuteScalarAsync();
+            Log.Information("Database connection test successful");
             return (true, "ເຊື່ອມຕໍ່ຖານຂໍ້ມູນສຳເລັດ (Database connection successful)");
         }
         catch (MySqlException ex)
         {
+            Log.Error(ex, "Database connection failed");
             return (false, $"ເຊື່ອມຕໍ່ຖານຂໍ້ມູນລົ້ມເຫຼວ: {ex.Message}");
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "Unexpected error during connection test");
             return (false, $"ຂໍ້ຜິດພາດ: {ex.Message}");
         }
     }
@@ -133,19 +271,14 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                SELECT emp_id, emp_name, emp_lname, gender, date_of_b, 
-                       village_id, tel, start_date, username, status
-                FROM employee 
-                WHERE username = @username AND password = @password";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.ValidateLogin, connection);
             command.Parameters.AddWithValue("@username", username);
             command.Parameters.AddWithValue("@password", passwordHash);
 
             await using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
+                Log.Information("User {Username} logged in successfully", username);
                 return new Employee
                 {
                     Id = reader.GetString("emp_id"),
@@ -158,16 +291,12 @@ public class DatabaseService : IDatabaseService
                     Username = reader.GetString("username")
                 };
             }
-            return null;
-        }
-        catch (MySqlException ex)
-        {
-            Console.Error.WriteLine($"Database error during login validation: {ex.Message}");
+            Log.Warning("Failed login attempt for user: {Username}", username);
             return null;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Unexpected error during login validation: {ex.Message}");
+            Log.Error(ex, "Error validating login for user: {Username}", username);
             return null;
         }
     }
@@ -182,17 +311,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                SELECT e.emp_id, e.emp_name, e.emp_lname, e.gender, e.date_of_b,
-                       e.tel, e.start_date, e.username, e.status,
-                       v.vname as village_name, d.distname as district_name, p.provname as province_name
-                FROM employee e
-                LEFT JOIN villages v ON e.village_id = v.vid
-                LEFT JOIN districts d ON v.distid = d.distid
-                LEFT JOIN provinces p ON d.provid = p.provid
-                ORDER BY e.emp_id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.Employees, connection);
             await using var reader = await command.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
@@ -213,13 +332,9 @@ public class DatabaseService : IDatabaseService
                 });
             }
         }
-        catch (MySqlException ex)
-        {
-            Console.Error.WriteLine($"Database error fetching employees: {ex.Message}");
-        }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Unexpected error fetching employees: {ex.Message}");
+            Log.Error(ex, "Error fetching employees");
         }
         return employees;
     }
@@ -238,17 +353,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                SELECT p.barcode, p.product_name, p.unit, p.quantity, p.quantity_min,
-                       p.cost_price, p.retail_price, p.status,
-                       p.brand_id, p.category_id,
-                       b.brand_name, c.category_name
-                FROM product p
-                LEFT JOIN brand b ON p.brand_id = b.brand_id
-                LEFT JOIN category c ON p.category_id = c.category_id
-                ORDER BY p.barcode";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.Products, connection);
             await using var reader = await command.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
@@ -270,13 +375,9 @@ public class DatabaseService : IDatabaseService
                 });
             }
         }
-        catch (MySqlException ex)
-        {
-            Console.Error.WriteLine($"Database error fetching products: {ex.Message}");
-        }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Unexpected error fetching products: {ex.Message}");
+            Log.Error(ex, "Error fetching products");
         }
         return products;
     }
@@ -291,17 +392,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                SELECT p.barcode, p.product_name, p.unit, p.quantity, p.quantity_min,
-                       p.cost_price, p.retail_price, p.status,
-                       p.brand_id, p.category_id,
-                       b.brand_name, c.category_name
-                FROM product p
-                LEFT JOIN brand b ON p.brand_id = b.brand_id
-                LEFT JOIN category c ON p.category_id = c.category_id
-                WHERE p.barcode = @barcode";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.ProductByBarcode, connection);
             command.Parameters.AddWithValue("@barcode", barcode);
             await using var reader = await command.ExecuteReaderAsync();
 
@@ -327,7 +418,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error fetching product: {ex.Message}");
+            Log.Error(ex, "Error finding product by barcode: {Barcode}", barcode);
             return null;
         }
     }
@@ -346,12 +437,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                SELECT cus_id, cus_name, cus_lname, gender, address, tel
-                FROM customer
-                ORDER BY cus_id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.Customers, connection);
             await using var reader = await command.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
@@ -369,7 +455,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error fetching customers: {ex.Message}");
+            Log.Error(ex, "Error fetching customers");
         }
         return customers;
     }
@@ -388,9 +474,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT brand_id, brand_name FROM brand ORDER BY brand_id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.Brands, connection);
             await using var reader = await command.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
@@ -404,7 +488,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error fetching brands: {ex.Message}");
+            Log.Error(ex, "Error fetching brands");
         }
         return brands;
     }
@@ -438,7 +522,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error executing query: {ex.Message}");
+            Log.Error(ex, "Error executing non-query: {Query}", query);
             return -1;
         }
     }
@@ -473,7 +557,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error executing scalar query: {ex.Message}");
+            Log.Error(ex, "Error executing scalar query: {Query}", query);
             return default;
         }
     }
@@ -490,20 +574,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                UPDATE employee 
-                SET emp_name = @name, 
-                    emp_lname = @surname, 
-                    gender = @gender, 
-                    date_of_b = @dob, 
-                    tel = @tel,
-                    username = @username
-                WHERE emp_id = @id";
-
-            // Note: Not updating address (village_id) or picture/status here to simplify, 
-            // as we need IDs for address and logic for picture blob.
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateEmployeeProfile, connection);
             command.Parameters.AddWithValue("@name", emp.Name);
             command.Parameters.AddWithValue("@surname", emp.Surname);
             command.Parameters.AddWithValue("@gender", emp.Gender);
@@ -513,11 +584,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@id", emp.Id);
 
             int rows = await command.ExecuteNonQueryAsync();
+            Log.Information("Profile updated for employee {Id}", emp.Id);
             return rows > 0;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating profile: {ex.Message}");
+            Log.Error(ex, "Error updating profile for employee {Id}", emp.Id);
             return false;
         }
     }
@@ -530,18 +602,17 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "UPDATE employee SET password = @pwd WHERE emp_id = @id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateEmployeePassword, connection);
             command.Parameters.AddWithValue("@pwd", newPasswordHash);
             command.Parameters.AddWithValue("@id", empId);
 
             int rows = await command.ExecuteNonQueryAsync();
+            Log.Information("Password updated for employee {Id}", empId);
             return rows > 0;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating password: {ex.Message}");
+            Log.Error(ex, "Error updating password for employee {Id}", empId);
             return false;
         }
     }
@@ -554,9 +625,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT password FROM employee WHERE username = @username";
-            
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.StoredPasswordHash, connection);
             command.Parameters.AddWithValue("@username", username);
             
             var result = await command.ExecuteScalarAsync();
@@ -564,7 +633,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error fetching password hash: {ex.Message}");
+            Log.Error(ex, "Error fetching password hash for user {Username}", username);
             return null;
         }
     }
@@ -578,9 +647,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT id, dolar, bath, ex_date FROM exchange_rate ORDER BY ex_date DESC LIMIT 1";
-            
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.LatestExchangeRate, connection);
             await using var reader = await command.ExecuteReaderAsync();
             
             if (await reader.ReadAsync())
@@ -597,7 +664,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error fetching exchange rate: {ex.Message}");
+            Log.Error(ex, "Error fetching latest exchange rate");
             return null;
         }
     }
@@ -611,12 +678,7 @@ public class DatabaseService : IDatabaseService
             transaction = await connection.BeginTransactionAsync();
 
             // 1. Insert Sales Header
-            const string insertSaleSql = @"
-                INSERT INTO sales (ex_id, cus_id, emp_id, date_sale, subtotal, pay, money_change)
-                VALUES (@exId, @cusId, @empId, @date, @sub, @pay, @change);
-                SELECT LAST_INSERT_ID();";
-
-            await using var saleCmd = new MySqlCommand(insertSaleSql, connection, transaction);
+            await using var saleCmd = new MySqlCommand(SqlQueries.InsertSale, connection, transaction);
             saleCmd.Parameters.AddWithValue("@exId", sale.ExchangeRateId);
             saleCmd.Parameters.AddWithValue("@cusId", sale.CustomerId);
             saleCmd.Parameters.AddWithValue("@empId", sale.EmployeeId);
@@ -629,17 +691,10 @@ public class DatabaseService : IDatabaseService
             int saleId = Convert.ToInt32(saleIdObj);
 
             // 2. Insert Details & Update Stock
-            const string insertDetailSql = @"
-                INSERT INTO sales_product (sales_id, product_id, qty, price, total)
-                VALUES (@saleId, @prodId, @qty, @price, @total)";
-
-            const string updateStockSql = @"
-                UPDATE product SET quantity = quantity - @qty WHERE barcode = @prodId";
-
             foreach (var item in details)
             {
                 // Detail Insert
-                await using var detailCmd = new MySqlCommand(insertDetailSql, connection, transaction);
+                await using var detailCmd = new MySqlCommand(SqlQueries.InsertSaleDetail, connection, transaction);
                 detailCmd.Parameters.AddWithValue("@saleId", saleId);
                 detailCmd.Parameters.AddWithValue("@prodId", item.ProductId);
                 detailCmd.Parameters.AddWithValue("@qty", item.Quantity);
@@ -648,13 +703,14 @@ public class DatabaseService : IDatabaseService
                 await detailCmd.ExecuteNonQueryAsync();
 
                 // Stock Update
-                await using var stockCmd = new MySqlCommand(updateStockSql, connection, transaction);
+                await using var stockCmd = new MySqlCommand(SqlQueries.UpdateStock, connection, transaction);
                 stockCmd.Parameters.AddWithValue("@qty", item.Quantity);
                 stockCmd.Parameters.AddWithValue("@prodId", item.ProductId);
                 await stockCmd.ExecuteNonQueryAsync();
             }
 
             await transaction.CommitAsync();
+            Log.Information("Sale created successfully. ID: {SaleId}, Amount: {Amount}", saleId, sale.SubTotal);
             return true;
         }
         catch (Exception ex)
@@ -663,7 +719,7 @@ public class DatabaseService : IDatabaseService
             {
                 await transaction.RollbackAsync();
             }
-            Console.Error.WriteLine($"Error creating sale: {ex.Message}");
+            Log.Error(ex, "Error creating sale");
             return false;
         }
     }
@@ -677,15 +733,14 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT COUNT(1) FROM product WHERE barcode = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.ProductExists, connection);
             command.Parameters.AddWithValue("@id", barcode);
             var result = await command.ExecuteScalarAsync();
             return Convert.ToInt32(result) > 0;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error checking product existence: {ex.Message}");
+            Log.Error(ex, "Error checking product existence: {Barcode}", barcode);
             return false;
         }
     }
@@ -695,17 +750,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                INSERT INTO product (barcode, product_name, unit, quantity, quantity_min, cost_price, retail_price, brand_id, category_id, status)
-                VALUES (@id, @name, @unit, @qty, @min, @cost, @price, @brand, @type, @status)";
-
-            await using var command = new MySqlCommand(query, connection);
-            // Note: We need to map Brand Name to ID and Type Name to ID
-            // For this quick implementation, I will assume the ViewModel passes IDs or we need a lookup.
-            // However, the current model uses Names.
-            // Let's assume for now we just store the ID if available or find it.
-            // To be safe and quick, I will just use the parameters directly, but ideally we need to look up IDs.
-            // The table schema expects varchar(4) for IDs.
+            await using var command = new MySqlCommand(SqlQueries.InsertProduct, connection);
             
             command.Parameters.AddWithValue("@id", p.Id);
             command.Parameters.AddWithValue("@name", p.Name);
@@ -714,18 +759,17 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@min", p.MinQuantity);
             command.Parameters.AddWithValue("@cost", p.CostPrice);
             command.Parameters.AddWithValue("@price", p.SellingPrice);
-            
-            // Just use the values passed (ViewModel should ensure these are IDs)
             command.Parameters.AddWithValue("@brand", p.BrandId); 
             command.Parameters.AddWithValue("@type", p.CategoryId);
             command.Parameters.AddWithValue("@status", p.Status);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Product added: {ProductName} ({Barcode})", p.Name, p.Id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding product: {ex.Message}");
+            Log.Error(ex, "Error adding product: {ProductName}", p.Name);
             return false;
         }
     }
@@ -735,13 +779,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                UPDATE product SET 
-                    product_name=@name, unit=@unit, quantity=@qty, quantity_min=@min, 
-                    cost_price=@cost, retail_price=@price, brand_id=@brand, category_id=@type, status=@status
-                WHERE barcode=@id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateProduct, connection);
             command.Parameters.AddWithValue("@id", p.Id);
             command.Parameters.AddWithValue("@name", p.Name);
             command.Parameters.AddWithValue("@unit", p.Unit);
@@ -754,11 +792,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@status", p.Status);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Product updated: {ProductName} ({Barcode})", p.Name, p.Id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating product: {ex.Message}");
+            Log.Error(ex, "Error updating product: {Barcode}", p.Id);
             return false;
         }
     }
@@ -768,15 +807,15 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "DELETE FROM product WHERE barcode = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DeleteProduct, connection);
             command.Parameters.AddWithValue("@id", barcode);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Product deleted: {Barcode}", barcode);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error deleting product: {ex.Message}");
+            Log.Error(ex, "Error deleting product: {Barcode}", barcode);
             return false;
         }
     }
@@ -787,8 +826,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT category_id, category_name FROM category";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.ProductTypes, connection);
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -801,7 +839,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-             Console.Error.WriteLine($"Error getting types: {ex.Message}");
+             Log.Error(ex, "Error getting product types");
         }
         return list;
     }
@@ -815,11 +853,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                INSERT INTO customer (cus_id, cus_name, cus_lname, gender, address, tel)
-                VALUES (@id, @name, @surname, @gender, @addr, @tel)";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.InsertCustomer, connection);
             command.Parameters.AddWithValue("@id", c.Id);
             command.Parameters.AddWithValue("@name", c.Name);
             command.Parameters.AddWithValue("@surname", c.Surname);
@@ -828,11 +862,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@tel", c.PhoneNumber);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Customer added: {Name} {Surname}", c.Name, c.Surname);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding customer: {ex.Message}");
+            Log.Error(ex, "Error adding customer");
             return false;
         }
     }
@@ -842,12 +877,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                UPDATE customer SET 
-                    cus_name=@name, cus_lname=@surname, gender=@gender, address=@addr, tel=@tel
-                WHERE cus_id=@id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateCustomer, connection);
             command.Parameters.AddWithValue("@id", c.Id);
             command.Parameters.AddWithValue("@name", c.Name);
             command.Parameters.AddWithValue("@surname", c.Surname);
@@ -856,11 +886,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@tel", c.PhoneNumber);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Customer updated: {Id}", c.Id);
             return true;
         }
         catch (Exception ex)
         {
-             Console.Error.WriteLine($"Error updating customer: {ex.Message}");
+             Log.Error(ex, "Error updating customer: {Id}", c.Id);
              return false;
         }
     }
@@ -870,15 +901,15 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "DELETE FROM customer WHERE cus_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DeleteCustomer, connection);
             command.Parameters.AddWithValue("@id", id);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Customer deleted: {Id}", id);
             return true;
         }
         catch (Exception ex)
         {
-             Console.Error.WriteLine($"Error deleting customer: {ex.Message}");
+             Log.Error(ex, "Error deleting customer: {Id}", id);
              return false;
         }
     }
@@ -889,13 +920,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                SELECT cus_id, cus_name, cus_lname, gender, address, tel 
-                FROM customer 
-                WHERE cus_id LIKE @kw OR cus_name LIKE @kw OR tel LIKE @kw
-                LIMIT 20";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.SearchCustomers, connection);
             command.Parameters.AddWithValue("@kw", $"%{keyword}%");
             
             await using var reader = await command.ExecuteReaderAsync();
@@ -914,7 +939,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error searching customers: {ex.Message}");
+            Log.Error(ex, "Error searching customers with keyword: {Keyword}", keyword);
         }
         return list;
     }
@@ -928,16 +953,16 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "INSERT INTO brand (brand_id, brand_name) VALUES (@id, @name)";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.InsertBrand, connection);
             command.Parameters.AddWithValue("@id", brand.Id);
             command.Parameters.AddWithValue("@name", brand.Name);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Brand added: {Name}", brand.Name);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding brand: {ex.Message}");
+            Log.Error(ex, "Error adding brand: {Name}", brand.Name);
             return false;
         }
     }
@@ -947,16 +972,16 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "UPDATE brand SET brand_name = @name WHERE brand_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateBrand, connection);
             command.Parameters.AddWithValue("@id", brand.Id);
             command.Parameters.AddWithValue("@name", brand.Name);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Brand updated: {Id}", brand.Id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating brand: {ex.Message}");
+            Log.Error(ex, "Error updating brand: {Id}", brand.Id);
             return false;
         }
     }
@@ -966,15 +991,15 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "DELETE FROM brand WHERE brand_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DeleteBrand, connection);
             command.Parameters.AddWithValue("@id", id);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Brand deleted: {Id}", id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error deleting brand: {ex.Message}");
+            Log.Error(ex, "Error deleting brand: {Id}", id);
             return false;
         }
     }
@@ -983,27 +1008,21 @@ public class DatabaseService : IDatabaseService
 
     #region Type Operations
     
-    // GetProductTypesAsync is already defined above... wait, I need to check where it is.
-    // Ah, it was defined earlier. I should add the CRUD methods there.
-    // Let me search for GetProductTypesAsync implementation.
-    
-    // ... (Adding CRUD methods)
-    
     public async Task<bool> AddProductTypeAsync(ProductType type)
     {
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "INSERT INTO category (category_id, category_name) VALUES (@id, @name)";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.InsertProductType, connection);
             command.Parameters.AddWithValue("@id", type.Id);
             command.Parameters.AddWithValue("@name", type.Name);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Product type added: {Name}", type.Name);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding type: {ex.Message}");
+            Log.Error(ex, "Error adding product type: {Name}", type.Name);
             return false;
         }
     }
@@ -1013,16 +1032,16 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "UPDATE category SET category_name = @name WHERE category_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateProductType, connection);
             command.Parameters.AddWithValue("@id", type.Id);
             command.Parameters.AddWithValue("@name", type.Name);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Product type updated: {Id}", type.Id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating type: {ex.Message}");
+            Log.Error(ex, "Error updating product type: {Id}", type.Id);
             return false;
         }
     }
@@ -1032,22 +1051,19 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "DELETE FROM category WHERE category_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DeleteProductType, connection);
             command.Parameters.AddWithValue("@id", id);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Product type deleted: {Id}", id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error deleting type: {ex.Message}");
+            Log.Error(ex, "Error deleting product type: {Id}", id);
             return false;
         }
     }
-
-    // DeleteProductTypeAsync defined above
     
-    // GetProductTypesAsync removed to avoid duplication (it was defined earlier in file)
     #endregion
 
 
@@ -1059,8 +1075,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT provid, provname FROM provinces ORDER BY provname";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.Provinces, connection);
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -1073,7 +1088,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error getting provinces: {ex.Message}");
+            Log.Error(ex, "Error getting provinces");
         }
         return list;
     }
@@ -1084,8 +1099,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT distid, distname, provid FROM districts WHERE provid = @pid ORDER BY distname";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DistrictsByProvince, connection);
             command.Parameters.AddWithValue("@pid", provinceId);
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
@@ -1100,7 +1114,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error getting districts: {ex.Message}");
+            Log.Error(ex, "Error getting districts for province: {ProvinceId}", provinceId);
         }
         return list;
     }
@@ -1111,8 +1125,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT vid, vname, distid FROM villages WHERE distid = @did ORDER BY vname";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.VillagesByDistrict, connection);
             command.Parameters.AddWithValue("@did", districtId);
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
@@ -1127,7 +1140,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error getting villages: {ex.Message}");
+            Log.Error(ex, "Error getting villages for district: {DistrictId}", districtId);
         }
         return list;
     }
@@ -1142,38 +1155,26 @@ public class DatabaseService : IDatabaseService
         {
             await using var connection = await GetConnectionAsync();
             // village_id is required in DB schema
-            const string query = @"
-                INSERT INTO employee 
-                (emp_id, emp_name, emp_lname, gender, date_of_b, village_id, tel, start_date, username, password, status)
-                VALUES 
-                (@id, @name, @surname, @gender, @dob, @vid, @tel, @start, @user, @pass, @status)";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.InsertEmployee, connection);
             command.Parameters.AddWithValue("@id", emp.Id);
             command.Parameters.AddWithValue("@name", emp.Name);
             command.Parameters.AddWithValue("@surname", emp.Surname);
             command.Parameters.AddWithValue("@gender", emp.Gender);
             command.Parameters.AddWithValue("@dob", emp.DateOfBirth);
-            
-            // If Village is not set (empty string), we might fail constraint if it's NOT NULL.
-            // Schema says NOT NULL varchar(7).
-            // We need a valid village ID. If none selected, this will fail or we need a default.
-            // Assuming ViewModel validates this.
             command.Parameters.AddWithValue("@vid", string.IsNullOrEmpty(emp.Village) ? "0000000" : emp.Village); 
-            
             command.Parameters.AddWithValue("@tel", emp.PhoneNumber);
             command.Parameters.AddWithValue("@start", DateTime.Now); // Start date = now
             command.Parameters.AddWithValue("@user", emp.Username);
             command.Parameters.AddWithValue("@pass", emp.Password); 
-            
             command.Parameters.AddWithValue("@status", emp.Position);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Employee added: {Name} {Surname}", emp.Name, emp.Surname);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding employee: {ex.Message}");
+            Log.Error(ex, "Error adding employee: {Name} {Surname}", emp.Name, emp.Surname);
             return false;
         }
     }
@@ -1185,13 +1186,7 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             // Password update is handled separately usually, but if provided we might update it?
             // Let's stick to updating profile info here as per UpdateEmployeeProfileAsync, but more complete (including village)
-            const string query = @"
-                UPDATE employee SET 
-                    emp_name=@name, emp_lname=@surname, gender=@gender, date_of_b=@dob, 
-                    village_id=@vid, tel=@tel, status=@status
-                WHERE emp_id=@id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateEmployee, connection);
             command.Parameters.AddWithValue("@name", emp.Name);
             command.Parameters.AddWithValue("@surname", emp.Surname);
             command.Parameters.AddWithValue("@gender", emp.Gender);
@@ -1202,11 +1197,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@id", emp.Id);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Employee updated: {Id}", emp.Id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating employee: {ex.Message}");
+            Log.Error(ex, "Error updating employee: {Id}", emp.Id);
             return false;
         }
     }
@@ -1216,15 +1212,15 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "DELETE FROM employee WHERE emp_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DeleteEmployee, connection);
             command.Parameters.AddWithValue("@id", id);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Employee deleted: {Id}", id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error deleting employee: {ex.Message}");
+            Log.Error(ex, "Error deleting employee: {Id}", id);
             return false;
         }
     }
@@ -1239,8 +1235,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT sup_id, sup_name, contract_name, email, telephone, address FROM supplier ORDER BY sup_id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.Suppliers, connection);
             await using var reader = await command.ExecuteReaderAsync();
             
             int seq = 1;
@@ -1260,7 +1255,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error getting suppliers: {ex.Message}");
+            Log.Error(ex, "Error getting suppliers");
         }
         return list;
     }
@@ -1270,11 +1265,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                INSERT INTO supplier (sup_id, sup_name, contract_name, email, telephone, address)
-                VALUES (@id, @name, @contact, @email, @tel, @addr)";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.InsertSupplier, connection);
             command.Parameters.AddWithValue("@id", s.Id);
             command.Parameters.AddWithValue("@name", s.Name);
             command.Parameters.AddWithValue("@contact", s.ContactName);
@@ -1283,11 +1274,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@addr", s.Address);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Supplier added: {Name}", s.Name);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding supplier: {ex.Message}");
+            Log.Error(ex, "Error adding supplier: {Name}", s.Name);
             return false;
         }
     }
@@ -1297,12 +1289,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = @"
-                UPDATE supplier SET 
-                    sup_name=@name, contract_name=@contact, email=@email, telephone=@tel, address=@addr
-                WHERE sup_id=@id";
-
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.UpdateSupplier, connection);
             command.Parameters.AddWithValue("@name", s.Name);
             command.Parameters.AddWithValue("@contact", s.ContactName);
             command.Parameters.AddWithValue("@email", s.Email);
@@ -1311,11 +1298,12 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@id", s.Id);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Supplier updated: {Id}", s.Id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error updating supplier: {ex.Message}");
+            Log.Error(ex, "Error updating supplier: {Id}", s.Id);
             return false;
         }
     }
@@ -1325,15 +1313,15 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "DELETE FROM supplier WHERE sup_id = @id";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.DeleteSupplier, connection);
             command.Parameters.AddWithValue("@id", id);
             await command.ExecuteNonQueryAsync();
+            Log.Information("Supplier deleted: {Id}", id);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error deleting supplier: {ex.Message}");
+            Log.Error(ex, "Error deleting supplier: {Id}", id);
             return false;
         }
     }
@@ -1348,8 +1336,7 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "SELECT id, dolar, bath, ex_date FROM exchange_rate ORDER BY ex_date DESC LIMIT 50";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.ExchangeRateHistory, connection);
             await using var reader = await command.ExecuteReaderAsync();
             
             while (await reader.ReadAsync())
@@ -1365,7 +1352,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error getting exchange rate history: {ex.Message}");
+            Log.Error(ex, "Error getting exchange rate history");
         }
         return list;
     }
@@ -1375,18 +1362,18 @@ public class DatabaseService : IDatabaseService
         try
         {
             await using var connection = await GetConnectionAsync();
-            const string query = "INSERT INTO exchange_rate (dolar, bath, ex_date) VALUES (@usd, @thb, @date)";
-            await using var command = new MySqlCommand(query, connection);
+            await using var command = new MySqlCommand(SqlQueries.InsertExchangeRate, connection);
             command.Parameters.AddWithValue("@usd", rate.UsdRate);
             command.Parameters.AddWithValue("@thb", rate.ThbRate);
             command.Parameters.AddWithValue("@date", DateTime.Now);
 
             await command.ExecuteNonQueryAsync();
+            Log.Information("Exchange rate added: USD={Usd}, THB={Thb}", rate.UsdRate, rate.ThbRate);
             return true;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error adding exchange rate: {ex.Message}");
+            Log.Error(ex, "Error adding exchange rate");
             return false;
         }
     }

@@ -13,6 +13,7 @@ namespace mini_pos.ViewModels;
 public partial class ProductViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
 
     private Product? _selectedProduct;
     public Product? SelectedProduct
@@ -31,14 +32,6 @@ public partial class ProductViewModel : ViewModelBase
                 ProductCostPrice = value.CostPrice;
                 ProductSellingPrice = value.SellingPrice;
 
-                // When selecting, we try to match the Name to select the item in ComboBox
-                // But internally we want to store the ID when saving.
-                // The ComboBox binds to SelectedBrandItem (Brand object).
-                // So we find the Brand object where Name matches value.Brand (which currently holds Name from DB read?)
-                // Actually GetProductsAsync returns Brand ID in the Brand property? 
-                // Let's check DatabaseService.GetProductsAsync implementation.
-                // It does `reader.GetString("brand_id")`. So value.Brand holds the ID (e.g., "B001").
-                
                 SelectedBrandItem = Brands.FirstOrDefault(b => b.Id == value.BrandId);
                 SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Id == value.CategoryId);
                 SelectedStatusItem = value.Status;
@@ -139,37 +132,34 @@ public partial class ProductViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public ProductViewModel(IDatabaseService databaseService)
+    public ProductViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
+        _dialogService = dialogService;
 
         AddCommand = ReactiveCommand.CreateFromTask(AddAsync);
-        
+
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedProduct)
-                                  .Select(x => x != null);
+            .Select(x => x != null);
 
         EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
         DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
         CancelCommand = ReactiveCommand.Create(Cancel);
-        
-        // Initialize Statuses
-        Statuses.Add("ມີ"); // Available
-        Statuses.Add("ໝົດ"); // Out of Stock
 
-        // Load Data
+        Statuses.Add("ມີ");
+        Statuses.Add("ໝົດ");
+
         _ = LoadDataAsync();
     }
 
-    public ProductViewModel() : this(null!)
+    public ProductViewModel() : this(null!, null)
     {
-        // Design-time
     }
 
     private async Task LoadDataAsync()
     {
         if (_databaseService == null) return;
 
-        // 1. Load Reference Data
         Brands.Clear();
         var brands = await _databaseService.GetBrandsAsync();
         foreach (var b in brands) Brands.Add(b);
@@ -178,17 +168,15 @@ public partial class ProductViewModel : ViewModelBase
         var types = await _databaseService.GetProductTypesAsync();
         foreach (var t in types) ProductTypes.Add(t);
 
-        // 2. Load Products
         await RefreshProductList();
     }
-    
+
     private async Task RefreshProductList()
     {
         AllProducts.Clear();
         var products = await _databaseService.GetProductsAsync();
         foreach (var p in products)
         {
-            // Map DB ID to Object for display if needed, but current model stores ID in Brand/Type properties
             AllProducts.Add(p);
         }
         FilterProducts();
@@ -213,19 +201,20 @@ public partial class ProductViewModel : ViewModelBase
         HasError = false;
         ErrorMessage = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(ProductId) || string.IsNullOrWhiteSpace(ProductName)) 
+        if (string.IsNullOrWhiteSpace(ProductId) || string.IsNullOrWhiteSpace(ProductName))
         {
             HasError = true;
             ErrorMessage = "ກະລຸນາປ້ອນລະຫັດ ແລະ ຊື່ສິນຄ້າ";
+            if (_dialogService != null) await _dialogService.ShowErrorAsync(ErrorMessage);
             return;
         }
 
-        // Check for duplicate barcode
         bool exists = await _databaseService.ProductExistsAsync(ProductId);
         if (exists)
         {
             HasError = true;
             ErrorMessage = $"ລະຫັດສິນຄ້າ {ProductId} ມີຢູ່ໃນລະບົບແລ້ວ (Duplicate Barcode)";
+            if (_dialogService != null) await _dialogService.ShowErrorAsync(ErrorMessage);
             return;
         }
 
@@ -248,6 +237,11 @@ public partial class ProductViewModel : ViewModelBase
         {
             await RefreshProductList();
             Cancel();
+            if (_dialogService != null) await _dialogService.ShowSuccessAsync("ເພີ່ມຂໍ້ມູນສຳເລັດ (Added Successfully)");
+        }
+        else
+        {
+            if (_dialogService != null) await _dialogService.ShowErrorAsync("ບັນທຶກຂໍ້ມູນບໍ່ສຳເລັດ (Failed to save)");
         }
     }
 
@@ -257,7 +251,7 @@ public partial class ProductViewModel : ViewModelBase
         {
             var updatedProduct = new Product
             {
-                Id = ProductId, // PK usually shouldn't change, assuming Barcode is immutable for now
+                Id = ProductId,
                 Name = ProductName,
                 Unit = ProductUnit,
                 Quantity = ProductQuantity,
@@ -268,12 +262,17 @@ public partial class ProductViewModel : ViewModelBase
                 CategoryId = SelectedTypeItem?.Id ?? "",
                 Status = SelectedStatusItem ?? ""
             };
-            
+
             bool success = await _databaseService.UpdateProductAsync(updatedProduct);
             if (success)
             {
                 await RefreshProductList();
                 Cancel();
+                if (_dialogService != null) await _dialogService.ShowSuccessAsync("ແກ້ໄຂຂໍ້ມູນສຳເລັດ (Updated Successfully)");
+            }
+            else
+            {
+                if (_dialogService != null) await _dialogService.ShowErrorAsync("ແກ້ໄຂຂໍ້ມູນບໍ່ສຳເລັດ (Failed to update)");
             }
         }
     }
@@ -282,11 +281,25 @@ public partial class ProductViewModel : ViewModelBase
     {
         if (SelectedProduct != null)
         {
-            bool success = await _databaseService.DeleteProductAsync(SelectedProduct.Id);
-            if (success)
+            bool confirm = true;
+            if (_dialogService != null)
             {
-                await RefreshProductList();
-                Cancel();
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ທ່ານຕ້ອງການລຶບສິນຄ້າ {SelectedProduct.Name} ຫຼືບໍ່?");
+            }
+
+            if (confirm)
+            {
+                bool success = await _databaseService.DeleteProductAsync(SelectedProduct.Id);
+                if (success)
+                {
+                    await RefreshProductList();
+                    Cancel();
+                    if (_dialogService != null) await _dialogService.ShowSuccessAsync("ລຶບຂໍ້ມູນສຳເລັດ (Deleted Successfully)");
+                }
+                else
+                {
+                    if (_dialogService != null) await _dialogService.ShowErrorAsync("ລຶບຂໍ້ມູນບໍ່ສຳເລັດ (Failed to delete)");
+                }
             }
         }
     }
