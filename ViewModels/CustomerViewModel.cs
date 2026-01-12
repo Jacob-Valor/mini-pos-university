@@ -181,6 +181,32 @@ public class CustomerViewModel : ViewModelBase
         Address = customer.Address;
     }
 
+    private void UpsertCustomer(Customer customer)
+    {
+        for (var i = 0; i < AllCustomers.Count; i++)
+        {
+            if (AllCustomers[i].Id == customer.Id)
+            {
+                AllCustomers[i] = customer;
+                return;
+            }
+        }
+
+        AllCustomers.Add(customer);
+    }
+
+    private void RemoveCustomerById(string customerId)
+    {
+        for (var i = 0; i < AllCustomers.Count; i++)
+        {
+            if (AllCustomers[i].Id == customerId)
+            {
+                AllCustomers.RemoveAt(i);
+                return;
+            }
+        }
+    }
+
     private void FilterCustomers()
     {
         Customers.Clear();
@@ -216,7 +242,8 @@ public class CustomerViewModel : ViewModelBase
         bool success = await _databaseService.AddCustomerAsync(newCustomer);
         if (success)
         {
-            await LoadDataAsync();
+            UpsertCustomer(newCustomer);
+            FilterCustomers();
             ClearForm();
             if (_dialogService != null)
             {
@@ -246,7 +273,8 @@ public class CustomerViewModel : ViewModelBase
         bool success = await _databaseService.UpdateCustomerAsync(updateCustomer);
         if (success)
         {
-            await LoadDataAsync();
+            UpsertCustomer(updateCustomer);
+            FilterCustomers();
             ClearForm();
             if (_dialogService != null)
             {
@@ -274,7 +302,8 @@ public class CustomerViewModel : ViewModelBase
         bool success = await _databaseService.DeleteCustomerAsync(SelectedCustomer.Id);
         if (success)
         {
-            await LoadDataAsync();
+            RemoveCustomerById(SelectedCustomer.Id);
+            FilterCustomers();
             ClearForm();
             if (_dialogService != null)
             {

@@ -149,7 +149,8 @@ public class SupplierViewModel : ViewModelBase
 
         if (success)
         {
-            await LoadDataAsync();
+            UpsertSupplier(CurrentSupplier);
+            FilterSuppliers();
             CloseDialogAction?.Invoke();
             if (_dialogService != null)
             {
@@ -167,6 +168,60 @@ public class SupplierViewModel : ViewModelBase
         CloseDialogAction?.Invoke();
     }
 
+    private Supplier CloneSupplier(Supplier supplier, int sequence)
+    {
+        return new Supplier
+        {
+            Sequence = sequence,
+            Id = supplier.Id,
+            Name = supplier.Name,
+            ContactName = supplier.ContactName,
+            Email = supplier.Email,
+            Phone = supplier.Phone,
+            Address = supplier.Address
+        };
+    }
+
+    private void UpsertSupplier(Supplier supplier)
+    {
+        for (var i = 0; i < AllSuppliers.Count; i++)
+        {
+            if (AllSuppliers[i].Id == supplier.Id)
+            {
+                AllSuppliers[i] = CloneSupplier(supplier, AllSuppliers[i].Sequence);
+                return;
+            }
+        }
+
+        AllSuppliers.Add(CloneSupplier(supplier, AllSuppliers.Count + 1));
+    }
+
+    private void RemoveSupplierById(string supplierId)
+    {
+        for (var i = 0; i < AllSuppliers.Count; i++)
+        {
+            if (AllSuppliers[i].Id == supplierId)
+            {
+                AllSuppliers.RemoveAt(i);
+                break;
+            }
+        }
+
+        ReindexSupplierSequences();
+    }
+
+    private void ReindexSupplierSequences()
+    {
+        for (var i = 0; i < AllSuppliers.Count; i++)
+        {
+            var supplier = AllSuppliers[i];
+            if (supplier.Sequence != i + 1)
+            {
+                AllSuppliers[i] = CloneSupplier(supplier, i + 1);
+            }
+        }
+    }
+
     private async Task DeleteAsync()
     {
         if (SelectedSupplier != null)
@@ -182,7 +237,8 @@ public class SupplierViewModel : ViewModelBase
             bool success = await _databaseService.DeleteSupplierAsync(SelectedSupplier.Id);
             if (success)
             {
-                await LoadDataAsync();
+                RemoveSupplierById(SelectedSupplier.Id);
+                FilterSuppliers();
                 if (_dialogService != null)
                 {
                     await _dialogService.ShowSuccessAsync("ລຶບຜູ້ສົ່ງສຳເລັດ (Supplier deleted)");

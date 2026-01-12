@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -29,29 +30,52 @@ public class DialogService : IDialogService
     public async Task ShowMessageAsync(string title, string message, Icon icon = Icon.Info)
     {
         var window = GetMainWindow();
-        if (window == null) return;
+        if (window is null)
+        {
+            Console.WriteLine($"DialogService: Could not get main window for message: {title} - {message}");
+            return;
+        }
 
-        var msg = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.Ok, icon);
-        await msg.ShowWindowDialogAsync(window);
+        try
+        {
+            var msg = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.Ok, icon);
+            await msg.ShowWindowDialogAsync(window);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DialogService.ShowMessageAsync error: {ex.Message}");
+        }
     }
 
     public async Task<bool> ShowConfirmationAsync(string title, string message)
     {
         var window = GetMainWindow();
-        if (window == null) return false;
+        if (window is null)
+        {
+            Console.WriteLine($"DialogService: Could not get main window for confirmation: {title}");
+            return false;
+        }
 
-        var msg = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.YesNo, Icon.Question);
-        var result = await msg.ShowWindowDialogAsync(window);
-        return result == ButtonResult.Yes;
+        try
+        {
+            var msg = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.YesNo, Icon.Question);
+            var result = await msg.ShowWindowDialogAsync(window);
+            return result == ButtonResult.Yes;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DialogService.ShowConfirmationAsync error: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task ShowErrorAsync(string message)
     {
-        await ShowMessageAsync("ຂໍ້ຜິດພາດ (Error)", message, Icon.Error);
+        await ShowMessageAsync("Error", message, Icon.Error);
     }
 
     public async Task ShowSuccessAsync(string message)
     {
-        await ShowMessageAsync("ສຳເລັດ (Success)", message, Icon.Success);
+        await ShowMessageAsync("Success", message, Icon.Success);
     }
 }

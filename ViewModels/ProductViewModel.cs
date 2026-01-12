@@ -196,6 +196,22 @@ public partial class ProductViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _hasError, value);
     }
 
+    private async Task<bool> ValidateProductSelectionsAsync()
+    {
+        if (SelectedBrandItem == null || SelectedTypeItem == null || string.IsNullOrWhiteSpace(SelectedStatusItem))
+        {
+            HasError = true;
+            ErrorMessage = "ກະລຸນາເລືອກຍີ່ຫໍ້, ປະເພດ ແລະ ສະຖານະ";
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync(ErrorMessage);
+            }
+            return false;
+        }
+
+        return true;
+    }
+
     private async Task AddAsync()
     {
         HasError = false;
@@ -206,6 +222,11 @@ public partial class ProductViewModel : ViewModelBase
             HasError = true;
             ErrorMessage = "ກະລຸນາປ້ອນລະຫັດ ແລະ ຊື່ສິນຄ້າ";
             if (_dialogService != null) await _dialogService.ShowErrorAsync(ErrorMessage);
+            return;
+        }
+
+        if (!await ValidateProductSelectionsAsync())
+        {
             return;
         }
 
@@ -228,14 +249,17 @@ public partial class ProductViewModel : ViewModelBase
             CostPrice = ProductCostPrice,
             SellingPrice = ProductSellingPrice,
             BrandId = SelectedBrandItem?.Id ?? "",
+            BrandName = SelectedBrandItem?.Name ?? "",
             CategoryId = SelectedTypeItem?.Id ?? "",
+            CategoryName = SelectedTypeItem?.Name ?? "",
             Status = SelectedStatusItem ?? ""
         };
 
         bool success = await _databaseService.AddProductAsync(newProduct);
         if (success)
         {
-            await RefreshProductList();
+            UpsertProduct(newProduct);
+            FilterProducts();
             Cancel();
             if (_dialogService != null) await _dialogService.ShowSuccessAsync("ເພີ່ມຂໍ້ມູນສຳເລັດ (Added Successfully)");
         }
@@ -249,6 +273,14 @@ public partial class ProductViewModel : ViewModelBase
     {
         if (SelectedProduct != null)
         {
+            HasError = false;
+            ErrorMessage = string.Empty;
+
+            if (!await ValidateProductSelectionsAsync())
+            {
+                return;
+            }
+
             var updatedProduct = new Product
             {
                 Id = ProductId,
@@ -259,14 +291,17 @@ public partial class ProductViewModel : ViewModelBase
                 CostPrice = ProductCostPrice,
                 SellingPrice = ProductSellingPrice,
                 BrandId = SelectedBrandItem?.Id ?? "",
+                BrandName = SelectedBrandItem?.Name ?? "",
                 CategoryId = SelectedTypeItem?.Id ?? "",
+                CategoryName = SelectedTypeItem?.Name ?? "",
                 Status = SelectedStatusItem ?? ""
             };
 
             bool success = await _databaseService.UpdateProductAsync(updatedProduct);
             if (success)
             {
-                await RefreshProductList();
+                UpsertProduct(updatedProduct);
+                FilterProducts();
                 Cancel();
                 if (_dialogService != null) await _dialogService.ShowSuccessAsync("ແກ້ໄຂຂໍ້ມູນສຳເລັດ (Updated Successfully)");
             }
@@ -292,7 +327,8 @@ public partial class ProductViewModel : ViewModelBase
                 bool success = await _databaseService.DeleteProductAsync(SelectedProduct.Id);
                 if (success)
                 {
-                    await RefreshProductList();
+                    RemoveProductById(SelectedProduct.Id);
+                    FilterProducts();
                     Cancel();
                     if (_dialogService != null) await _dialogService.ShowSuccessAsync("ລຶບຂໍ້ມູນສຳເລັດ (Deleted Successfully)");
                 }
@@ -317,6 +353,32 @@ public partial class ProductViewModel : ViewModelBase
         SelectedBrandItem = null;
         SelectedTypeItem = null;
         SelectedStatusItem = null;
+    }
+
+    private void UpsertProduct(Product product)
+    {
+        for (var i = 0; i < AllProducts.Count; i++)
+        {
+            if (AllProducts[i].Id == product.Id)
+            {
+                AllProducts[i] = product;
+                return;
+            }
+        }
+
+        AllProducts.Add(product);
+    }
+
+    private void RemoveProductById(string productId)
+    {
+        for (var i = 0; i < AllProducts.Count; i++)
+        {
+            if (AllProducts[i].Id == productId)
+            {
+                AllProducts.RemoveAt(i);
+                return;
+            }
+        }
     }
 
     private void FilterProducts()

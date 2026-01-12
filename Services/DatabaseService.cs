@@ -12,7 +12,7 @@ public interface IDatabaseService
 {
     Task<MySqlConnection> GetConnectionAsync();
     Task<(bool Success, string Message)> TestConnectionAsync();
-    Task<Employee?> ValidateLoginAsync(string username, string passwordHash);
+    Task<Employee?> GetEmployeeByUsernameAsync(string username);
     Task<List<Employee>> GetEmployeesAsync();
     Task<List<Product>> GetProductsAsync();
     Task<Product?> GetProductByBarcodeAsync(string barcode);
@@ -25,7 +25,7 @@ public interface IDatabaseService
     Task<string?> GetStoredPasswordHashAsync(string username);
     Task<ExchangeRate?> GetLatestExchangeRateAsync();
     Task<bool> CreateSaleAsync(Sale sale, IEnumerable<SaleDetail> details);
-    
+
     // Product Operations
     Task<bool> AddProductAsync(Product product);
     Task<bool> UpdateProductAsync(Product product);
@@ -37,7 +37,7 @@ public interface IDatabaseService
     Task<bool> UpdateCustomerAsync(Customer customer);
     Task<bool> DeleteCustomerAsync(string customerId);
     Task<List<Customer>> SearchCustomersAsync(string keyword);
-    
+
     // Brand Operations (GetBrandsAsync defined earlier)
     Task<bool> AddBrandAsync(Brand brand);
     Task<bool> UpdateBrandAsync(Brand brand);
@@ -53,7 +53,7 @@ public interface IDatabaseService
     Task<List<Province>> GetProvincesAsync();
     Task<List<District>> GetDistrictsByProvinceAsync(string provinceId);
     Task<List<Village>> GetVillagesByDistrictAsync(string districtId);
-    
+
     // Employee Management
     Task<bool> AddEmployeeAsync(Employee emp);
     Task<bool> UpdateEmployeeAsync(Employee emp);
@@ -80,16 +80,22 @@ public class DatabaseService : IDatabaseService
     {
         public const string ConnectionTest = "SELECT 1";
 
-        public const string ValidateLogin = @"
-                SELECT emp_id, emp_name, emp_lname, gender, date_of_b, 
-                       village_id, tel, start_date, username, status
-                FROM employee 
-                WHERE username = @username AND password = @password";
+        public const string EmployeeByUsername = @"
+                SELECT e.emp_id, e.emp_name, e.emp_lname, e.gender, e.date_of_b,
+                       e.village_id, e.tel, e.start_date, e.username, e.status,
+                       v.vname as village_name, d.distname as district_name, p.provname as province_name,
+                       d.distid as district_id, p.provid as province_id
+                FROM employee e
+                LEFT JOIN villages v ON e.village_id = v.vid
+                LEFT JOIN districts d ON v.distid = d.distid
+                LEFT JOIN provinces p ON d.provid = p.provid
+                WHERE e.username = @username";
 
         public const string Employees = @"
                 SELECT e.emp_id, e.emp_name, e.emp_lname, e.gender, e.date_of_b,
                        e.tel, e.start_date, e.username, e.status,
-                       v.vname as village_name, d.distname as district_name, p.provname as province_name
+                       v.vname as village_name, d.distname as district_name, p.provname as province_name,
+                       v.vid as village_id, d.distid as district_id, p.provid as province_id
                 FROM employee e
                 LEFT JOIN villages v ON e.village_id = v.vid
                 LEFT JOIN districts d ON v.distid = d.distid
@@ -132,8 +138,8 @@ public class DatabaseService : IDatabaseService
                 INSERT INTO product (barcode, product_name, unit, quantity, quantity_min, cost_price, retail_price, brand_id, category_id, status)
                 VALUES (@id, @name, @unit, @qty, @min, @cost, @price, @brand, @type, @status)";
         public const string UpdateProduct = @"
-                UPDATE product SET 
-                    product_name=@name, unit=@unit, quantity=@qty, quantity_min=@min, 
+                UPDATE product SET
+                    product_name=@name, unit=@unit, quantity=@qty, quantity_min=@min,
                     cost_price=@cost, retail_price=@price, brand_id=@brand, category_id=@type, status=@status
                 WHERE barcode=@id";
         public const string DeleteProduct = "DELETE FROM product WHERE barcode = @id";
@@ -142,13 +148,13 @@ public class DatabaseService : IDatabaseService
                 INSERT INTO customer (cus_id, cus_name, cus_lname, gender, address, tel)
                 VALUES (@id, @name, @surname, @gender, @addr, @tel)";
         public const string UpdateCustomer = @"
-                UPDATE customer SET 
+                UPDATE customer SET
                     cus_name=@name, cus_lname=@surname, gender=@gender, address=@addr, tel=@tel
                 WHERE cus_id=@id";
         public const string DeleteCustomer = "DELETE FROM customer WHERE cus_id = @id";
         public const string SearchCustomers = @"
-                SELECT cus_id, cus_name, cus_lname, gender, address, tel 
-                FROM customer 
+                SELECT cus_id, cus_name, cus_lname, gender, address, tel
+                FROM customer
                 WHERE cus_id LIKE @kw OR cus_name LIKE @kw OR tel LIKE @kw
                 LIMIT 20";
 
@@ -165,22 +171,22 @@ public class DatabaseService : IDatabaseService
         public const string VillagesByDistrict = "SELECT vid, vname, distid FROM villages WHERE distid = @did ORDER BY vname";
 
         public const string InsertEmployee = @"
-                INSERT INTO employee 
+                INSERT INTO employee
                 (emp_id, emp_name, emp_lname, gender, date_of_b, village_id, tel, start_date, username, password, status)
-                VALUES 
+                VALUES
                 (@id, @name, @surname, @gender, @dob, @vid, @tel, @start, @user, @pass, @status)";
         public const string UpdateEmployee = @"
-                UPDATE employee SET 
-                    emp_name=@name, emp_lname=@surname, gender=@gender, date_of_b=@dob, 
+                UPDATE employee SET
+                    emp_name=@name, emp_lname=@surname, gender=@gender, date_of_b=@dob,
                     village_id=@vid, tel=@tel, status=@status
                 WHERE emp_id=@id";
         public const string DeleteEmployee = "DELETE FROM employee WHERE emp_id = @id";
         public const string UpdateEmployeeProfile = @"
-                UPDATE employee 
-                SET emp_name = @name, 
-                    emp_lname = @surname, 
-                    gender = @gender, 
-                    date_of_b = @dob, 
+                UPDATE employee
+                SET emp_name = @name,
+                    emp_lname = @surname,
+                    gender = @gender,
+                    date_of_b = @dob,
                     tel = @tel,
                     username = @username
                 WHERE emp_id = @id";
@@ -192,7 +198,7 @@ public class DatabaseService : IDatabaseService
                 INSERT INTO supplier (sup_id, sup_name, contract_name, email, telephone, address)
                 VALUES (@id, @name, @contact, @email, @tel, @addr)";
         public const string UpdateSupplier = @"
-                UPDATE supplier SET 
+                UPDATE supplier SET
                     sup_name=@name, contract_name=@contact, email=@email, telephone=@tel, address=@addr
                 WHERE sup_id=@id";
         public const string DeleteSupplier = "DELETE FROM supplier WHERE sup_id = @id";
@@ -211,6 +217,21 @@ public class DatabaseService : IDatabaseService
     }
 
     private readonly string _connectionString;
+
+    private static string MaskUsername(string? username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return "[empty]";
+        }
+
+        if (username.Length <= 2)
+        {
+            return "***";
+        }
+
+        return username.Substring(0, 2) + new string('*', username.Length - 2);
+    }
 
     public DatabaseService()
     {
@@ -261,24 +282,22 @@ public class DatabaseService : IDatabaseService
     #region Employee Operations
 
     /// <summary>
-    /// Validates employee login credentials.
+    /// Gets an employee by username.
     /// </summary>
-    /// <param name="username">The username to validate.</param>
-    /// <param name="passwordHash">The MD5 hashed password.</param>
-    /// <returns>Employee object if valid, null otherwise.</returns>
-    public async Task<Employee?> ValidateLoginAsync(string username, string passwordHash)
+    /// <param name="username">The username to lookup.</param>
+    /// <returns>Employee object if found, null otherwise.</returns>
+    public async Task<Employee?> GetEmployeeByUsernameAsync(string username)
     {
         try
         {
             await using var connection = await GetConnectionAsync();
-            await using var command = new MySqlCommand(SqlQueries.ValidateLogin, connection);
+            await using var command = new MySqlCommand(SqlQueries.EmployeeByUsername, connection);
             command.Parameters.AddWithValue("@username", username);
-            command.Parameters.AddWithValue("@password", passwordHash);
 
             await using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                Log.Information("User {Username} logged in successfully", username);
+                Log.Information("User lookup succeeded for {Username}", MaskUsername(username));
                 return new Employee
                 {
                     Id = reader.GetString("emp_id"),
@@ -287,16 +306,23 @@ public class DatabaseService : IDatabaseService
                     Gender = reader.GetString("gender"),
                     DateOfBirth = reader.GetDateTime("date_of_b"),
                     PhoneNumber = reader.GetString("tel"),
+                    Province = reader.IsDBNull("province_name") ? string.Empty : reader.GetString("province_name"),
+                    District = reader.IsDBNull("district_name") ? string.Empty : reader.GetString("district_name"),
+                    Village = reader.IsDBNull("village_name") ? string.Empty : reader.GetString("village_name"),
+                    ProvinceId = reader.IsDBNull("province_id") ? string.Empty : reader.GetString("province_id"),
+                    DistrictId = reader.IsDBNull("district_id") ? string.Empty : reader.GetString("district_id"),
+                    VillageId = reader.IsDBNull("village_id") ? string.Empty : reader.GetString("village_id"),
                     Position = reader.GetString("status"),
                     Username = reader.GetString("username")
                 };
             }
-            Log.Warning("Failed login attempt for user: {Username}", username);
+
+            Log.Warning("User lookup failed for {Username}", MaskUsername(username));
             return null;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error validating login for user: {Username}", username);
+            Log.Error(ex, "Error fetching user by username: {Username}", MaskUsername(username));
             return null;
         }
     }
@@ -327,6 +353,9 @@ public class DatabaseService : IDatabaseService
                     Village = reader.IsDBNull("village_name") ? "" : reader.GetString("village_name"),
                     District = reader.IsDBNull("district_name") ? "" : reader.GetString("district_name"),
                     Province = reader.IsDBNull("province_name") ? "" : reader.GetString("province_name"),
+                    VillageId = reader.IsDBNull("village_id") ? string.Empty : reader.GetString("village_id"),
+                    DistrictId = reader.IsDBNull("district_id") ? string.Empty : reader.GetString("district_id"),
+                    ProvinceId = reader.IsDBNull("province_id") ? string.Empty : reader.GetString("province_id"),
                     Position = reader.GetString("status"),
                     Username = reader.GetString("username")
                 });
@@ -627,7 +656,7 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.StoredPasswordHash, connection);
             command.Parameters.AddWithValue("@username", username);
-            
+
             var result = await command.ExecuteScalarAsync();
             return result?.ToString();
         }
@@ -649,7 +678,7 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.LatestExchangeRate, connection);
             await using var reader = await command.ExecuteReaderAsync();
-            
+
             if (await reader.ReadAsync())
             {
                 return new ExchangeRate
@@ -751,7 +780,7 @@ public class DatabaseService : IDatabaseService
         {
             await using var connection = await GetConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.InsertProduct, connection);
-            
+
             command.Parameters.AddWithValue("@id", p.Id);
             command.Parameters.AddWithValue("@name", p.Name);
             command.Parameters.AddWithValue("@unit", p.Unit);
@@ -759,7 +788,7 @@ public class DatabaseService : IDatabaseService
             command.Parameters.AddWithValue("@min", p.MinQuantity);
             command.Parameters.AddWithValue("@cost", p.CostPrice);
             command.Parameters.AddWithValue("@price", p.SellingPrice);
-            command.Parameters.AddWithValue("@brand", p.BrandId); 
+            command.Parameters.AddWithValue("@brand", p.BrandId);
             command.Parameters.AddWithValue("@type", p.CategoryId);
             command.Parameters.AddWithValue("@status", p.Status);
 
@@ -822,7 +851,7 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<ProductType>> GetProductTypesAsync()
     {
-         var list = new List<ProductType>();
+        var list = new List<ProductType>();
         try
         {
             await using var connection = await GetConnectionAsync();
@@ -839,7 +868,7 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-             Log.Error(ex, "Error getting product types");
+            Log.Error(ex, "Error getting product types");
         }
         return list;
     }
@@ -891,8 +920,8 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-             Log.Error(ex, "Error updating customer: {Id}", c.Id);
-             return false;
+            Log.Error(ex, "Error updating customer: {Id}", c.Id);
+            return false;
         }
     }
 
@@ -909,8 +938,8 @@ public class DatabaseService : IDatabaseService
         }
         catch (Exception ex)
         {
-             Log.Error(ex, "Error deleting customer: {Id}", id);
-             return false;
+            Log.Error(ex, "Error deleting customer: {Id}", id);
+            return false;
         }
     }
 
@@ -922,7 +951,7 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.SearchCustomers, connection);
             command.Parameters.AddWithValue("@kw", $"%{keyword}%");
-            
+
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -1007,7 +1036,7 @@ public class DatabaseService : IDatabaseService
     #endregion
 
     #region Type Operations
-    
+
     public async Task<bool> AddProductTypeAsync(ProductType type)
     {
         try
@@ -1063,7 +1092,7 @@ public class DatabaseService : IDatabaseService
             return false;
         }
     }
-    
+
     #endregion
 
 
@@ -1155,17 +1184,24 @@ public class DatabaseService : IDatabaseService
         {
             await using var connection = await GetConnectionAsync();
             // village_id is required in DB schema
+            var villageId = !string.IsNullOrWhiteSpace(emp.VillageId) ? emp.VillageId : emp.Village;
+            if (string.IsNullOrWhiteSpace(villageId))
+            {
+                Log.Warning("Employee missing village id for {Id}", emp.Id);
+                return false;
+            }
+
             await using var command = new MySqlCommand(SqlQueries.InsertEmployee, connection);
             command.Parameters.AddWithValue("@id", emp.Id);
             command.Parameters.AddWithValue("@name", emp.Name);
             command.Parameters.AddWithValue("@surname", emp.Surname);
             command.Parameters.AddWithValue("@gender", emp.Gender);
             command.Parameters.AddWithValue("@dob", emp.DateOfBirth);
-            command.Parameters.AddWithValue("@vid", string.IsNullOrEmpty(emp.Village) ? "0000000" : emp.Village); 
+            command.Parameters.AddWithValue("@vid", villageId);
             command.Parameters.AddWithValue("@tel", emp.PhoneNumber);
             command.Parameters.AddWithValue("@start", DateTime.Now); // Start date = now
             command.Parameters.AddWithValue("@user", emp.Username);
-            command.Parameters.AddWithValue("@pass", emp.Password); 
+            command.Parameters.AddWithValue("@pass", emp.Password);
             command.Parameters.AddWithValue("@status", emp.Position);
 
             await command.ExecuteNonQueryAsync();
@@ -1186,12 +1222,19 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             // Password update is handled separately usually, but if provided we might update it?
             // Let's stick to updating profile info here as per UpdateEmployeeProfileAsync, but more complete (including village)
+            var villageId = !string.IsNullOrWhiteSpace(emp.VillageId) ? emp.VillageId : emp.Village;
+            if (string.IsNullOrWhiteSpace(villageId))
+            {
+                Log.Warning("Employee missing village id for {Id}", emp.Id);
+                return false;
+            }
+
             await using var command = new MySqlCommand(SqlQueries.UpdateEmployee, connection);
             command.Parameters.AddWithValue("@name", emp.Name);
             command.Parameters.AddWithValue("@surname", emp.Surname);
             command.Parameters.AddWithValue("@gender", emp.Gender);
             command.Parameters.AddWithValue("@dob", emp.DateOfBirth);
-            command.Parameters.AddWithValue("@vid", string.IsNullOrEmpty(emp.Village) ? "0000000" : emp.Village);
+            command.Parameters.AddWithValue("@vid", villageId);
             command.Parameters.AddWithValue("@tel", emp.PhoneNumber);
             command.Parameters.AddWithValue("@status", emp.Position);
             command.Parameters.AddWithValue("@id", emp.Id);
@@ -1237,7 +1280,7 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.Suppliers, connection);
             await using var reader = await command.ExecuteReaderAsync();
-            
+
             int seq = 1;
             while (await reader.ReadAsync())
             {
@@ -1338,7 +1381,7 @@ public class DatabaseService : IDatabaseService
             await using var connection = await GetConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.ExchangeRateHistory, connection);
             await using var reader = await command.ExecuteReaderAsync();
-            
+
             while (await reader.ReadAsync())
             {
                 list.Add(new ExchangeRate
@@ -1380,4 +1423,3 @@ public class DatabaseService : IDatabaseService
 
     #endregion
 }
-

@@ -14,6 +14,7 @@ public class EmployeeViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService? _dialogService;
+    private bool _suppressLocationUpdates;
 
     private Employee? _selectedEmployee;
     public Employee? SelectedEmployee
@@ -32,16 +33,9 @@ public class EmployeeViewModel : ViewModelBase
                 EmployeePhoneNumber = value.PhoneNumber;
                 EmployeePassword = value.Password;
                 EmployeeImagePath = value.ImagePath;
-
-                SelectedProvinceItem = null; // Ideally load from ID but we don't have GetProvinceById yet
-                // For now, we are just displaying data. If we want full edit, we need to map IDs to Objects.
-                // Or simply display string names if we don't need cascading dropdowns on Edit.
-                // But cascading is better.
-                // Let's set to null for now or implement mapping logic if time permits.
-                // SelectedProvince = value.Province; // Removed
-                // SelectedDistrict = value.District; // Removed
-                // SelectedVillage = value.Village;   // Removed
                 SelectedPosition = value.Position;
+
+                _ = SetLocationFromEmployeeAsync(value);
             }
         }
     }
@@ -110,7 +104,10 @@ public class EmployeeViewModel : ViewModelBase
         set
         {
             this.RaiseAndSetIfChanged(ref _selectedProvinceItem, value);
-            _ = LoadDistrictsAsync(value?.Id);
+            if (!_suppressLocationUpdates)
+            {
+                _ = LoadDistrictsAsync(value?.Id);
+            }
         }
     }
 
@@ -121,7 +118,10 @@ public class EmployeeViewModel : ViewModelBase
         set
         {
             this.RaiseAndSetIfChanged(ref _selectedDistrictItem, value);
-            _ = LoadVillagesAsync(value?.Id);
+            if (!_suppressLocationUpdates)
+            {
+                _ = LoadVillagesAsync(value?.Id);
+            }
         }
     }
 
@@ -207,6 +207,28 @@ public class EmployeeViewModel : ViewModelBase
         await RefreshEmployeeList();
     }
 
+    private async Task SetLocationFromEmployeeAsync(Employee employee)
+    {
+        _suppressLocationUpdates = true;
+        SelectedProvinceItem = Provinces.FirstOrDefault(p => p.Id == employee.ProvinceId) ??
+                               Provinces.FirstOrDefault(p => p.Name == employee.Province);
+        _suppressLocationUpdates = false;
+
+        await LoadDistrictsAsync(SelectedProvinceItem?.Id);
+
+        _suppressLocationUpdates = true;
+        SelectedDistrictItem = Districts.FirstOrDefault(d => d.Id == employee.DistrictId) ??
+                               Districts.FirstOrDefault(d => d.Name == employee.District);
+        _suppressLocationUpdates = false;
+
+        await LoadVillagesAsync(SelectedDistrictItem?.Id);
+
+        _suppressLocationUpdates = true;
+        SelectedVillageItem = Villages.FirstOrDefault(v => v.Id == employee.VillageId) ??
+                              Villages.FirstOrDefault(v => v.Name == employee.Village);
+        _suppressLocationUpdates = false;
+    }
+
     private async Task RefreshEmployeeList()
     {
         AllEmployees.Clear();
@@ -245,12 +267,14 @@ public class EmployeeViewModel : ViewModelBase
             Gender = EmployeeGender,
             DateOfBirth = EmployeeDateOfBirth.DateTime,
             PhoneNumber = EmployeePhoneNumber,
-            // Store ID in the Village field for DB insertion, though Model usually holds Name for display.
-            // We need to be careful. The AddEmployeeAsync expects ID in Village property? 
-            // Yes, let's assume we pass ID.
-            Village = SelectedVillageItem?.Id ?? "", 
-            Username = string.IsNullOrWhiteSpace(EmployeePassword) ? EmployeeId : EmployeeName, // Default username
-            Password = PasswordHelper.HashPassword(EmployeePassword), // Secure Hash
+            Province = SelectedProvinceItem?.Name ?? string.Empty,
+            District = SelectedDistrictItem?.Name ?? string.Empty,
+            Village = SelectedVillageItem?.Name ?? string.Empty,
+            ProvinceId = SelectedProvinceItem?.Id ?? string.Empty,
+            DistrictId = SelectedDistrictItem?.Id ?? string.Empty,
+            VillageId = SelectedVillageItem?.Id ?? string.Empty,
+            Username = EmployeeId,
+            Password = PasswordHelper.HashPassword(EmployeePassword),
             Position = SelectedPosition ?? "Employee",
             ImagePath = EmployeeImagePath
         };
@@ -275,6 +299,10 @@ public class EmployeeViewModel : ViewModelBase
     {
         if (SelectedEmployee != null)
         {
+            var provinceId = SelectedProvinceItem?.Id ?? SelectedEmployee.ProvinceId;
+            var districtId = SelectedDistrictItem?.Id ?? SelectedEmployee.DistrictId;
+            var villageId = SelectedVillageItem?.Id ?? SelectedEmployee.VillageId;
+
             var updatedEmployee = new Employee
             {
                 Id = SelectedEmployee.Id,
@@ -283,9 +311,14 @@ public class EmployeeViewModel : ViewModelBase
                 Gender = EmployeeGender,
                 DateOfBirth = EmployeeDateOfBirth.DateTime,
                 PhoneNumber = EmployeePhoneNumber,
-                Village = SelectedVillageItem?.Id ?? "", // ID for update
-                Position = SelectedPosition ?? "",
-                Username = SelectedEmployee.Username // Keep original username or allow edit?
+                Province = SelectedProvinceItem?.Name ?? SelectedEmployee.Province,
+                District = SelectedDistrictItem?.Name ?? SelectedEmployee.District,
+                Village = SelectedVillageItem?.Name ?? SelectedEmployee.Village,
+                ProvinceId = provinceId,
+                DistrictId = districtId,
+                VillageId = villageId,
+                Position = SelectedPosition ?? string.Empty,
+                Username = SelectedEmployee.Username
             };
             
             bool success = await _databaseService.UpdateEmployeeAsync(updatedEmployee);

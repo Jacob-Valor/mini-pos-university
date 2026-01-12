@@ -108,7 +108,8 @@ public partial class BrandViewModel : ViewModelBase
         bool success = await _databaseService.AddBrandAsync(brand);
         if (success)
         {
-            await LoadDataAsync();
+            UpsertBrand(brand);
+            FilterBrands();
             Cancel();
             if (_dialogService != null)
             {
@@ -129,7 +130,8 @@ public partial class BrandViewModel : ViewModelBase
             bool success = await _databaseService.UpdateBrandAsync(updatedBrand);
             if (success)
             {
-                await LoadDataAsync();
+                UpsertBrand(updatedBrand);
+                FilterBrands();
                 Cancel();
                 if (_dialogService != null)
                 {
@@ -158,7 +160,8 @@ public partial class BrandViewModel : ViewModelBase
             bool success = await _databaseService.DeleteBrandAsync(SelectedBrand.Id);
             if (success)
             {
-                await LoadDataAsync();
+                RemoveBrandById(SelectedBrand.Id);
+                FilterBrands();
                 Cancel();
                 if (_dialogService != null)
                 {
@@ -176,6 +179,32 @@ public partial class BrandViewModel : ViewModelBase
     {
         SelectedBrand = null;
         BrandName = string.Empty;
+    }
+
+    private void UpsertBrand(Brand brand)
+    {
+        for (var i = 0; i < AllBrands.Count; i++)
+        {
+            if (AllBrands[i].Id == brand.Id)
+            {
+                AllBrands[i] = brand;
+                return;
+            }
+        }
+
+        AllBrands.Add(brand);
+    }
+
+    private void RemoveBrandById(string brandId)
+    {
+        for (var i = 0; i < AllBrands.Count; i++)
+        {
+            if (AllBrands[i].Id == brandId)
+            {
+                AllBrands.RemoveAt(i);
+                return;
+            }
+        }
     }
 
     private void FilterBrands()

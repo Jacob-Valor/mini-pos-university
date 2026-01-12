@@ -1,8 +1,6 @@
 using ReactiveUI;
 using System.Reactive;
 using System;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using mini_pos.Services;
 using mini_pos.Models;
@@ -80,37 +78,6 @@ namespace mini_pos.ViewModels
             // In a real scenario we might want a MockDatabaseService here
         }
 
-        /// <summary>
-        /// Computes secure hash of the input string using PBKDF2.
-        /// Returns hex string with salt for secure password storage.
-        /// </summary>
-        private static string ComputeSecureHash(string input)
-        {
-            // Generate a random salt
-            byte[] salt = RandomNumberGenerator.GetBytes(16);
-            
-            // Derive key using PBKDF2 with 10000 iterations
-            byte[] hash = Rfc2898DeriveBytes.Pbkdf2(input, salt, 10000, HashAlgorithmName.SHA256, 32);
-            
-            // Combine salt and hash
-            byte[] hashBytes = new byte[48];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
-            Array.Copy(hash, 0, hashBytes, 16, 32);
-            
-            return Convert.ToHexString(hashBytes).ToLower();
-        }
-        
-        /// <summary>
-        /// Computes MD5 hash for backward compatibility with existing database.
-        /// Use ComputeSecureHash for new password storage.
-        /// </summary>
-        private static string ComputeMd5Hash(string input)
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-            byte[] hashBytes = MD5.HashData(inputBytes);
-            return Convert.ToHexString(hashBytes).ToLower();
-        }
-
         private async Task LoginAsync()
         {
             // Clear previous error
@@ -150,21 +117,9 @@ namespace mini_pos.ViewModels
                         if (storedHash.Length == 32)
                         {
                             Console.WriteLine("Upgrading legacy MD5 password to PBKDF2...");
-                            var newHash = PasswordHelper.HashPassword(Password ?? string.Empty);
-                            // We need employee ID to update. Fetch employee first.
-                            // However, ValidateLoginAsync fetches employee.
-                            // Let's just continue to ValidateLoginAsync but PASS THE STORED HASH (MD5) so the query works
-                            // The query is: WHERE username = @username AND password = @password
-                            // So we must pass the OLD hash to get the user object.
                         }
 
-                        // Validate against DB to get the Employee object
-                        // We pass the HASH that is currently in the DB (whether MD5 or PBKDF2)
-                        // If we passed the raw password, it would fail.
-                        // If we calculated MD5 locally but DB has PBKDF2, it would fail.
-                        // So we rely on storedHash which we just verified matches the input.
-                        
-                        var employee = await _databaseService.ValidateLoginAsync(Username ?? string.Empty, storedHash);
+                        var employee = await _databaseService.GetEmployeeByUsernameAsync(Username ?? string.Empty);
 
                         if (employee != null)
                         {

@@ -105,7 +105,8 @@ public partial class ProductTypeViewModel : ViewModelBase
         bool success = await _databaseService.AddProductTypeAsync(newType);
         if (success)
         {
-            await LoadDataAsync();
+            UpsertProductType(newType);
+            FilterProductTypes();
             Cancel();
             if (_dialogService != null)
             {
@@ -126,7 +127,8 @@ public partial class ProductTypeViewModel : ViewModelBase
             bool success = await _databaseService.UpdateProductTypeAsync(updatedType);
             if (success)
             {
-                await LoadDataAsync();
+                UpsertProductType(updatedType);
+                FilterProductTypes();
                 Cancel();
                 if (_dialogService != null)
                 {
@@ -155,7 +157,8 @@ public partial class ProductTypeViewModel : ViewModelBase
             bool success = await _databaseService.DeleteProductTypeAsync(SelectedProductType.Id);
             if (success)
             {
-                await LoadDataAsync();
+                RemoveProductTypeById(SelectedProductType.Id);
+                FilterProductTypes();
                 Cancel();
                 if (_dialogService != null)
                 {
@@ -173,6 +176,32 @@ public partial class ProductTypeViewModel : ViewModelBase
     {
         SelectedProductType = null;
         ProductTypeName = string.Empty;
+    }
+
+    private void UpsertProductType(ProductType productType)
+    {
+        for (var i = 0; i < AllProductTypes.Count; i++)
+        {
+            if (AllProductTypes[i].Id == productType.Id)
+            {
+                AllProductTypes[i] = productType;
+                return;
+            }
+        }
+
+        AllProductTypes.Add(productType);
+    }
+
+    private void RemoveProductTypeById(string productTypeId)
+    {
+        for (var i = 0; i < AllProductTypes.Count; i++)
+        {
+            if (AllProductTypes[i].Id == productTypeId)
+            {
+                AllProductTypes.RemoveAt(i);
+                return;
+            }
+        }
     }
 
     private void FilterProductTypes()
