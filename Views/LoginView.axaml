@@ -117,13 +117,34 @@
     </StackPanel>
 
     <!-- Main Button -->
-    <Button Grid.Row="3"
-            Classes="primary"
-            Content="ເຂົ້າໃຊ້ລະບົບ"
-            Command="{Binding LoginCommand}"
-            HorizontalAlignment="Stretch"
-            Height="55"
-            Margin="0,30,0,0"/>
+    <Grid Grid.Row="3" Margin="0,30,0,0">
+        <Button Classes="primary"
+                Content="ເຂົ້າໃຊ້ລະບົບ"
+                Command="{Binding LoginCommand}"
+                HorizontalAlignment="Stretch"
+                Height="55"
+                IsEnabled="{Binding !IsLoading}"
+                IsVisible="{Binding !IsLoading}"/>
+        
+        <Button Classes="primary"
+                HorizontalAlignment="Stretch"
+                Height="55"
+                IsEnabled="False"
+                IsVisible="{Binding IsLoading}">
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                <Border Width="20" Height="20"
+                        CornerRadius="10"
+                        Background="White">
+                    <TextBlock Text="..." 
+                              HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"
+                              Foreground="{StaticResource PrimaryColor}"/>
+                </Border>
+                <TextBlock Text="ກຳລັງປະມວນ..." 
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+    </Grid>
 
   </Grid>
 </Window>

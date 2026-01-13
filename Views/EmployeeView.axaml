@@ -78,17 +78,35 @@
                          <Grid ColumnDefinitions="Auto, *">
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ແຂວງ"/>
                              <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10" 
-                                       ItemsSource="{Binding Provinces}" SelectedItem="{Binding SelectedProvince}"/>
+                                       ItemsSource="{Binding Provinces}" SelectedItem="{Binding SelectedProvinceItem}">
+                                 <ComboBox.ItemTemplate>
+                                     <DataTemplate>
+                                         <TextBlock Text="{Binding Name}"/>
+                                     </DataTemplate>
+                                 </ComboBox.ItemTemplate>
+                             </ComboBox>
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ເມືອງ"/>
                              <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10"
-                                       ItemsSource="{Binding Districts}" SelectedItem="{Binding SelectedDistrict}"/>
+                                       ItemsSource="{Binding Districts}" SelectedItem="{Binding SelectedDistrictItem}">
+                                 <ComboBox.ItemTemplate>
+                                     <DataTemplate>
+                                         <TextBlock Text="{Binding Name}"/>
+                                     </DataTemplate>
+                                 </ComboBox.ItemTemplate>
+                             </ComboBox>
                         </Grid>
                         <Grid ColumnDefinitions="Auto, *">
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ບ້ານ"/>
                              <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10"
-                                       ItemsSource="{Binding Villages}" SelectedItem="{Binding SelectedVillage}"/>
+                                       ItemsSource="{Binding Villages}" SelectedItem="{Binding SelectedVillageItem}">
+                                 <ComboBox.ItemTemplate>
+                                     <DataTemplate>
+                                         <TextBlock Text="{Binding Name}"/>
+                                     </DataTemplate>
+                                 </ComboBox.ItemTemplate>
+                             </ComboBox>
                         </Grid>
                     </StackPanel>
 

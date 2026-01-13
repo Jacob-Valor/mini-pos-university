@@ -42,9 +42,19 @@ public class Product
     public decimal RetailPrice { get; set; }
 
     /// <summary>
+    /// Brand ID (foreign key).
+    /// </summary>
+    public string BrandId { get; set; } = string.Empty;
+
+    /// <summary>
     /// Brand name (from brand table join).
     /// </summary>
     public string BrandName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Category ID (foreign key).
+    /// </summary>
+    public string CategoryId { get; set; } = string.Empty;
 
     /// <summary>
     /// Category name (from category table join).

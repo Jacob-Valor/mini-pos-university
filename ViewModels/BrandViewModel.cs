@@ -3,14 +3,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-// using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
 public partial class BrandViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
+
     private Brand? _selectedBrand;
     public Brand? SelectedBrand
     {
@@ -51,65 +55,123 @@ public partial class BrandViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public BrandViewModel()
+    public BrandViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
-        // Mock Data (using string IDs to match database format: B001, B002, etc.)
-        AllBrands.Add(new Brand { Id = "B001", Name = "Apple" });
-        AllBrands.Add(new Brand { Id = "B002", Name = "Samsung" });
-        AllBrands.Add(new Brand { Id = "B003", Name = "Sony" });
-        AllBrands.Add(new Brand { Id = "B004", Name = "Dell" });
+        _databaseService = databaseService;
+        _dialogService = dialogService;
 
-        FilterBrands();
+        var canAdd = this.WhenAnyValue(x => x.BrandName)
+                         .Select(name => !string.IsNullOrWhiteSpace(name));
 
-        AddCommand = ReactiveCommand.Create(Add);
+        AddCommand = ReactiveCommand.CreateFromTask(AddAsync, canAdd);
 
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedBrand)
                                   .Select(x => x != null);
 
-        EditCommand = ReactiveCommand.Create(Edit, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.Create(Delete, canEditOrDelete);
+        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
+        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
         CancelCommand = ReactiveCommand.Create(Cancel);
+
+        _ = LoadDataAsync();
     }
 
-    private void Add()
+    public BrandViewModel() : this(null!, null)
+    {
+        // Design-time
+    }
+
+    private async Task LoadDataAsync()
+    {
+        if (_databaseService == null) return;
+        
+        AllBrands.Clear();
+        var brands = await _databaseService.GetBrandsAsync();
+        foreach (var b in brands)
+        {
+            AllBrands.Add(b);
+        }
+        FilterBrands();
+    }
+
+    private async Task AddAsync()
     {
         if (string.IsNullOrWhiteSpace(BrandName)) return;
 
-        // Generate new ID based on existing brands (B001, B002, etc.)
+        // Generate new ID
         var maxId = AllBrands.Any() 
             ? AllBrands.Max(b => int.TryParse(b.Id.Replace("B", ""), out var num) ? num : 0) + 1 
             : 1;
         var newId = $"B{maxId:D3}";
+        
         var brand = new Brand { Id = newId, Name = BrandName };
-        AllBrands.Add(brand);
-        FilterBrands();
-        BrandName = string.Empty;
-    }
-
-    private void Edit()
-    {
-        if (SelectedBrand != null && !string.IsNullOrWhiteSpace(BrandName))
+        
+        bool success = await _databaseService.AddBrandAsync(brand);
+        if (success)
         {
-            SelectedBrand.Name = BrandName;
-            // Force refresh if needed, or simple property change notification is enough if Model implements INPC (it doesn't currently, but for this simple mock it might be fine or we might need to replace the item)
-            // For now, let's just refresh the list view effectively
-            var index = AllBrands.IndexOf(SelectedBrand);
-            if (index != -1)
-            {
-                AllBrands[index] = new Brand { Id = SelectedBrand.Id, Name = BrandName };
-            }
+            UpsertBrand(brand);
             FilterBrands();
             Cancel();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມຍີ່ຫໍ້ສຳເລັດ (Brand added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to add brand)");
         }
     }
 
-    private void Delete()
+    private async Task EditAsync()
+    {
+        if (SelectedBrand != null && !string.IsNullOrWhiteSpace(BrandName))
+        {
+            var updatedBrand = new Brand { Id = SelectedBrand.Id, Name = BrandName };
+            bool success = await _databaseService.UpdateBrandAsync(updatedBrand);
+            if (success)
+            {
+                UpsertBrand(updatedBrand);
+                FilterBrands();
+                Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂຍີ່ຫໍ້ສຳເລັດ (Brand updated)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to update brand)");
+            }
+        }
+    }
+
+    private async Task DeleteAsync()
     {
         if (SelectedBrand != null)
         {
-            AllBrands.Remove(SelectedBrand);
-            FilterBrands();
-            Cancel();
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຍີ່ຫໍ້ {SelectedBrand.Name} ຫຼືບໍ່?");
+            }
+
+            if (!confirm) return;
+
+            bool success = await _databaseService.DeleteBrandAsync(SelectedBrand.Id);
+            if (success)
+            {
+                RemoveBrandById(SelectedBrand.Id);
+                FilterBrands();
+                Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ລຶບຍີ່ຫໍ້ສຳເລັດ (Brand deleted)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລຶບຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to delete brand)");
+            }
         }
     }
 
@@ -117,6 +179,32 @@ public partial class BrandViewModel : ViewModelBase
     {
         SelectedBrand = null;
         BrandName = string.Empty;
+    }
+
+    private void UpsertBrand(Brand brand)
+    {
+        for (var i = 0; i < AllBrands.Count; i++)
+        {
+            if (AllBrands[i].Id == brand.Id)
+            {
+                AllBrands[i] = brand;
+                return;
+            }
+        }
+
+        AllBrands.Add(brand);
+    }
+
+    private void RemoveBrandById(string brandId)
+    {
+        for (var i = 0; i < AllBrands.Count; i++)
+        {
+            if (AllBrands[i].Id == brandId)
+            {
+                AllBrands.RemoveAt(i);
+                return;
+            }
+        }
     }
 
     private void FilterBrands()

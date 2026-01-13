@@ -18,9 +18,11 @@ public static class DatabaseConnectionTest
 
         try
         {
+            var dbService = new DatabaseService();
+
             // Test 1: Connection Test
             Console.WriteLine("[Test 1] Testing database connection...");
-            var (success, message) = await DatabaseService.Instance.TestConnectionAsync();
+            var (success, message) = await dbService.TestConnectionAsync();
             Console.WriteLine($"  Result: {(success ? "SUCCESS" : "FAILED")}");
             Console.WriteLine($"  Message: {message}\n");
 
@@ -34,7 +36,7 @@ public static class DatabaseConnectionTest
 
             // Test 2: Get Employees
             Console.WriteLine("[Test 2] Fetching employees...");
-            var employees = await DatabaseService.Instance.GetEmployeesAsync();
+            var employees = await dbService.GetEmployeesAsync();
             Console.WriteLine($"  Found {employees.Count} employee(s)");
             foreach (var emp in employees.Take(3))
             {
@@ -44,7 +46,7 @@ public static class DatabaseConnectionTest
 
             // Test 3: Get Products
             Console.WriteLine("[Test 3] Fetching products...");
-            var products = await DatabaseService.Instance.GetProductsAsync();
+            var products = await dbService.GetProductsAsync();
             Console.WriteLine($"  Found {products.Count} product(s)");
             foreach (var prod in products.Take(3))
             {
@@ -54,7 +56,7 @@ public static class DatabaseConnectionTest
 
             // Test 4: Get Customers
             Console.WriteLine("[Test 4] Fetching customers...");
-            var customers = await DatabaseService.Instance.GetCustomersAsync();
+            var customers = await dbService.GetCustomersAsync();
             Console.WriteLine($"  Found {customers.Count} customer(s)");
             foreach (var cust in customers.Take(3))
             {
@@ -64,7 +66,7 @@ public static class DatabaseConnectionTest
 
             // Test 5: Get Brands
             Console.WriteLine("[Test 5] Fetching brands...");
-            var brands = await DatabaseService.Instance.GetBrandsAsync();
+            var brands = await dbService.GetBrandsAsync();
             Console.WriteLine($"  Found {brands.Count} brand(s)");
             foreach (var brand in brands.Take(5))
             {

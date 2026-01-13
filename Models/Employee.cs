@@ -60,6 +60,21 @@ public class Employee
     public string Village { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the province identifier.
+    /// </summary>
+    public string ProvinceId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the district identifier.
+    /// </summary>
+    public string DistrictId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the village identifier.
+    /// </summary>
+    public string VillageId { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the employee's password for system authentication.
     /// Should be stored as a hashed value for security.
     /// </summary>

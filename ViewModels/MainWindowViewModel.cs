@@ -1,7 +1,9 @@
 using ReactiveUI;
 using System.Reactive;
 using System;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 
 namespace mini_pos.ViewModels;
 
@@ -31,7 +33,19 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _currentUser, value);
     }
 
-    public string CurrentDate { get; } = DateTime.Now.ToString("dddd, MMMM dd, yyyy h:mm:ss tt");
+    private string _loginTime = string.Empty;
+    public string LoginTime
+    {
+        get => _loginTime;
+        set => this.RaiseAndSetIfChanged(ref _loginTime, value);
+    }
+
+    private string _currentDate = string.Empty;
+    public string CurrentDate
+    {
+        get => _currentDate;
+        private set => this.RaiseAndSetIfChanged(ref _currentDate, value);
+    }
 
     public ViewModelBase? CurrentPage
     {
@@ -40,7 +54,6 @@ public class MainWindowViewModel : ViewModelBase
     }
     private ViewModelBase? _currentPage;
 
-    // Commands for specific pages
     public ReactiveCommand<Unit, Unit> GoToBrandCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToProductTypeCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToProductCommand { get; }
@@ -48,32 +61,54 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> GoToExchangeRateCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
 
-    public MainWindowViewModel(Employee? employee = null)
+    private readonly IDatabaseService _databaseService;
+    private readonly IDialogService _dialogService;
+
+    public MainWindowViewModel(Employee? employee, IDatabaseService databaseService, IDialogService dialogService)
     {
-        // Set the current user from the logged-in employee
-        if (employee != null)
+        _databaseService = databaseService;
+        _dialogService = dialogService;
+
+        _loggedInEmployee = employee;
+        if (_loggedInEmployee != null)
         {
-            _loggedInEmployee = employee;
-            CurrentUser = $"{employee.Name} {employee.Surname}";
+            CurrentUser = $"{_loggedInEmployee.Name} {_loggedInEmployee.Surname}";
+        }
+        else
+        {
+            CurrentUser = "Guest";
         }
 
-        HomeCommand = ReactiveCommand.Create(() => { CurrentPage = null; });
-        ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
-        ImportCommand = ReactiveCommand.Create(() => Console.WriteLine("Import clicked"));
-        CustomersCommand = ReactiveCommand.Create(() => { CurrentPage = new CustomerViewModel(); });
-        SaleCommand = ReactiveCommand.Create(() => { CurrentPage = new SalesViewModel(); });
-        SearchCommand = ReactiveCommand.Create(() => Console.WriteLine("Search clicked"));
-        ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
-        
-        ProfileCommand = ReactiveCommand.Create(() => 
-        { 
+        LoginTime = DateTime.Now.ToString("HH:mm:ss");
+
+        _ = UpdateDatePeriodicallyAsync();
+
+        CustomersCommand = ReactiveCommand.Create(() => { CurrentPage = new CustomerViewModel(_databaseService, _dialogService); });
+        SaleCommand = ReactiveCommand.Create(() =>
+        {
             if (_loggedInEmployee != null)
             {
-                CurrentPage = new ProfileViewModel(_loggedInEmployee); 
+                CurrentPage = new SalesViewModel(_loggedInEmployee, _databaseService, _dialogService);
             }
             else
             {
-                Console.WriteLine("No logged in employee to show profile for.");
+                _ = _dialogService.ShowErrorAsync("ບໍ່ສາມາດຂາຍໄດ້: ບໍ່ມີຜູ້ໃຊ້ເຂົ້າສູ່ລະບົບ");
+            }
+        });
+        SearchCommand = ReactiveCommand.Create(() =>
+        {
+            CurrentPage = new ProductViewModel(_databaseService, _dialogService);
+        });
+
+        ProfileCommand = ReactiveCommand.Create(() =>
+        {
+            if (_loggedInEmployee != null)
+            {
+                CurrentPage = new ProfileViewModel(_loggedInEmployee, _databaseService, _dialogService);
+            }
+            else
+            {
+                _ = _dialogService.ShowErrorAsync("ບໍ່ມີຂໍ້ມູນຜູ້ໃຊ້");
             }
         });
 
@@ -84,11 +119,34 @@ public class MainWindowViewModel : ViewModelBase
             LogoutRequested?.Invoke(this, EventArgs.Empty);
         });
 
-        GoToBrandCommand = ReactiveCommand.Create(() => { CurrentPage = new BrandViewModel(); });
-        GoToProductTypeCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductTypeViewModel(); });
-        GoToProductCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductViewModel(); });
-        GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(); });
-        GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(); });
-        GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(); });
+        GoToBrandCommand = ReactiveCommand.Create(() => { CurrentPage = new BrandViewModel(_databaseService, _dialogService); });
+        GoToProductTypeCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductTypeViewModel(_databaseService, _dialogService); });
+        GoToProductCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductViewModel(_databaseService, _dialogService); });
+        GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(_databaseService, _dialogService); });
+        GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(_databaseService, _dialogService); });
+        GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(_databaseService, _dialogService); });
+
+        HomeCommand = ReactiveCommand.Create(() =>
+        {
+            CurrentPage = null;
+        });
+
+        ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
+        ImportCommand = ReactiveCommand.Create(() => Console.WriteLine("Import clicked"));
+        ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
+    }
+
+    private void UpdateCurrentDate()
+    {
+        CurrentDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+    }
+
+    private async Task UpdateDatePeriodicallyAsync()
+    {
+        while (true)
+        {
+            UpdateCurrentDate();
+            await Task.Delay(1000);
+        }
     }
 }

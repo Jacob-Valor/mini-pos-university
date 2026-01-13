@@ -6,8 +6,10 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 
 using mini_pos.Models;
+using mini_pos.Services;
 using mini_pos.ViewModels;
 using mini_pos.Views;
 
@@ -15,6 +17,8 @@ namespace mini_pos;
 
 public partial class App : Application
 {
+    public IServiceProvider? ServiceProvider { get; private set; }
+
     public override void Initialize()
     {
         DbusSafeSynchronizationContext.InstallIfNeeded();
@@ -23,6 +27,11 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // Configure Dependency Injection
+        var collection = new ServiceCollection();
+        ConfigureServices(collection);
+        ServiceProvider = collection.BuildServiceProvider();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             DisableAvaloniaDataAnnotationValidation();
@@ -32,9 +41,23 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    private void ConfigureServices(IServiceCollection services)
+    {
+        // Register Services
+        services.AddSingleton<IDatabaseService, DatabaseService>();
+        services.AddSingleton<IDialogService, DialogService>();
+
+        // Register ViewModels
+        services.AddTransient<LoginViewModel>();
+        services.AddTransient<MainWindowViewModel>(); 
+        services.AddTransient<ProductViewModel>();
+    }
+
     private void ShowLogin(IClassicDesktopStyleApplicationLifetime desktop)
     {
-        var loginViewModel = new LoginViewModel();
+        // Resolve LoginViewModel from DI container
+        var loginViewModel = ServiceProvider!.GetRequiredService<LoginViewModel>();
+        
         var loginView = new LoginView
         {
             DataContext = loginViewModel,
@@ -52,7 +75,15 @@ public partial class App : Application
 
     private void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop, Employee? employee)
     {
-        var mainWindowViewModel = new MainWindowViewModel(employee);
+        // Use ActivatorUtilities to create MainWindowViewModel with mixed dependencies
+        // (IDatabaseService from DI, Employee passed manually)
+        // Note: We check if employee is null, although generally it shouldn't be here.
+        // If it is, ActivatorUtilities might warn but it will pass null to constructor.
+        var mainWindowViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>(
+            ServiceProvider!, 
+            employee! 
+        );
+
         var mainWindow = new MainWindow
         {
             DataContext = mainWindowViewModel,

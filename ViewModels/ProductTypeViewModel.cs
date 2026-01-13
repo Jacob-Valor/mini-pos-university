@@ -3,14 +3,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-// using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 using mini_pos.Models;
+using mini_pos.Services;
 using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
 public partial class ProductTypeViewModel : ViewModelBase
 {
+    private readonly IDatabaseService _databaseService;
+    private readonly IDialogService? _dialogService;
+
     private ProductType? _selectedProductType;
     public ProductType? SelectedProductType
     {
@@ -51,63 +55,120 @@ public partial class ProductTypeViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
-    public ProductTypeViewModel()
+    public ProductTypeViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
-        // Mock Data (using string IDs to match database format: C001, C002, etc.)
-        AllProductTypes.Add(new ProductType { Id = "C001", Name = "Electronics" });
-        AllProductTypes.Add(new ProductType { Id = "C002", Name = "Clothing" });
-        AllProductTypes.Add(new ProductType { Id = "C003", Name = "Beverages" });
-        AllProductTypes.Add(new ProductType { Id = "C004", Name = "Food" });
+        _databaseService = databaseService;
+        _dialogService = dialogService;
 
-        FilterProductTypes();
+        var canAdd = this.WhenAnyValue(x => x.ProductTypeName)
+                         .Select(name => !string.IsNullOrWhiteSpace(name));
 
-        AddCommand = ReactiveCommand.Create(Add);
+        AddCommand = ReactiveCommand.CreateFromTask(AddAsync, canAdd);
 
         var canEditOrDelete = this.WhenAnyValue(x => x.SelectedProductType)
                                   .Select(x => x != null);
 
-        EditCommand = ReactiveCommand.Create(Edit, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.Create(Delete, canEditOrDelete);
+        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
+        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
         CancelCommand = ReactiveCommand.Create(Cancel);
+
+        _ = LoadDataAsync();
     }
 
-    private void Add()
+    public ProductTypeViewModel() : this(null!, null)
+    {
+        // Design-time
+    }
+
+    private async Task LoadDataAsync()
+    {
+        if (_databaseService == null) return;
+        
+        AllProductTypes.Clear();
+        var list = await _databaseService.GetProductTypesAsync();
+        foreach (var t in list) AllProductTypes.Add(t);
+        FilterProductTypes();
+    }
+
+    private async Task AddAsync()
     {
         if (string.IsNullOrWhiteSpace(ProductTypeName)) return;
 
-        // Generate new ID based on existing types (C001, C002, etc.)
+        // Generate new ID (C001, C002...)
         var maxId = AllProductTypes.Any() 
             ? AllProductTypes.Max(t => int.TryParse(t.Id.Replace("C", ""), out var num) ? num : 0) + 1 
             : 1;
         var newId = $"C{maxId:D3}";
+        
         var newType = new ProductType { Id = newId, Name = ProductTypeName };
-        AllProductTypes.Add(newType);
-        FilterProductTypes();
-        ProductTypeName = string.Empty;
-    }
-
-    private void Edit()
-    {
-        if (SelectedProductType != null && !string.IsNullOrWhiteSpace(ProductTypeName))
+        
+        bool success = await _databaseService.AddProductTypeAsync(newType);
+        if (success)
         {
-            SelectedProductType.Name = ProductTypeName;
-            var index = AllProductTypes.IndexOf(SelectedProductType);
-            if (index != -1)
-            {
-                AllProductTypes[index] = new ProductType { Id = SelectedProductType.Id, Name = ProductTypeName };
-            }
+            UpsertProductType(newType);
             FilterProductTypes();
             Cancel();
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowSuccessAsync("ເພີ່ມປະເພດສິນຄ້າສຳເລັດ (Type added)");
+            }
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ເພີ່ມປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to add type)");
         }
     }
 
-    private void Delete()
+    private async Task EditAsync()
+    {
+        if (SelectedProductType != null && !string.IsNullOrWhiteSpace(ProductTypeName))
+        {
+            var updatedType = new ProductType { Id = SelectedProductType.Id, Name = ProductTypeName };
+            bool success = await _databaseService.UpdateProductTypeAsync(updatedType);
+            if (success)
+            {
+                UpsertProductType(updatedType);
+                FilterProductTypes();
+                Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂປະເພດສິນຄ້າສຳເລັດ (Type updated)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to update type)");
+            }
+        }
+    }
+
+    private async Task DeleteAsync()
     {
         if (SelectedProductType != null)
         {
-            AllProductTypes.Remove(SelectedProductType);
-            FilterProductTypes();
-            Cancel();
+            bool confirm = true;
+            if (_dialogService != null)
+            {
+                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບປະເພດ {SelectedProductType.Name} ຫຼືບໍ່?");
+            }
+
+            if (!confirm) return;
+
+            bool success = await _databaseService.DeleteProductTypeAsync(SelectedProductType.Id);
+            if (success)
+            {
+                RemoveProductTypeById(SelectedProductType.Id);
+                FilterProductTypes();
+                Cancel();
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowSuccessAsync("ລຶບປະເພດສິນຄ້າສຳເລັດ (Type deleted)");
+                }
+            }
+            else if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync("ລຶບປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to delete type)");
+            }
         }
     }
 
@@ -115,6 +176,32 @@ public partial class ProductTypeViewModel : ViewModelBase
     {
         SelectedProductType = null;
         ProductTypeName = string.Empty;
+    }
+
+    private void UpsertProductType(ProductType productType)
+    {
+        for (var i = 0; i < AllProductTypes.Count; i++)
+        {
+            if (AllProductTypes[i].Id == productType.Id)
+            {
+                AllProductTypes[i] = productType;
+                return;
+            }
+        }
+
+        AllProductTypes.Add(productType);
+    }
+
+    private void RemoveProductTypeById(string productTypeId)
+    {
+        for (var i = 0; i < AllProductTypes.Count; i++)
+        {
+            if (AllProductTypes[i].Id == productTypeId)
+            {
+                AllProductTypes.RemoveAt(i);
+                return;
+            }
+        }
     }
 
     private void FilterProductTypes()
