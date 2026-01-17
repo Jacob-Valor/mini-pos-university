@@ -26,16 +26,16 @@ dotnet watch run
 
 ## 🛠️ Build Commands
 
-| Command | Description |
-| --- | --- |
-| `dotnet restore` | Restore NuGet packages. |
-| `dotnet build` | Build the solution. |
-| `dotnet build -c Release` | Build in Release mode. |
-| `dotnet run` | Run the application. |
-| `dotnet run --no-build` | Run without rebuilding. |
-| `dotnet watch run` | Run with hot reload (auto-rebuild on file changes). |
-| `dotnet test` | Run all tests (requires test project). |
-| `dotnet test --filter "TestName"` | Run a specific test case. |
+| Command                           | Description                                         |
+| --------------------------------- | --------------------------------------------------- |
+| `dotnet restore`                  | Restore NuGet packages.                             |
+| `dotnet build`                    | Build the solution.                                 |
+| `dotnet build -c Release`         | Build in Release mode.                              |
+| `dotnet run`                      | Run the application.                                |
+| `dotnet run --no-build`           | Run without rebuilding.                             |
+| `dotnet watch run`                | Run with hot reload (auto-rebuild on file changes). |
+| `dotnet test`                     | Run all tests (requires test project).              |
+| `dotnet test --filter "TestName"` | Run a specific test case.                           |
 
 ## 🖥️ Cross-Platform Development
 
@@ -84,14 +84,14 @@ dotnet run
 
 ## 🐳 Docker Commands
 
-| Command | Description |
-| --- | --- |
-| `docker-compose up -d mariadb` | Start MariaDB database. |
-| `docker-compose down` | Stop database. |
-| `docker-compose down -v` | Stop and delete database data. |
-| `docker-compose logs -f mariadb` | View database logs. |
-| `docker ps` | Show running containers. |
-| `docker exec -it mini_pos_db mysql -u root -p` | Access MySQL CLI. |
+| Command                                        | Description                    |
+| ---------------------------------------------- | ------------------------------ |
+| `docker-compose up -d mariadb`                 | Start MariaDB database.        |
+| `docker-compose down`                          | Stop database.                 |
+| `docker-compose down -v`                       | Stop and delete database data. |
+| `docker-compose logs -f mariadb`               | View database logs.            |
+| `docker ps`                                    | Show running containers.       |
+| `docker exec -it mini_pos_db mysql -u root -p` | Access MySQL CLI.              |
 
 ## 🏗️ Architecture
 
@@ -102,11 +102,11 @@ dotnet run
 
 ### Platform-Specific Considerations
 
-| Platform | Backend | Notes |
-|----------|---------|-------|
-| **Windows** | WPF/Win32 | Native Windows look and feel. |
-| **macOS** | Cocoa | Requires macOS 10.14+. |
-| **Linux** | X11/Wayland | Handles display gracefully. |
+| Platform    | Backend     | Notes                         |
+| ----------- | ----------- | ----------------------------- |
+| **Windows** | WPF/Win32   | Native Windows look and feel. |
+| **macOS**   | Cocoa       | Requires macOS 10.14+.        |
+| **Linux**   | X11/Wayland | Handles display gracefully.   |
 
 ### Error Handling
 
@@ -136,14 +136,14 @@ mini_pos/
 
 ### Naming Conventions
 
-| Entity | Convention | Example |
-| --- | --- | --- |
-| **Classes** | PascalCase | `MainWindowViewModel`, `Product` |
-| **Properties** | PascalCase | `public string Name { get; set; }` |
-| **Methods** | PascalCase | `CalculateTotal()` |
-| **Fields** | `_camelCase` | `_itemsList` |
-| **Constants** | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| **Namespaces** | `lowercase_underscore` | `mini_pos`, `mini_pos.ViewModels` |
+| Entity         | Convention             | Example                            |
+| -------------- | ---------------------- | ---------------------------------- |
+| **Classes**    | PascalCase             | `MainWindowViewModel`, `Product`   |
+| **Properties** | PascalCase             | `public string Name { get; set; }` |
+| **Methods**    | PascalCase             | `CalculateTotal()`                 |
+| **Fields**     | `_camelCase`           | `_itemsList`                       |
+| **Constants**  | UPPER_SNAKE_CASE       | `MAX_RETRY_COUNT`                  |
+| **Namespaces** | `lowercase_underscore` | `mini_pos`, `mini_pos.ViewModels`  |
 
 ### Import Organization
 
@@ -171,13 +171,13 @@ mini_pos/
 
 ### File Organization
 
-| Directory | Contents |
-|-----------|----------|
-| `Views/` | `.axaml` files and code-behind |
-| `ViewModels/` | MVVM ViewModel classes |
-| `Models/` | Data models and entities |
-| `Converters/` | Value converters for binding |
-| `Services/` | Business logic services |
+| Directory     | Contents                       |
+| ------------- | ------------------------------ |
+| `Views/`      | `.axaml` files and code-behind |
+| `ViewModels/` | MVVM ViewModel classes         |
+| `Models/`     | Data models and entities       |
+| `Converters/` | Value converters for binding   |
+| `Services/`   | Business logic services        |
 
 ## 🔧 Configuration
 
@@ -185,12 +185,12 @@ mini_pos/
 
 All configuration is managed via `.env` file:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DB_HOST` | Database host | `localhost` |
-| `DB_PORT` | Database port | `3306` |
-| `DB_NAME` | Database name | `mini_pos` |
-| `DB_USER` | Database user | `root` |
+| Variable      | Description       | Default         |
+| ------------- | ----------------- | --------------- |
+| `DB_HOST`     | Database host     | `localhost`     |
+| `DB_PORT`     | Database port     | `3306`          |
+| `DB_NAME`     | Database name     | `mini_pos`      |
+| `DB_USER`     | Database user     | `root`          |
 | `DB_PASSWORD` | Database password | `root_password` |
 
 **Note:** Copy `.env.example` to `.env` and update values before running.
