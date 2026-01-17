@@ -1,3 +1,5 @@
+# Dev Version
+
 # 🏪 Mini POS System
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
@@ -11,7 +13,7 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 
 - 🛒 **Product Management** - Manage inventory, categories, and brands
 - 👥 **Employee Management** - Track staff information and credentials
-- 🏪 **Customer Database** - Maintain customer records and transaction history  
+- 🏪 **Customer Database** - Maintain customer records and transaction history
 - 💳 **Sales Processing** - Complete POS functionality for retail operations
 - 🎨 **Modern UI** - Built with Avalonia UI for cross-platform desktop support
 - 🐳 **Docker Support** - Containerized database deployment
@@ -35,11 +37,13 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 ### 💻 macOS (Recommended: JetBrains Rider)
 
 **Requirements:**
+
 - [Rider](https://www.jetbrains.com/rider/) (recommended) or [Visual Studio Code](https://code.visualstudio.com/)
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
 
 **Setup:**
+
 ```bash
 # Install .NET SDK via Homebrew
 brew install --cask dotnet-sdk
@@ -62,6 +66,7 @@ dotnet run
 ```
 
 **Using Rider:**
+
 1. Open the `mini_pos.sln` file in Rider
 2. Configure Docker connection in Rider's Services tool window
 3. Run/debug directly from the IDE with full Avalonia UI designer support
@@ -287,18 +292,21 @@ dotnet add package PackageName
 **Issue**: "No graphical session detected"
 
 **Solution**: Ensure `DISPLAY` environment variable is set:
+
 ```bash
 export DISPLAY=:0
 dotnet run
 ```
 
 Alternatively, use `xvfb` for headless environments:
+
 ```bash
 xvfb-run -a dotnet run
 ```
 
 **On macOS:**
 The application uses the native Cocoa backend and should work out of the box. If you encounter issues:
+
 1. Ensure Docker Desktop is running
 2. Check that the MariaDB container is healthy: `docker ps`
 3. Verify database connection in `.env` file
@@ -308,6 +316,7 @@ The application uses the native Cocoa backend and should work out of the box. If
 **Issue**: Cannot connect to MariaDB
 
 **Solutions**:
+
 1. Ensure database container is running: `docker ps`
 2. Check database logs: `docker-compose logs mariadb`
 3. Verify connection string in `appsettings.json`
@@ -318,6 +327,7 @@ The application uses the native Cocoa backend and should work out of the box. If
 **Issue**: Build errors during `docker build`
 
 **Solutions**:
+
 1. Clear Docker cache: `docker system prune -a`
 2. Rebuild without cache: `docker-compose build --no-cache`
 3. Check Docker has enough disk space
