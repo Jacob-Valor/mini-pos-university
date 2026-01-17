@@ -1,11 +1,19 @@
 # ================================================================================================
-# Mini POS - Multi-stage Dockerfile
+# Mini POS - Dockerfile (Linux with X11 only)
 # ================================================================================================
-# This Dockerfile builds the Mini POS Avalonia desktop application for containerized deployment.
-# It uses multi-stage builds to optimize the final image size.
+# This Dockerfile builds the Mini POS application for Linux deployment with X11 support.
+#
+# IMPORTANT: For cross-platform development (macOS/Windows), run the application natively:
+#   dotnet run
+#
+# This Linux container build is useful for:
+#   - CI/CD pipelines
+#   - Linux server deployment (headless with Xvfb)
+#   - Linux desktop environments with X11
 #
 # Build: docker build -t mini-pos .
-# Run:   docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix mini-pos
+# Run (Linux with X11): docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix mini-pos
+# Run (headless): docker run --rm -e DISPLAY=:99 -e QT_QPA_PLATFORM=offscreen mini-pos
 # ================================================================================================
 
 # ================================================================================================

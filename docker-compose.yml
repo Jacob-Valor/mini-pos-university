@@ -1,60 +1,55 @@
 # ================================================================================================
 # Mini POS - Docker Compose Configuration
 # ================================================================================================
-# This docker-compose file defines the multi-container setup for the Mini POS application.
-# It includes the MariaDB database and the Avalonia desktop application.
+# This docker-compose file provides the database service for the Mini POS application.
+# The application itself runs natively on all platforms (Windows, Linux, macOS).
 #
 # Usage:
-#   Start database only:  docker-compose up -d mariadb
-#   Start all services:   docker-compose up -d
-#   Stop services:        docker-compose down
-#   View logs:            docker-compose logs -f
-#   Reset database:       docker-compose down -v (WARNING: Deletes all data!)
+#   Start database:        docker-compose up -d mariadb
+#   Stop database:         docker-compose down
+#   View logs:             docker-compose logs -f
+#   Reset database:        docker-compose down -v (WARNING: Deletes all data!)
+#
+# For the application itself, run natively:
+#   - Linux/macOS/Windows: dotnet run
+#
+# IMPORTANT: All sensitive values are loaded from .env file
+#            Run: cp .env.example .env and update the values
 # ================================================================================================
 
 services:
   # ==============================================================================================
   # MariaDB Database Service
   # ==============================================================================================
-  # This service runs the MariaDB database server that stores all POS data including
-  # products, employees, customers, and transactions.
+  # Cross-platform database service that works on Windows, Linux, and macOS
+  # via Docker Desktop. Sensitive configuration loaded from .env file.
   mariadb:
     image: mariadb:10.11
     container_name: mini_pos_db
 
-    # Database Configuration
-    environment:
-      # Root password for database administration
-      # WARNING: Change this in production! Use Docker secrets for better security.
-      MYSQL_ROOT_PASSWORD: root_password
+    # Load ALL environment variables from .env file
+    env_file:
+      - .env
 
-      # Default database to create on first startup
-      MYSQL_DATABASE: mini_pos
+    # Database Configuration (values loaded from .env)
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
 
     # Port Mapping
-    # Maps container port 3306 to host port 3306
-    # This allows direct database access from the host machine
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:3306"
 
-    # Persistent Storage and Initialization
+    # Persistent Storage
     volumes:
-      # Persist database data across container restarts
       - mariadb_data:/var/lib/mysql
-
-      # Initialize database with schema and sample data on first startup
-      # SQL files in /docker-entrypoint-initdb.d/ are executed automatically
       - ./db/workshop.sql:/docker-entrypoint-initdb.d/workshop.sql
 
-    # Network Configuration
     networks:
       - pos_network
 
-    # Restart Policy
-    # Automatically restart unless explicitly stopped
     restart: unless-stopped
 
-    # Health Check
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
@@ -62,75 +57,16 @@ services:
       retries: 5
       start_period: 30s
 
-  # ==============================================================================================
-  # Mini POS Application Service
-  # ==============================================================================================
-  # This service runs the Avalonia desktop application in a container.
-  # Note: Running GUI applications in Docker requires X11 forwarding configuration.
-  #
-  # For Development:
-  #   Consider running the app locally and only containerizing the database:
-  #   docker-compose up -d mariadb
-  #
-  # For Production:
-  #   GUI apps in Docker are not recommended for end-user deployment.
-  #   Use Docker only for the database and deploy the app natively.
-  mini-pos:
-    # Build Configuration
-    build:
-      context: .
-      dockerfile: Dockerfile
-
-    container_name: mini_pos_app
-
-    # Environment Configuration
-    # Load environment variables from .env file
-    env_file:
-      - .env
-
-    # Override or add environment variables
-    environment:
-      # Database connection string
-      # Format: Server=<host>;Database=<db>;User=<user>;Password=<password>;
-      - ConnectionStrings__DefaultConnection=Server=mariadb;Database=mini_pos;User=root;Password=root_password;
-
-    # Service Dependencies
-    # Ensure MariaDB starts before the application
-    depends_on:
-      mariadb:
-        condition: service_healthy
-
-    # Network Configuration
-    networks:
-      - pos_network
-
-    # Restart Policy
-    restart: unless-stopped
-
-    # GUI Configuration for Linux (X11)
-    # Uncomment the following lines to enable X11 forwarding:
-    # volumes:
-    #   - /tmp/.X11-unix:/tmp/.X11-unix
-    # environment:
-    #   - DISPLAY=${DISPLAY}
-
 # ================================================================================================
 # Named Volumes
 # ================================================================================================
-# Persistent storage for database data that survives container removal
 volumes:
   mariadb_data:
     driver: local
-    labels:
-      com.minipos.description: "MariaDB persistent data storage"
 
 # ================================================================================================
 # Networks
 # ================================================================================================
-# Custom bridge network for service communication
-# Services on the same network can communicate using service names as hostnames
 networks:
   pos_network:
     driver: bridge
-    labels:
-      com.minipos.description: "Mini POS application network"

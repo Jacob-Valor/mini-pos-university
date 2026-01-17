@@ -21,7 +21,6 @@ public partial class App : Application
 
     public override void Initialize()
     {
-        DbusSafeSynchronizationContext.InstallIfNeeded();
         AvaloniaXamlLoader.Load(this);
     }
 

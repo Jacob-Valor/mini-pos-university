@@ -30,9 +30,73 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 
 - 📦 [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - 🐳 [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/) (for database)
-- 🖥️ Linux/macOS/Windows with GUI support
+- 🖥️ **Cross-platform**: Supports Linux, macOS (Intel/Apple Silicon), and Windows
 
-## 🚀 Quick Start
+### 💻 macOS (Recommended: JetBrains Rider)
+
+**Requirements:**
+- [Rider](https://www.jetbrains.com/rider/) (recommended) or [Visual Studio Code](https://code.visualstudio.com/)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
+
+**Setup:**
+```bash
+# Install .NET SDK via Homebrew
+brew install --cask dotnet-sdk
+
+# Or download from: https://dotnet.microsoft.com/download/dotnet/10.0
+
+# Start Docker Desktop
+open -a Docker
+
+# Start MariaDB container
+docker run -d --name mini_pos_db \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=root_password \
+  -e MYSQL_DATABASE=mini_pos \
+  mariadb:10.11
+
+# Run the application
+dotnet restore
+dotnet run
+```
+
+**Using Rider:**
+1. Open the `mini_pos.sln` file in Rider
+2. Configure Docker connection in Rider's Services tool window
+3. Run/debug directly from the IDE with full Avalonia UI designer support
+
+### 🐧 Linux
+
+```bash
+# Install .NET SDK
+sudo apt-get update && sudo apt-get install -y dotnet-sdk-10.0
+
+# Start Docker service
+sudo systemctl start docker
+
+# Start MariaDB with Docker Compose
+docker-compose up mariadb -d
+
+# Run the application
+dotnet run
+```
+
+### 🪟 Windows
+
+```bash
+# Install .NET 10 SDK from https://dotnet.microsoft.com/download/dotnet/10.0
+
+# Start Docker Desktop
+
+# Start MariaDB container
+docker run -d --name mini_pos_db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root_password -e MYSQL_DATABASE=mini_pos mariadb:10.11
+
+# Run the application
+dotnet run
+```
+
+Alternatively, use Visual Studio 2022 with the Avalonia extension.
 
 ### 1️⃣ Clone the Repository
 
@@ -77,17 +141,19 @@ Alternatively, use your IDE (Visual Studio, Rider, VS Code) to build and run the
 docker-compose up mariadb -d
 ```
 
-### 🚀 Full Stack (Requires X11 Forwarding)
+### 🚀 Full Stack (Linux/X11 Only)
+
+**Note**: Running GUI applications in Docker is only supported on Linux with X11 forwarding. For macOS and Windows, run the application natively and use Docker only for the database.
 
 ```bash
-# Build and start all services
+# Build and start all services (Linux only)
 docker-compose up -d
 
 # View logs
 docker-compose logs -f
 ```
 
-**Note**: Running GUI applications in Docker requires additional setup. See [Docker GUI Configuration](#docker-gui-configuration) below.
+See [Docker GUI Configuration](#docker-gui-configuration) for Linux X11 setup.
 
 ## 📂 Project Structure
 
@@ -215,8 +281,9 @@ dotnet add package PackageName
 
 ## 🔧 Troubleshooting
 
-### ❌ Application won't start on Linux
+### ❌ Application won't start
 
+**On Linux:**
 **Issue**: "No graphical session detected"
 
 **Solution**: Ensure `DISPLAY` environment variable is set:
@@ -229,6 +296,12 @@ Alternatively, use `xvfb` for headless environments:
 ```bash
 xvfb-run -a dotnet run
 ```
+
+**On macOS:**
+The application uses the native Cocoa backend and should work out of the box. If you encounter issues:
+1. Ensure Docker Desktop is running
+2. Check that the MariaDB container is healthy: `docker ps`
+3. Verify database connection in `.env` file
 
 ### 🔌 Database connection failed
 

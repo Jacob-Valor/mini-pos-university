@@ -27,7 +27,7 @@ sealed class Program
     /// On Linux, this method checks for the presence of DISPLAY or WAYLAND_DISPLAY
     /// environment variables before attempting to start the GUI. If running in a
     /// headless environment (SSH, CI/CD), use xvfb-run to provide a virtual display.
-    /// 
+    ///
     /// Use --test-db argument to run database connection tests without starting the GUI.
     /// </remarks>
     [STAThread]
@@ -35,7 +35,7 @@ sealed class Program
     {
         // 1. Initialize Serilog (Logging)
         string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "log-.txt");
-        
+
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console()
@@ -52,7 +52,7 @@ sealed class Program
                 e.SetObserved();
                 Log.Warning("Unobserved TaskCanceledException (DBus): {Message}", e.Exception.Message);
             }
-            else 
+            else
             {
                 Log.Error(e.Exception, "Unobserved Task Exception");
             }
@@ -62,7 +62,7 @@ sealed class Program
         if (args.Length > 0 && args[0] == "--test-db")
         {
             Log.Information("Running in DB Test Mode");
-            try 
+            try
             {
                 DatabaseConnectionTest.RunTestAsync().GetAwaiter().GetResult();
                 return 0;
@@ -118,7 +118,7 @@ sealed class Program
     /// <remarks>
     /// This method is used by both the application runtime and the Avalonia visual designer.
     /// Do not remove or modify without understanding the impact on designer functionality.
-    /// 
+    ///
     /// Configuration includes:
     /// - Platform detection for cross-platform support
     /// - Inter font family integration
@@ -131,7 +131,6 @@ sealed class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
-            .AfterPlatformServicesSetup(_ => DbusSafeSynchronizationContext.InstallIfNeeded())
             .UseReactiveUI();
 
     /// <summary>
