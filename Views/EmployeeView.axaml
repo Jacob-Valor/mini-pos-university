@@ -1,70 +1,132 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:mini_pos.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
-             x:Class="mini_pos.Views.EmployeeView"
-             x:DataType="vm:EmployeeViewModel"
-             FontFamily="{StaticResource LaoFont}">
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:mini_pos.ViewModels"
+    mc:Ignorable="d"
+    d:DesignWidth="1200"
+    d:DesignHeight="700"
+    x:Class="mini_pos.Views.EmployeeView"
+    x:DataType="vm:EmployeeViewModel"
+    FontFamily="{StaticResource LaoFont}"
+>
 
     <UserControl.Styles>
         <Style Selector="Button.action">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Height" Value="35" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="CornerRadius" Value="4" />
         </Style>
         <Style Selector="TextBox.form">
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Margin" Value="0,0,0,10" />
         </Style>
         <Style Selector="TextBlock.label">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,10,10"/>
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="Width" Value="100"/>
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,10,10" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="Width" Value="100" />
         </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto, Auto, *" Margin="20" ShowGridLines="False">
 
         <!-- Title -->
-        <TextBlock Text="ຈັດການຂໍ້ມູນພະນັກງານ" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" Foreground="{DynamicResource TextColor}"/>
+        <TextBlock
+            Text="ຈັດການຂໍ້ມູນພະນັກງານ"
+            FontSize="20"
+            FontWeight="Bold"
+            Margin="0,0,0,20"
+            Foreground="{DynamicResource TextColor}"
+        />
 
         <!-- 1. Input Form -->
-        <Border Grid.Row="1" 
-                BorderBrush="{DynamicResource BorderColor}" 
-                BorderThickness="1" 
-                CornerRadius="4" 
-                Padding="20" 
-                Margin="0,0,0,20"
-                Background="{DynamicResource SurfaceColor}">
+        <Border
+            Grid.Row="1"
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="1"
+            CornerRadius="4"
+            Padding="20"
+            Margin="0,0,0,20"
+            Background="{DynamicResource SurfaceColor}"
+        >
             <StackPanel>
                  <Grid ColumnDefinitions="*, *, *, Auto">
                     <!-- Column 1 -->
                     <StackPanel Grid.Column="0" Margin="0,0,20,0">
                         <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ລະຫັດພະນັກງານ"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="form" Text="{Binding EmployeeId}"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ລະຫັດພະນັກງານ"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                                Text="{Binding EmployeeId}"
+                            />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ຊື່ພະນັກງານ"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="form" Text="{Binding EmployeeName}"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ຊື່ພະນັກງານ"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                                Text="{Binding EmployeeName}"
+                            />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ນາມສະກຸນ"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="form" Text="{Binding EmployeeSurname}"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ນາມສະກຸນ"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                                Text="{Binding EmployeeSurname}"
+                            />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ເພດ"/>
-                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center" Margin="0,0,0,10">
-                                <RadioButton Content="ຊາຍ" GroupName="Gender" IsChecked="{Binding EmployeeGender, Converter={StaticResource StringToBoolConverter}, ConverterParameter=ຊາຍ}"/>
-                                <RadioButton Content="ຍິງ" GroupName="Gender" IsChecked="{Binding EmployeeGender, Converter={StaticResource StringToBoolConverter}, ConverterParameter=ຍິງ}"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ເພດ"
+                            />
+                            <StackPanel
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="20"
+                                VerticalAlignment="Center"
+                                Margin="0,0,0,10"
+                            >
+                                <RadioButton
+                                    Content="ຊາຍ"
+                                    GroupName="Gender"
+                                    IsChecked="{Binding EmployeeGender, Converter={StaticResource StringToBoolConverter}, ConverterParameter=ຊາຍ}"
+                                />
+                                <RadioButton
+                                    Content="ຍິງ"
+                                    GroupName="Gender"
+                                    IsChecked="{Binding EmployeeGender, Converter={StaticResource StringToBoolConverter}, ConverterParameter=ຍິງ}"
+                                />
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -72,38 +134,82 @@
                     <!-- Column 2 -->
                     <StackPanel Grid.Column="1" Margin="0,0,20,0">
                         <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ວັນເດືອນປີເກີດ"/>
-                            <DatePicker Grid.Row="0" Grid.Column="1" SelectedDate="{Binding EmployeeDateOfBirth}" HorizontalAlignment="Stretch" Margin="0,0,0,10"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ວັນເດືອນປີເກີດ"
+                            />
+                            <DatePicker
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                SelectedDate="{Binding EmployeeDateOfBirth}"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                            />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ແຂວງ"/>
-                             <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10" 
-                                       ItemsSource="{Binding Provinces}" SelectedItem="{Binding SelectedProvinceItem}">
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ແຂວງ"
+                            />
+                             <ComboBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                                ItemsSource="{Binding Provinces}"
+                                SelectedItem="{Binding SelectedProvinceItem}"
+                            >
                                  <ComboBox.ItemTemplate>
                                      <DataTemplate>
-                                         <TextBlock Text="{Binding Name}"/>
+                                         <TextBlock Text="{Binding Name}" />
                                      </DataTemplate>
                                  </ComboBox.ItemTemplate>
                              </ComboBox>
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ເມືອງ"/>
-                             <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10"
-                                       ItemsSource="{Binding Districts}" SelectedItem="{Binding SelectedDistrictItem}">
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ເມືອງ"
+                            />
+                             <ComboBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                                ItemsSource="{Binding Districts}"
+                                SelectedItem="{Binding SelectedDistrictItem}"
+                            >
                                  <ComboBox.ItemTemplate>
                                      <DataTemplate>
-                                         <TextBlock Text="{Binding Name}"/>
+                                         <TextBlock Text="{Binding Name}" />
                                      </DataTemplate>
                                  </ComboBox.ItemTemplate>
                              </ComboBox>
                         </Grid>
                         <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ບ້ານ"/>
-                             <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10"
-                                       ItemsSource="{Binding Villages}" SelectedItem="{Binding SelectedVillageItem}">
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ບ້ານ"
+                            />
+                             <ComboBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                                ItemsSource="{Binding Villages}"
+                                SelectedItem="{Binding SelectedVillageItem}"
+                            >
                                  <ComboBox.ItemTemplate>
                                      <DataTemplate>
-                                         <TextBlock Text="{Binding Name}"/>
+                                         <TextBlock Text="{Binding Name}" />
                                      </DataTemplate>
                                  </ComboBox.ItemTemplate>
                              </ComboBox>
@@ -113,57 +219,143 @@
                     <!-- Column 3 -->
                     <StackPanel Grid.Column="2" Margin="0,0,20,0">
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ເບີໂທລະສັບ"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="form" Text="{Binding EmployeePhoneNumber}"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ເບີໂທລະສັບ"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                                Text="{Binding EmployeePhoneNumber}"
+                            />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ບັນຊີເຂົ້າໃຊ້"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="form" Text="{Binding EmployeeName}" Watermark="(Auto from Name)"/> <!-- Assuming derived or manual? user asked for phone number, name, surname... -->
-                            <!-- Wait, image has 'User Account' field separately? Let's assume Phone/ID is user or separate field. 
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ບັນຊີເຂົ້າໃຊ້"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                                Text="{Binding EmployeeName}"
+                                Watermark="(Auto from Name)"
+                            /> <!-- Assuming derived or manual? user asked for phone number, name, surname... -->
+                            <!-- Wait, image has 'User Account' field separately? Let's assume Phone/ID is user or separate field.
                                  Image text says 'ບັນຊີເຂົ້າໃຊ້' (User Login). I'll use a separate field or reuse logic.
                                  The current VM has Password but no 'Username'. Let's assume Name or ID is username or add a field.
-                                 Let's add a placeholder textbox for now or bind to something. 
-                                 VM doesn't have Username. I'll just skip or bind to Name/Phone for now to avoid compilation error if I don't change VM. 
+                                 Let's add a placeholder textbox for now or bind to something.
+                                 VM doesn't have Username. I'll just skip or bind to Name/Phone for now to avoid compilation error if I don't change VM.
                                  Actually I didn't add Username to VM. I'll bind to PhoneNumber or just leave it empty.
                                  Let's use a new TextBox but bind to PhoneNumber temporarily or just not bind?
                                  Better: Add Username to VM? Or just use PhoneNumber as Username.
                                  Let's just put a TextBox there. -->
-                             <TextBox Grid.Row="0" Grid.Column="1" Classes="form"/>
+                             <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                            />
                         </Grid>
                         <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ລະຫັດຜ່ານ"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="form" Text="{Binding EmployeePassword}" PasswordChar="*"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ລະຫັດຜ່ານ"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="form"
+                                Text="{Binding EmployeePassword}"
+                                PasswordChar="*"
+                            />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="ສະຖານະ"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,10"
-                                      ItemsSource="{Binding Positions}" SelectedItem="{Binding SelectedPosition}"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Classes="label"
+                                Text="ສະຖານະ"
+                            />
+                            <ComboBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                                ItemsSource="{Binding Positions}"
+                                SelectedItem="{Binding SelectedPosition}"
+                            />
                         </Grid>
                     </StackPanel>
-                    
+
                     <!-- Column 4: Image -->
                     <StackPanel Grid.Column="3" Width="150">
-                        <Border Width="120" Height="120" Background="#FFCC80" Margin="0,0,0,10" CornerRadius="4">
+                        <Border
+                            Width="120"
+                            Height="120"
+                            Background="#FFCC80"
+                            Margin="0,0,0,10"
+                            CornerRadius="4"
+                        >
                              <!-- Image Placeholder -->
-                             <Image Source="{Binding EmployeeImagePath, Converter={StaticResource ImagePathToBitmapConverter}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <Image
+                                Source="{Binding EmployeeImagePath, Converter={StaticResource ImagePathToBitmapConverter}}"
+                                Stretch="UniformToFill"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            />
                         </Border>
-                        <Button Content="ເລືອກຮູບ" Click="SelectImage_Click" HorizontalAlignment="Center" Background="#37474F" Foreground="White"/>
+                        <Button
+                            Content="ເລືອກຮູບ"
+                            Click="SelectImage_Click"
+                            HorizontalAlignment="Center"
+                            Background="#37474F"
+                            Foreground="White"
+                        />
                     </StackPanel>
                 </Grid>
 
                 <!-- Buttons -->
-                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Button Classes="action" Background="#0D47A1" Command="{Binding AddCommand}">
-                        <TextBlock Text="ເພີ່ມ"/>
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    HorizontalAlignment="Center"
+                    Margin="0,20,0,0"
+                >
+                    <Button
+                        Classes="action"
+                        Background="#0D47A1"
+                        Command="{Binding AddCommand}"
+                    >
+                        <TextBlock Text="ເພີ່ມ" />
                     </Button>
-                    <Button Classes="action" Background="#FBC02D" Command="{Binding EditCommand}" Foreground="Black">
-                        <TextBlock Text="ແກ້ໄຂ"/>
+                    <Button
+                        Classes="action"
+                        Background="#FBC02D"
+                        Command="{Binding EditCommand}"
+                        Foreground="Black"
+                    >
+                        <TextBlock Text="ແກ້ໄຂ" />
                     </Button>
-                    <Button Classes="action" Background="#C62828" Command="{Binding DeleteCommand}">
-                        <TextBlock Text="ລຶບ"/>
+                    <Button
+                        Classes="action"
+                        Background="#C62828"
+                        Command="{Binding DeleteCommand}"
+                    >
+                        <TextBlock Text="ລຶບ" />
                     </Button>
-                    <Button Classes="action" Background="#616161" Command="{Binding CancelCommand}">
-                        <TextBlock Text="ຍົກເລີກ"/>
+                    <Button
+                        Classes="action"
+                        Background="#616161"
+                        Command="{Binding CancelCommand}"
+                    >
+                        <TextBlock Text="ຍົກເລີກ" />
                     </Button>
                 </StackPanel>
             </StackPanel>
@@ -172,90 +364,318 @@
         <!-- 2. Search & List -->
         <Grid Grid.Row="2" RowDefinitions="Auto, *">
             <!-- Search -->
-            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Left" Margin="0,0,0,10">
-                <TextBlock Text="ຄົ້ນຫາ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                <TextBox Width="250" Text="{Binding SearchText}"/>
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="10"
+                HorizontalAlignment="Left"
+                Margin="0,0,0,10"
+            >
+                <TextBlock
+                    Text="ຄົ້ນຫາ"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource TextMutedColor}"
+                />
+                <TextBox Width="250" Text="{Binding SearchText}" />
             </StackPanel>
 
             <!-- Table -->
-            <Border Grid.Row="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,1,1,0">
+            <Border
+                Grid.Row="1"
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1,1,1,0"
+            >
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header -->
                     <Border Grid.Row="0" Background="#FFB74D" Height="40">
-                        <Grid ColumnDefinitions="60, 100, 150, 150, 60, 100, 100, 100, 100, 100, 100, 100">
-                             <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ຮູບ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid
+                            ColumnDefinitions="60, 100, 150, 150, 60, 100, 100, 100, 100, 100, 100, 100"
+                        >
+                             <Border
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ຮູບ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ລະຫັດ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="1"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ລະຫັດ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ຊື່ພະນັກງານ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="2"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ຊື່ພະນັກງານ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="3" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ນາມສະກຸນ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="3"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ນາມສະກຸນ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="4" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ເພດ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="4"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ເພດ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="5" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ວັນເດືອນປີເກີດ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                            <Border
+                                Grid.Column="5"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ວັນເດືອນປີເກີດ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="11"
+                                />
                             </Border>
-                            <Border Grid.Column="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ເບີໂທ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="6"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ເບີໂທ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="7" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ແຂວງ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="7"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ແຂວງ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                             <Border Grid.Column="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ເມືອງ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <Border
+                                Grid.Column="8"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ເມືອງ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                             <Border Grid.Column="9" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ບ້ານ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <Border
+                                Grid.Column="9"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ບ້ານ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <Border Grid.Column="10" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ບັນຊີ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border
+                                Grid.Column="10"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                <TextBlock
+                                    Text="ບັນຊີ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
                             <Border Grid.Column="11">
-                                <TextBlock Text="ສະຖານະ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock
+                                    Text="ສະຖານະ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
                         </Grid>
                     </Border>
-                    
+
                     <!-- Data List -->
-                    <ListBox Grid.Row="1" ItemsSource="{Binding Employees}" SelectedItem="{Binding SelectedEmployee}" Background="Transparent" BorderThickness="0">
+                    <ListBox
+                        Grid.Row="1"
+                        ItemsSource="{Binding Employees}"
+                        SelectedItem="{Binding SelectedEmployee}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                    >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="60, 100, 150, 150, 60, 100, 100, 100, 100, 100, 100, 100">
+                                <Grid
+                                    ColumnDefinitions="60, 100, 150, 150, 60, 100, 100, 100, 100, 100, 100, 100"
+                                >
                                      <!-- Image -->
-                                    <Panel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <PathIcon Data="{StaticResource IconProfile}" Width="24" Height="24" Foreground="{DynamicResource TextMutedColor}" 
-                                                  IsVisible="{Binding ImagePath, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
-                                        <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathToBitmapConverter}}" Width="40" Height="40" Stretch="UniformToFill"
-                                               IsVisible="{Binding ImagePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                    <Panel
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    >
+                                        <PathIcon
+                                            Data="{StaticResource IconProfile}"
+                                            Width="24"
+                                            Height="24"
+                                            Foreground="{DynamicResource TextMutedColor}"
+                                            IsVisible="{Binding ImagePath, Converter={x:Static StringConverters.IsNullOrEmpty}}"
+                                        />
+                                        <Image
+                                            Source="{Binding ImagePath, Converter={StaticResource ImagePathToBitmapConverter}}"
+                                            Width="40"
+                                            Height="40"
+                                            Stretch="UniformToFill"
+                                            IsVisible="{Binding ImagePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                        />
                                     </Panel>
-                                    
-                                    <TextBlock Grid.Column="1" Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding Surname}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding Gender}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="5" Text="{Binding DateOfBirth, StringFormat='{}{0:dd/MM/yyyy}'}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="6" Text="{Binding PhoneNumber}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="7" Text="{Binding Province}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="8" Text="{Binding District}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="9" Text="{Binding Village}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Text="{Binding Id}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Text="{Binding Name}"
+                                        Margin="10,0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="3"
+                                        Text="{Binding Surname}"
+                                        Margin="10,0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="4"
+                                        Text="{Binding Gender}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="5"
+                                        Text="{Binding DateOfBirth, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="6"
+                                        Text="{Binding PhoneNumber}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="7"
+                                        Text="{Binding Province}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="8"
+                                        Text="{Binding District}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="9"
+                                        Text="{Binding Village}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
                                     <!-- User/Password usually hidden or shown. Image shows "User Login" maybe? Binding password for now but really shouldn't show plaintext in production. -->
-                                    <TextBlock Grid.Column="10" Text="*****" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="11" Text="{Binding Position}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    <TextBlock
+                                        Grid.Column="10"
+                                        Text="*****"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="11"
+                                        Text="{Binding Position}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.Styles>
                              <Style Selector="ListBoxItem">
-                                 <Setter Property="Padding" Value="0,8"/>
-                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                 <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                 <Setter Property="Padding" Value="0,8" />
+                                 <Setter
+                                    Property="HorizontalContentAlignment"
+                                    Value="Stretch"
+                                />
+                                 <Setter
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource BorderColor}"
+                                />
+                                 <Setter
+                                    Property="BorderThickness"
+                                    Value="0,0,0,1"
+                                />
                              </Style>
                         </ListBox.Styles>
                     </ListBox>

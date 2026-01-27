@@ -12,7 +12,7 @@ public partial class ReceiptWindow : ReactiveWindow<ReceiptViewModel>
     public ReceiptWindow()
     {
         InitializeComponent();
-        this.WhenActivated(d => 
+        this.WhenActivated(d =>
         {
             if (ViewModel != null)
             {

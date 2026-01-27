@@ -25,7 +25,7 @@ namespace mini_pos.Views
         protected override void OnOpened(EventArgs e)
         {
             base.OnOpened(e);
-            
+
             var usernameTextBox = this.FindControl<TextBox>("UsernameTextBox");
             usernameTextBox?.Focus();
         }
@@ -39,7 +39,7 @@ namespace mini_pos.Views
             {
                 var passwordTextBox = this.FindControl<TextBox>("PasswordTextBox");
                 var passwordVisibleTextBox = this.FindControl<TextBox>("PasswordVisibleTextBox");
-                
+
                 // Focus the visible password field
                 if (passwordTextBox?.IsVisible == true)
                 {
@@ -49,7 +49,7 @@ namespace mini_pos.Views
                 {
                     passwordVisibleTextBox.Focus();
                 }
-                
+
                 e.Handled = true;
             }
         }

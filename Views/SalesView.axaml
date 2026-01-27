@@ -1,34 +1,41 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:mini_pos.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
-             x:Class="mini_pos.Views.SalesView"
-             x:DataType="vm:SalesViewModel"
-             FontFamily="{StaticResource LaoFont}">
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:mini_pos.ViewModels"
+    mc:Ignorable="d"
+    d:DesignWidth="1200"
+    d:DesignHeight="700"
+    x:Class="mini_pos.Views.SalesView"
+    x:DataType="vm:SalesViewModel"
+    FontFamily="{StaticResource LaoFont}"
+>
 
     <UserControl.Styles>
         <Style Selector="TextBox.input">
-            <Setter Property="Height" Value="35"/>
+            <Setter Property="Height" Value="35" />
         </Style>
         <Style Selector="Button.action">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Height" Value="35" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="CornerRadius" Value="4" />
         </Style>
         <Style Selector="NumericUpDown.input">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="ShowButtonSpinner" Value="False"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="CornerRadius" Value="0"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Height" Value="35" />
+            <Setter Property="ShowButtonSpinner" Value="False" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter
+                Property="BorderBrush"
+                Value="{DynamicResource PrimaryColor}"
+            />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="5" />
         </Style>
     </UserControl.Styles>
 
@@ -38,71 +45,246 @@
         <Grid Grid.Row="1" ColumnDefinitions="400, *">
 
             <!-- Left Panel: Inputs -->
-            <Border Grid.Column="0" 
-                    BorderBrush="{DynamicResource BorderColor}" 
-                    BorderThickness="1" 
-                    CornerRadius="4" 
-                    Padding="20" 
-                    Margin="0,0,20,0"
-                    VerticalAlignment="Top"
-                    Background="{DynamicResource SurfaceColor}">
-                
+            <Border
+                Grid.Column="0"
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="20"
+                Margin="0,0,20,0"
+                VerticalAlignment="Top"
+                Background="{DynamicResource SurfaceColor}"
+            >
+
                 <StackPanel Spacing="15">
-                    <TextBlock Text="ຈັດການຂາຍສິນຄ້າ" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextColor}"/>
+                    <TextBlock
+                        Text="ຈັດການຂາຍສິນຄ້າ"
+                        FontSize="20"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource TextColor}"
+                    />
 
                     <!-- Customer Section -->
-                    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto" Margin="0,10,0,10">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ຊື່ລູກຄ້າ" VerticalAlignment="Center" Width="100" Foreground="{DynamicResource TextMutedColor}"/>
-                        <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto">
-                            <TextBox Grid.Column="0" Classes="input" Text="{Binding CustomerName}" Margin="0,0,5,0" Watermark="ຊື່ລູກຄ້າ..."/>
-                            <Button Grid.Column="1" Content="ຄົ້ນຫາ" Command="{Binding SearchCustomerCommand}" Width="60" Height="35" Background="#616161" Foreground="White" CornerRadius="4"/>
+                    <Grid
+                        ColumnDefinitions="Auto, *"
+                        RowDefinitions="Auto, Auto"
+                        Margin="0,10,0,10"
+                    >
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="ຊື່ລູກຄ້າ"
+                            VerticalAlignment="Center"
+                            Width="100"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <Grid
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            ColumnDefinitions="*, Auto"
+                        >
+                            <TextBox
+                                Grid.Column="0"
+                                Classes="input"
+                                Text="{Binding CustomerName}"
+                                Margin="0,0,5,0"
+                                Watermark="ຊື່ລູກຄ້າ..."
+                            />
+                            <Button
+                                Grid.Column="1"
+                                Content="ຄົ້ນຫາ"
+                                Command="{Binding SearchCustomerCommand}"
+                                Width="60"
+                                Height="35"
+                                Background="#616161"
+                                Foreground="White"
+                                CornerRadius="4"
+                            />
                         </Grid>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="ລະຫັດລູກຄ້າ" VerticalAlignment="Center" Margin="0,10,0,0" Foreground="{DynamicResource TextMutedColor}"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Classes="input" Text="{Binding CustomerCode}" Margin="0,10,0,0" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}"/>
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="ລະຫັດລູກຄ້າ"
+                            VerticalAlignment="Center"
+                            Margin="0,10,0,0"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Classes="input"
+                            Text="{Binding CustomerCode}"
+                            Margin="0,10,0,0"
+                            IsReadOnly="True"
+                            Background="{DynamicResource SurfaceLightColor}"
+                        />
                     </Grid>
 
-                    <Separator Height="1" Background="{DynamicResource BorderColor}" Margin="0"/>
+                    <Separator
+                        Height="1"
+                        Background="{DynamicResource BorderColor}"
+                        Margin="0"
+                    />
 
                     <!-- Product Section -->
-                    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                    <Grid
+                        ColumnDefinitions="Auto, *"
+                        RowDefinitions="Auto, Auto, Auto, Auto, Auto"
+                    >
                         <!-- Barcode -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ລະຫັດບາໂຄດ" VerticalAlignment="Center" Width="100" Foreground="{DynamicResource TextMutedColor}"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Classes="input" Text="{Binding Barcode}"  Margin="0,0,0,10" Watermark="Scan Barcode..."/>
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="ລະຫັດບາໂຄດ"
+                            VerticalAlignment="Center"
+                            Width="100"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <TextBox
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Classes="input"
+                            Text="{Binding Barcode}"
+                            Margin="0,0,0,10"
+                            Watermark="Scan Barcode..."
+                        />
 
                         <!-- Product Name -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="ລາຍການສິນຄ້າ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Classes="input" Text="{Binding ProductName}" Margin="0,0,0,10"/>
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="ລາຍການສິນຄ້າ"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Classes="input"
+                            Text="{Binding ProductName}"
+                            Margin="0,0,0,10"
+                        />
 
                         <!-- Unit -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="ຫົວໜ່ວຍ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Classes="input" Text="{Binding Unit}" Margin="0,0,0,10"/>
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Text="ຫົວໜ່ວຍ"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <TextBox
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Classes="input"
+                            Text="{Binding Unit}"
+                            Margin="0,0,0,10"
+                        />
 
                         <!-- Price -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="ລາຄາຕໍ່ໜ່ວຍ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Classes="input" Text="{Binding UnitPrice}" Margin="0,0,0,10" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}"/>
+                        <TextBlock
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            Text="ລາຄາຕໍ່ໜ່ວຍ"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <TextBox
+                            Grid.Row="3"
+                            Grid.Column="1"
+                            Classes="input"
+                            Text="{Binding UnitPrice}"
+                            Margin="0,0,0,10"
+                            IsReadOnly="True"
+                            Background="{DynamicResource SurfaceLightColor}"
+                        />
 
                         <!-- Quantity -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="ຈໍານວນ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                            <TextBox Classes="input" Width="80" Text="{Binding Quantity}" HorizontalContentAlignment="Center"/>
-                            <CheckBox Content="ເລືອກເປັນຈໍານວນ" IsChecked="{Binding IsWholesale}" VerticalAlignment="Center"/>
+                        <TextBlock
+                            Grid.Row="4"
+                            Grid.Column="0"
+                            Text="ຈໍານວນ"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource TextMutedColor}"
+                        />
+                        <StackPanel
+                            Grid.Row="4"
+                            Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                        >
+                            <TextBox
+                                Classes="input"
+                                Width="80"
+                                Text="{Binding Quantity}"
+                                HorizontalContentAlignment="Center"
+                            />
+                            <CheckBox
+                                Content="ເລືອກເປັນຈໍານວນ"
+                                IsChecked="{Binding IsWholesale}"
+                                VerticalAlignment="Center"
+                            />
                         </StackPanel>
                     </Grid>
 
                     <!-- Buttons -->
-                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" Margin="0,20,0,0">
-                         <Button Classes="action" Background="{DynamicResource PrimaryColor}" Command="{Binding AddProductCommand}" Content="ເພີ່ມ"/>
-                         <Button Classes="action" Background="{DynamicResource ErrorColor}" Command="{Binding RemoveProductCommand}" Content="ລຶບ"/>
-                         <Button Classes="action" Background="{DynamicResource TextMutedColor}" Command="{Binding ClearInputsCommand}" Content="ຍົກເລີກ"/>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        HorizontalAlignment="Center"
+                        Margin="0,20,0,0"
+                    >
+                         <Button
+                            Classes="action"
+                            Background="{DynamicResource PrimaryColor}"
+                            Command="{Binding AddProductCommand}"
+                            Content="ເພີ່ມ"
+                        />
+                         <Button
+                            Classes="action"
+                            Background="{DynamicResource ErrorColor}"
+                            Command="{Binding RemoveProductCommand}"
+                            Content="ລຶບ"
+                        />
+                         <Button
+                            Classes="action"
+                            Background="{DynamicResource TextMutedColor}"
+                            Command="{Binding ClearInputsCommand}"
+                            Content="ຍົກເລີກ"
+                        />
                     </StackPanel>
 
-                    <Separator Height="1" Background="{DynamicResource BorderColor}" Margin="0,10,0,10"/>
+                    <Separator
+                        Height="1"
+                        Background="{DynamicResource BorderColor}"
+                        Margin="0,10,0,10"
+                    />
 
                     <!-- Large Save Button -->
-                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
-                        <Button Classes="action" Width="150" Height="50" Background="{DynamicResource AccentColor}" Command="{Binding SaveSaleCommand}" Content="ບັນທຶກການຂາຍ" FontSize="16"/>
-                         <Button Classes="action" Width="100" Height="50" Background="{DynamicResource WarningColor}" Command="{Binding PaymentCommand}" Content="ຊຳລະ" FontSize="16"/>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        HorizontalAlignment="Center"
+                    >
+                        <Button
+                            Classes="action"
+                            Width="150"
+                            Height="50"
+                            Background="{DynamicResource AccentColor}"
+                            Command="{Binding SaveSaleCommand}"
+                            Content="ບັນທຶກການຂາຍ"
+                            FontSize="16"
+                        />
+                         <Button
+                            Classes="action"
+                            Width="100"
+                            Height="50"
+                            Background="{DynamicResource WarningColor}"
+                            Command="{Binding PaymentCommand}"
+                            Content="ຊຳລະ"
+                            FontSize="16"
+                        />
                     </StackPanel>
 
                 </StackPanel>
@@ -110,57 +292,187 @@
 
             <!-- Right Panel: DataGrid and Totals -->
             <Grid Grid.Column="1" RowDefinitions="*, Auto">
-                
+
                 <!-- DataGrid Header imitation based on image -->
-                <Border Grid.Row="0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,1,1,0" Background="{DynamicResource SurfaceColor}">
+                <Border
+                    Grid.Row="0"
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="1,1,1,0"
+                    Background="{DynamicResource SurfaceColor}"
+                >
                      <Grid RowDefinitions="Auto, *">
                          <!-- Header -->
                          <Border Grid.Row="0" Background="#FFB74D" Height="40">
-                             <Grid ColumnDefinitions="30, 100, *, 80, 80, 100, 120">
-                                 <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0"/>
-                                 
-                                 <Border Grid.Column="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                     <TextBlock Text="ບາໂຄດ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <Grid
+                                ColumnDefinitions="30, 100, *, 80, 80, 100, 120"
+                            >
+                                 <Border
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="0,0,1,0"
+                                />
+
+                                 <Border
+                                    Grid.Column="1"
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="0,0,1,0"
+                                >
+                                     <TextBlock
+                                        Text="ບາໂຄດ"
+                                        FontWeight="Bold"
+                                        Foreground="Black"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    />
                                  </Border>
-                                 <Border Grid.Column="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                     <TextBlock Text="ລາຍການ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                 <Border
+                                    Grid.Column="2"
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="0,0,1,0"
+                                >
+                                     <TextBlock
+                                        Text="ລາຍການ"
+                                        FontWeight="Bold"
+                                        Foreground="Black"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    />
                                  </Border>
-                                 <Border Grid.Column="3" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                     <TextBlock Text="ຫົວໜ່ວຍ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                 <Border
+                                    Grid.Column="3"
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="0,0,1,0"
+                                >
+                                     <TextBlock
+                                        Text="ຫົວໜ່ວຍ"
+                                        FontWeight="Bold"
+                                        Foreground="Black"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    />
                                  </Border>
-                                 <Border Grid.Column="4" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                     <TextBlock Text="ຈໍານວນ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                 <Border
+                                    Grid.Column="4"
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="0,0,1,0"
+                                >
+                                     <TextBlock
+                                        Text="ຈໍານວນ"
+                                        FontWeight="Bold"
+                                        Foreground="Black"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    />
                                  </Border>
-                                 <Border Grid.Column="5" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                     <TextBlock Text="ລາຄາ/ໜ່ວຍ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                 <Border
+                                    Grid.Column="5"
+                                    BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="0,0,1,0"
+                                >
+                                     <TextBlock
+                                        Text="ລາຄາ/ໜ່ວຍ"
+                                        FontWeight="Bold"
+                                        Foreground="Black"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    />
                                  </Border>
-                                 <TextBlock Grid.Column="6" Text="ລາຄາລວມ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                 <TextBlock
+                                    Grid.Column="6"
+                                    Text="ລາຄາລວມ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Grid>
                          </Border>
-                         
+
                           <!-- ListBox as DataGrid -->
-                          <ListBox Grid.Row="1" ItemsSource="{Binding CartItems}" SelectedItem="{Binding SelectedCartItem}" Background="Transparent" BorderThickness="0">
+                          <ListBox
+                            Grid.Row="1"
+                            ItemsSource="{Binding CartItems}"
+                            SelectedItem="{Binding SelectedCartItem}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                        >
                              <ListBox.Styles>
                                  <Style Selector="ListBoxItem">
-                                     <Setter Property="Padding" Value="0"/>
-                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                     <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-                                     <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                     <Setter Property="Padding" Value="0" />
+                                     <Setter
+                                        Property="HorizontalContentAlignment"
+                                        Value="Stretch"
+                                    />
+                                     <Setter
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource BorderColor}"
+                                    />
+                                     <Setter
+                                        Property="BorderThickness"
+                                        Value="0,0,0,1"
+                                    />
                                  </Style>
                              </ListBox.Styles>
                               <ListBox.ItemTemplate>
                                   <DataTemplate>
-                                      <Grid ColumnDefinitions="30, 100, *, 80, 80, 100, 120" Height="40">
-                                          <PathIcon Data="M0,0 L8,5 L0,10 Z" Width="8" Height="10" Foreground="{DynamicResource TextColor}" 
-                                                    IsVisible="{Binding $parent[ListBoxItem].IsSelected}" 
-                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                          
-                                          <TextBlock Grid.Column="1" Text="{Binding Barcode}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                          <TextBlock Grid.Column="2" Text="{Binding ProductName}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                          <TextBlock Grid.Column="3" Text="{Binding Unit}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                          <TextBlock Grid.Column="4" Text="{Binding Quantity}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                          <TextBlock Grid.Column="5" Text="{Binding UnitPrice, StringFormat='{}{0:N0}'}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                          <TextBlock Grid.Column="6" Text="{Binding TotalPrice, StringFormat='{}{0:N0}'}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                      <Grid
+                                        ColumnDefinitions="30, 100, *, 80, 80, 100, 120"
+                                        Height="40"
+                                    >
+                                          <PathIcon
+                                            Data="M0,0 L8,5 L0,10 Z"
+                                            Width="8"
+                                            Height="10"
+                                            Foreground="{DynamicResource TextColor}"
+                                            IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                        />
+
+                                          <TextBlock
+                                            Grid.Column="1"
+                                            Text="{Binding Barcode}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                          <TextBlock
+                                            Grid.Column="2"
+                                            Text="{Binding ProductName}"
+                                            HorizontalAlignment="Left"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                          <TextBlock
+                                            Grid.Column="3"
+                                            Text="{Binding Unit}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                          <TextBlock
+                                            Grid.Column="4"
+                                            Text="{Binding Quantity}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                          <TextBlock
+                                            Grid.Column="5"
+                                            Text="{Binding UnitPrice, StringFormat='{}{0:N0}'}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                          <TextBlock
+                                            Grid.Column="6"
+                                            Text="{Binding TotalPrice, StringFormat='{}{0:N0}'}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
                                       </Grid>
                                   </DataTemplate>
                               </ListBox.ItemTemplate>
@@ -169,48 +481,175 @@
                 </Border>
 
                 <!-- Totals Section -->
-                <Grid Grid.Row="1" ColumnDefinitions="Auto, *, Auto" Margin="0,20,0,0">
-                    
+                <Grid
+                    Grid.Row="1"
+                    ColumnDefinitions="Auto, *, Auto"
+                    Margin="0,20,0,0"
+                >
+
                     <!-- Column 0: Exchange Rates Panel -->
-                    <StackPanel Grid.Column="0" Spacing="10" Width="300" VerticalAlignment="Top">
+                    <StackPanel
+                        Grid.Column="0"
+                        Spacing="10"
+                        Width="300"
+                        VerticalAlignment="Top"
+                    >
                         <Grid ColumnDefinitions="*, 120">
-                             <TextBlock Grid.Column="0" Text="ອັດຕາແລກປ່ຽນ ໂດລາ" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource TextMutedColor}"/>
-                             <NumericUpDown Grid.Column="1" Classes="input" Value="{Binding ExchangeRateDollar}" FormatString="N0" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}"/>
+                             <TextBlock
+                                Grid.Column="0"
+                                Text="ອັດຕາແລກປ່ຽນ ໂດລາ"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0"
+                                Foreground="{DynamicResource TextMutedColor}"
+                            />
+                             <NumericUpDown
+                                Grid.Column="1"
+                                Classes="input"
+                                Value="{Binding ExchangeRateDollar}"
+                                FormatString="N0"
+                                HorizontalContentAlignment="Right"
+                                Foreground="{DynamicResource TextColor}"
+                            />
                         </Grid>
                         <Grid ColumnDefinitions="*, 120">
-                             <TextBlock Grid.Column="0" Text="ອັດຕາແລກປ່ຽນ ບາດ" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource TextMutedColor}"/>
-                             <NumericUpDown Grid.Column="1" Classes="input" Value="{Binding ExchangeRateBaht}" FormatString="N0" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}"/>
+                             <TextBlock
+                                Grid.Column="0"
+                                Text="ອັດຕາແລກປ່ຽນ ບາດ"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0"
+                                Foreground="{DynamicResource TextMutedColor}"
+                            />
+                             <NumericUpDown
+                                Grid.Column="1"
+                                Classes="input"
+                                Value="{Binding ExchangeRateBaht}"
+                                FormatString="N0"
+                                HorizontalContentAlignment="Right"
+                                Foreground="{DynamicResource TextColor}"
+                            />
                         </Grid>
                     </StackPanel>
 
                     <!-- Column 2: Totals Panel -->
                     <StackPanel Grid.Column="2" Spacing="10" Width="350">
-                        <Grid ColumnDefinitions="120, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                        <Grid
+                            ColumnDefinitions="120, *"
+                            RowDefinitions="Auto, Auto, Auto, Auto, Auto"
+                        >
                             <!-- Row 1: Total Amount -->
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="ລາຄາທັງໝົດ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" FontWeight="Bold"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Classes="input" Text="{Binding TotalAmount, StringFormat='{}{0:N0}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="ລາຄາທັງໝົດ"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource TextColor}"
+                                FontWeight="Bold"
+                            />
+                            <TextBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Classes="input"
+                                Text="{Binding TotalAmount, StringFormat='{}{0:N0}'}"
+                                IsReadOnly="True"
+                                Background="{DynamicResource SurfaceLightColor}"
+                                HorizontalContentAlignment="Right"
+                                FontWeight="Bold"
+                                FontSize="16"
+                                Foreground="{DynamicResource TextColor}"
+                                Margin="0,0,0,10"
+                            />
 
                             <!-- Row 2: Dollar -->
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="ໂດລາ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" Classes="input" Text="{Binding TotalDollar, StringFormat='{}{0:N2}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Text="ໂດລາ"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource TextColor}"
+                            />
+                            <TextBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Classes="input"
+                                Text="{Binding TotalDollar, StringFormat='{}{0:N2}'}"
+                                IsReadOnly="True"
+                                Background="{DynamicResource SurfaceLightColor}"
+                                HorizontalContentAlignment="Right"
+                                Foreground="{DynamicResource TextColor}"
+                                Margin="0,0,0,10"
+                            />
 
                             <!-- Row 3: Baht -->
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="ບາດ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" Classes="input" Text="{Binding TotalBaht, StringFormat='{}{0:N2}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Text="ບາດ"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource TextColor}"
+                            />
+                            <TextBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Classes="input"
+                                Text="{Binding TotalBaht, StringFormat='{}{0:N2}'}"
+                                IsReadOnly="True"
+                                Background="{DynamicResource SurfaceLightColor}"
+                                HorizontalContentAlignment="Right"
+                                Foreground="{DynamicResource TextColor}"
+                                Margin="0,0,0,10"
+                            />
 
                             <!-- Row 4: Money Received -->
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="ຊຳລະ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" FontWeight="Bold"/>
-                            <NumericUpDown Grid.Row="3" Grid.Column="1" Classes="input" Value="{Binding MoneyReceived}" FormatString="N0" HorizontalContentAlignment="Right" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10" />
+                            <TextBlock
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                Text="ຊຳລະ"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource TextColor}"
+                                FontWeight="Bold"
+                            />
+                            <NumericUpDown
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Classes="input"
+                                Value="{Binding MoneyReceived}"
+                                FormatString="N0"
+                                HorizontalContentAlignment="Right"
+                                FontWeight="Bold"
+                                FontSize="16"
+                                Foreground="{DynamicResource TextColor}"
+                                Margin="0,0,0,10"
+                            />
 
                             <!-- Row 5: Change -->
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="ເງິນທອນ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" FontWeight="Bold"/>
-                            <TextBox Grid.Row="4" Grid.Column="1" Classes="input" Text="{Binding Change, StringFormat='{}{0:N0}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" FontWeight="Bold" FontSize="16" Foreground="#FF5252"/>
+                            <TextBlock
+                                Grid.Row="4"
+                                Grid.Column="0"
+                                Text="ເງິນທອນ"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource TextColor}"
+                                FontWeight="Bold"
+                            />
+                            <TextBox
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Classes="input"
+                                Text="{Binding Change, StringFormat='{}{0:N0}'}"
+                                IsReadOnly="True"
+                                Background="{DynamicResource SurfaceLightColor}"
+                                HorizontalContentAlignment="Right"
+                                FontWeight="Bold"
+                                FontSize="16"
+                                Foreground="#FF5252"
+                            />
                         </Grid>
                     </StackPanel>
                 </Grid>
             </Grid>
         </Grid>
-        
+
         <!-- Payment Modal Overlay -->
     </Grid>
 </UserControl>

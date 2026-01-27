@@ -1,54 +1,135 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:mini_pos.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:conv="using:Avalonia.Data.Converters"
-        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
-        x:Class="mini_pos.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="avares://mini_pos/Assets/twitch.ico"
-	        Title="mini_pos"
-	        WindowState="Maximized"
-	        Background="{DynamicResource BackgroundColor}"
-	        FontFamily="{StaticResource LaoFont}">
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:mini_pos.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:conv="using:Avalonia.Data.Converters"
+    mc:Ignorable="d"
+    d:DesignWidth="1200"
+    d:DesignHeight="700"
+    x:Class="mini_pos.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    Icon="avares://mini_pos/Assets/twitch.ico"
+    Title="mini_pos"
+    WindowState="Maximized"
+    Background="{DynamicResource BackgroundColor}"
+    FontFamily="{StaticResource LaoFont}"
+>
 
     <Design.DataContext>
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
     <DockPanel LastChildFill="True">
         <!-- Status Bar -->
-        <Border DockPanel.Dock="Bottom"
-                Background="{DynamicResource SurfaceColor}"
-                Padding="8,3"
-                BorderBrush="{DynamicResource BorderColor}"
-                BorderThickness="0,1,0,0">
+        <Border
+            DockPanel.Dock="Bottom"
+            Background="{DynamicResource SurfaceColor}"
+            Padding="8,3"
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="0,1,0,0"
+        >
             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Border Width="28" Height="28" CornerRadius="14" Background="#18FFFFFF" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
-                         <PathIcon Data="{StaticResource IconProfile}" Width="16" Height="16" Foreground="{DynamicResource PrimaryColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    VerticalAlignment="Center"
+                >
+                    <Border
+                        Width="28"
+                        Height="28"
+                        CornerRadius="14"
+                        Background="#18FFFFFF"
+                        BorderBrush="{DynamicResource BorderColor}"
+                        BorderThickness="1"
+                    >
+                         <PathIcon
+                            Data="{StaticResource IconProfile}"
+                            Width="16"
+                            Height="16"
+                            Foreground="{DynamicResource PrimaryColor}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                        />
                     </Border>
                     <StackPanel Spacing="0" VerticalAlignment="Center">
-                         <TextBlock Text="ຜູ້ເຂົ້າໃຊ້: " FontWeight="Normal" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextMutedColor}" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
-                        <TextBlock Text="{Binding CurrentUser}" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextColor}" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock Text="Admin" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource PrimaryColor}" FontSize="10" Opacity="0.8"/>
+                         <TextBlock
+                            Text="ຜູ້ເຂົ້າໃຊ້: "
+                            FontWeight="Normal"
+                            FontFamily="{StaticResource LaoFont}"
+                            Foreground="{DynamicResource TextMutedColor}"
+                            FontSize="12"
+                            VerticalAlignment="Center"
+                            IsVisible="False"
+                        />
+                        <TextBlock
+                            Text="{Binding CurrentUser}"
+                            FontFamily="{StaticResource LaoFont}"
+                            Foreground="{DynamicResource TextColor}"
+                            FontWeight="SemiBold"
+                            FontSize="14"
+                        />
+                        <TextBlock
+                            Text="Admin"
+                            FontFamily="{StaticResource LaoFont}"
+                            Foreground="{DynamicResource PrimaryColor}"
+                            FontSize="10"
+                            Opacity="0.8"
+                        />
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                     <Border Background="#18FFFFFF" CornerRadius="4" Padding="8,4">
+                <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    VerticalAlignment="Center"
+                >
+                     <Border
+                        Background="#18FFFFFF"
+                        CornerRadius="4"
+                        Padding="8,4"
+                    >
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="ເວລາເຂົ້າລະບົບ:" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource TextMutedColor}" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding LoginTime}" FontFamily="{StaticResource LaoFont}" Foreground="{DynamicResource PrimaryColor}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock
+                                Text="ເວລາເຂົ້າລະບົບ:"
+                                FontFamily="{StaticResource LaoFont}"
+                                Foreground="{DynamicResource TextMutedColor}"
+                                FontSize="12"
+                                VerticalAlignment="Center"
+                            />
+                            <TextBlock
+                                Text="{Binding LoginTime}"
+                                FontFamily="{StaticResource LaoFont}"
+                                Foreground="{DynamicResource PrimaryColor}"
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                VerticalAlignment="Center"
+                            />
                         </StackPanel>
                     </Border>
-                    
-                     <Border Background="#18FFFFFF" CornerRadius="4" Padding="8,4">
+
+                     <Border
+                        Background="#18FFFFFF"
+                        CornerRadius="4"
+                        Padding="8,4"
+                    >
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <PathIcon Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" 
-                                      Width="14" Height="14" Foreground="{DynamicResource PrimaryColor}"/>
-                            <TextBlock Text="{Binding CurrentDate}" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" FontFamily="{StaticResource LaoFont}" FontSize="14" FontWeight="Medium"/>
+                            <PathIcon
+                                Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"
+                                Width="14"
+                                Height="14"
+                                Foreground="{DynamicResource PrimaryColor}"
+                            />
+                            <TextBlock
+                                Text="{Binding CurrentDate}"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource TextColor}"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontSize="14"
+                                FontWeight="Medium"
+                            />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -56,116 +137,280 @@
         </Border>
 
 	        <!-- Top Navigation Menu -->
-	        <Border DockPanel.Dock="Top" Padding="12,8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
+	        <Border
+            DockPanel.Dock="Top"
+            Padding="12,8"
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="0,0,0,1"
+        >
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#1E1E1E" Offset="0"/>
-                    <GradientStop Color="#181818" Offset="1"/>
+                    <GradientStop Color="#1E1E1E" Offset="0" />
+                    <GradientStop Color="#181818" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
 
 	            <Menu Background="Transparent" VerticalAlignment="Center">
 	                <Menu.ItemsPanel>
 	                    <ItemsPanelTemplate>
-	                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" ItemSpacing="10" MinHeight="50"/>
+	                        <WrapPanel
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            ItemSpacing="10"
+                            MinHeight="50"
+                        />
 	                    </ItemsPanelTemplate>
 	                </Menu.ItemsPanel>
 
 		                <Menu.Styles>
 		                    <!-- Base styling (submenu items) -->
 		                    <Style Selector="MenuItem">
-		                        <Setter Property="Background" Value="Transparent"/>
-		                        <Setter Property="Padding" Value="12,8"/>
-		                        <Setter Property="Cursor" Value="Hand"/>
-		                        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-		                        <Setter Property="FontFamily" Value="{StaticResource LaoFont}"/>
-		                        <Setter Property="FontSize" Value="14"/>
-		                        <Setter Property="BorderThickness" Value="0"/>
+		                        <Setter Property="Background" Value="Transparent" />
+		                        <Setter Property="Padding" Value="12,8" />
+		                        <Setter Property="Cursor" Value="Hand" />
+		                        <Setter
+                            Property="Foreground"
+                            Value="{DynamicResource TextColor}"
+                        />
+		                        <Setter
+                            Property="FontFamily"
+                            Value="{StaticResource LaoFont}"
+                        />
+		                        <Setter Property="FontSize" Value="14" />
+		                        <Setter Property="BorderThickness" Value="0" />
 		                    </Style>
 
 	                    <Style Selector="MenuItem:pointerover">
-	                        <Setter Property="Background" Value="{DynamicResource SurfaceLightColor}"/>
+	                        <Setter
+                            Property="Background"
+                            Value="{DynamicResource SurfaceLightColor}"
+                        />
 	                    </Style>
 
-		                    <Style Selector="MenuItem /template/ ContentPresenter#PART_HeaderPresenter">
-		                        <Setter Property="Foreground" Value="{DynamicResource TextColor}"/>
-		                        <Setter Property="HorizontalAlignment" Value="Left"/>
-		                        <Setter Property="VerticalAlignment" Value="Center"/>
+		                    <Style
+                        Selector="MenuItem /template/ ContentPresenter#PART_HeaderPresenter"
+                    >
+		                        <Setter
+                            Property="Foreground"
+                            Value="{DynamicResource TextColor}"
+                        />
+		                        <Setter Property="HorizontalAlignment" Value="Left" />
+		                        <Setter Property="VerticalAlignment" Value="Center" />
 		                    </Style>
 
 		                    <!-- Top navigation "pill" styling -->
 		                    <Style Selector="MenuItem.topnav">
-		                        <Setter Property="Background" Value="{DynamicResource SurfaceLightColor}"/>
-		                        <Setter Property="Padding" Value="14,10"/>
-		                        <Setter Property="CornerRadius" Value="14"/>
-		                        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-		                        <Setter Property="BorderThickness" Value="1"/>
-		                        <Setter Property="MinHeight" Value="48"/>
+		                        <Setter
+                            Property="Background"
+                            Value="{DynamicResource SurfaceLightColor}"
+                        />
+		                        <Setter Property="Padding" Value="14,10" />
+		                        <Setter Property="CornerRadius" Value="14" />
+		                        <Setter
+                            Property="BorderBrush"
+                            Value="{DynamicResource BorderColor}"
+                        />
+		                        <Setter Property="BorderThickness" Value="1" />
+		                        <Setter Property="MinHeight" Value="48" />
 		                    </Style>
 
-		                    <Style Selector="MenuItem.topnav /template/ ContentPresenter#PART_HeaderPresenter">
-		                        <Setter Property="HorizontalAlignment" Value="Center"/>
-		                        <Setter Property="VerticalAlignment" Value="Center"/>
+		                    <Style
+                        Selector="MenuItem.topnav /template/ ContentPresenter#PART_HeaderPresenter"
+                    >
+		                        <Setter Property="HorizontalAlignment" Value="Center" />
+		                        <Setter Property="VerticalAlignment" Value="Center" />
 		                    </Style>
 
 	                    <Style Selector="MenuItem.topnav:pointerover">
-	                        <Setter Property="Background" Value="#1A03A9F4"/>
-	                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}"/>
+	                        <Setter Property="Background" Value="#1A03A9F4" />
+	                        <Setter
+                            Property="BorderBrush"
+                            Value="{DynamicResource PrimaryColor}"
+                        />
 	                    </Style>
 	                </Menu.Styles>
 
 <!-- 1. Home -->
 	                <MenuItem Classes="topnav" Command="{Binding HomeCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Border Width="34" Height="34" CornerRadius="10" Background="#33EF5350" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <PathIcon Data="{StaticResource IconHome}" Width="20" Height="20" Foreground="#FFEF5350" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                            <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#33EF5350"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                <PathIcon
+                                    Data="{StaticResource IconHome}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FFEF5350"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <TextBlock Text="ໜ້າຫຼັກ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock
+                                Text="ໜ້າຫຼັກ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
 
 <!-- 2. Manage Data -->
-	                <MenuItem Classes="topnav" Command="{Binding ManageDataCommand}">
+	                <MenuItem
+                    Classes="topnav"
+                    Command="{Binding ManageDataCommand}"
+                >
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Border Width="34" Height="34" CornerRadius="10" Background="#3342A5F5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <PathIcon Data="{StaticResource IconDatabase}" Width="20" Height="20" Foreground="#FF42A5F5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                            <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#3342A5F5"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                <PathIcon
+                                    Data="{StaticResource IconDatabase}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FF42A5F5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                             </Border>
-                            <TextBlock Text="ຈັດການຂໍ້ມູນ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock
+                                Text="ຈັດການຂໍ້ມູນ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນຍີ່ຫໍ້" Command="{Binding GoToBrandCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ" Command="{Binding GoToProductTypeCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນສິນຄ້າ" Command="{Binding GoToProductCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນພະນັກງານ" Command="{Binding GoToEmployeeCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນອັດຕາແລກປ່ຽນ" Command="{Binding GoToExchangeRateCommand}" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນຜູ້ສະໜອງ" Command="{Binding GoToSupplierCommand}" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນຍີ່ຫໍ້"
+                        Command="{Binding GoToBrandCommand}"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ"
+                        Command="{Binding GoToProductTypeCommand}"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນສິນຄ້າ"
+                        Command="{Binding GoToProductCommand}"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນພະນັກງານ"
+                        Command="{Binding GoToEmployeeCommand}"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນອັດຕາແລກປ່ຽນ"
+                        Command="{Binding GoToExchangeRateCommand}"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນຜູ້ສະໜອງ"
+                        Command="{Binding GoToSupplierCommand}"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
                 </MenuItem>
 
 <!-- 3. Import/Order -->
 	                <MenuItem Classes="topnav" Command="{Binding ImportCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#3366BB6A" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconImport}" Width="20" Height="20" Foreground="#FF66BB6A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#3366BB6A"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconImport}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FF66BB6A"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ສັ່ງຊື້-ນຳເຂົ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ສັ່ງຊື້-ນຳເຂົ້າ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນສັ່ງຊື້ສິນຄ້າ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ຈັດການຂໍ້ມູນນຳເຂົ້າສິນຄ້າ" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນສັ່ງຊື້ສິນຄ້າ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ຈັດການຂໍ້ມູນນຳເຂົ້າສິນຄ້າ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
                 </MenuItem>
 
 <!-- 4. Customers -->
 	                <MenuItem Classes="topnav" Command="{Binding CustomersCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#33FFA726" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconCustomer}" Width="20" Height="20" Foreground="#FFFFA726" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#33FFA726"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconCustomer}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FFFFA726"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ລູກຄ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ລູກຄ້າ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
@@ -173,11 +418,35 @@
 <!-- 5. Sell -->
 	                <MenuItem Classes="topnav" Command="{Binding SaleCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#3326A69A" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconProduct}" Width="20" Height="20" Foreground="#FF26A69A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#3326A69A"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconProduct}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FF26A69A"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ຂາຍສິນຄ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ຂາຍສິນຄ້າ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
@@ -185,11 +454,35 @@
 <!-- 6. Search -->
 	                <MenuItem Classes="topnav" Command="{Binding SearchCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#33AB47BC" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconSearch}" Width="20" Height="20" Foreground="#FFAB47BC" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#33AB47BC"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconSearch}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FFAB47BC"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ຄົ້ນຫາສິນຄ້າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ຄົ້ນຫາສິນຄ້າ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
@@ -197,31 +490,103 @@
 <!-- 7. Reports -->
 	                <MenuItem Classes="topnav" Command="{Binding ReportsCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#33FF7043" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconReport}" Width="20" Height="20" Foreground="#FFFF7043" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#33FF7043"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconReport}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FFFF7043"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ລາຍງານ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ລາຍງານ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນການຂາຍ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນສິນຄ້າໃກ້ໝົດ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນສິນຄ້າໃນຮ້ານ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ໃບບິນ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນສັ່ງຊື້ສິນຄ້າ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນນຳເຂົ້າສິນຄ້າ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນລູກຄ້າ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນພະນັກງານ" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນການຂາຍ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນສິນຄ້າໃກ້ໝົດ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນສິນຄ້າໃນຮ້ານ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ໃບບິນ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນສັ່ງຊື້ສິນຄ້າ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນນຳເຂົ້າສິນຄ້າ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນລູກຄ້າ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ລາຍງານຂໍ້ມູນພະນັກງານ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
                 </MenuItem>
 
 <!-- 8. Profile -->
 	                <MenuItem Classes="topnav" Command="{Binding ProfileCommand}">
                      <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#3378909C" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconProfile}" Width="20" Height="20" Foreground="#FF78909C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#3378909C"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconProfile}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FF78909C"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ໂປຣໄຟລ໌" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ໂປຣໄຟລ໌"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
@@ -229,27 +594,87 @@
 <!-- 9. Settings -->
 	                <MenuItem Classes="topnav" Command="{Binding SettingsCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#33BDBDBD" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconSettings}" Width="20" Height="20" Foreground="#FFBDBDBD" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#33BDBDBD"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconSettings}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FFBDBDBD"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ຕັ້ງຄ່າ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ຕັ້ງຄ່າ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="ພູມດ້ານເທິງ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ພູມດ້ານຊ້າຍ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ພູມດ້ານລຸ່ມ" FontFamily="{StaticResource LaoFont}"/>
-                    <MenuItem Header="ພູມດ້ານຂວາ" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem
+                        Header="ພູມດ້ານເທິງ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ພູມດ້ານຊ້າຍ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ພູມດ້ານລຸ່ມ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
+                    <MenuItem
+                        Header="ພູມດ້ານຂວາ"
+                        FontFamily="{StaticResource LaoFont}"
+                    />
                 </MenuItem>
 
 <!-- 10. Logout -->
 	                <MenuItem Classes="topnav" Command="{Binding LogoutCommand}">
                     <MenuItem.Header>
-                        <StackPanel Spacing="10" Orientation="Horizontal" HorizontalAlignment="Center">
-                             <Border Width="34" Height="34" CornerRadius="10" Background="#33EF5350" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                 <PathIcon Data="{StaticResource IconLogout}" Width="20" Height="20" Foreground="#FFEF5350" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="#33EF5350"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                 <PathIcon
+                                    Data="{StaticResource IconLogout}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="#FFEF5350"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Text="ອອກລະບົບ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
+                             <TextBlock
+                                Text="ອອກລະບົບ"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
                         </StackPanel>
                     </MenuItem.Header>
                 </MenuItem>
@@ -259,14 +684,16 @@
 
         <!-- Main Content -->
         <Grid Background="{DynamicResource BackgroundColor}">
-             <TextBlock Text="{Binding Greeting}"
-                        IsVisible="{Binding CurrentPage, Converter={x:Static conv:ObjectConverters.IsNull}}"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontSize="48"
-                        FontWeight="Bold"
-                        Foreground="{DynamicResource TextColor}"
-                        FontFamily="{StaticResource LaoFont}"/>
+             <TextBlock
+                Text="{Binding Greeting}"
+                IsVisible="{Binding CurrentPage, Converter={x:Static conv:ObjectConverters.IsNull}}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="48"
+                FontWeight="Bold"
+                Foreground="{DynamicResource TextColor}"
+                FontFamily="{StaticResource LaoFont}"
+            />
 
              <TransitioningContentControl Content="{Binding CurrentPage}" />
         </Grid>

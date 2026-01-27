@@ -1,20 +1,25 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="using:mini_pos.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="700"
-        x:Class="mini_pos.Views.ReceiptWindow"
-        x:DataType="vm:ReceiptViewModel"
-        Title="Payment Form"
-        Width="460" Height="780"
-        WindowStartupLocation="CenterOwner"
-        CanResize="False"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="-1"
-        FontFamily="{StaticResource LaoFont}"
-        Background="#121212">
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:mini_pos.ViewModels"
+    mc:Ignorable="d"
+    d:DesignWidth="450"
+    d:DesignHeight="700"
+    x:Class="mini_pos.Views.ReceiptWindow"
+    x:DataType="vm:ReceiptViewModel"
+    Title="Payment Form"
+    Width="460"
+    Height="780"
+    WindowStartupLocation="CenterOwner"
+    CanResize="False"
+    ExtendClientAreaToDecorationsHint="True"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaTitleBarHeightHint="-1"
+    FontFamily="{StaticResource LaoFont}"
+    Background="#121212"
+>
 
     <Window.Resources>
         <SolidColorBrush x:Key="AccentColor">#FF8C00</SolidColorBrush>
@@ -29,57 +34,78 @@
     <Window.Styles>
         <!-- Numpad Button Style -->
         <Style Selector="Button.numpad">
-            <Setter Property="FontFamily" Value="{StaticResource LaoFont}"/>
-            <Setter Property="FontSize" Value="26"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="Height" Value="70"/>
+            <Setter Property="FontFamily" Value="{StaticResource LaoFont}" />
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter
+                Property="Background"
+                Value="{StaticResource ButtonBackground}"
+            />
+            <Setter
+                Property="Foreground"
+                Value="{StaticResource TextPrimary}"
+            />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="Height" Value="70" />
             <Setter Property="Transitions">
                 <Transitions>
-                    <BrushTransition Property="Background" Duration="0:0:0.1"/>
-                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.05"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.1" />
+                    <TransformOperationsTransition
+                        Property="RenderTransform"
+                        Duration="0:0:0.05"
+                    />
                 </Transitions>
             </Setter>
         </Style>
         <Style Selector="Button.numpad:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource ButtonHover}"/>
+            <Setter
+                Property="Background"
+                Value="{StaticResource ButtonHover}"
+            />
         </Style>
          <Style Selector="Button.numpad:pressed /template/ ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-            <Setter Property="RenderTransform" Value="scale(0.96)"/>
+            <Setter
+                Property="Background"
+                Value="{StaticResource AccentColor}"
+            />
+            <Setter Property="RenderTransform" Value="scale(0.96)" />
         </Style>
-        
+
         <!-- Action Button Style -->
         <Style Selector="Button.action">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Height" Value="60"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Height" Value="60" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
-        
+
         <Style Selector="TextBox.money">
-            <Setter Property="FontFamily" Value="{StaticResource LaoFont}"/>
-            <Setter Property="FontSize" Value="34"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Height" Value="60"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource AccentColor}"/>
-            <Setter Property="BorderThickness" Value="0,0,0,2"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="FontFamily" Value="{StaticResource LaoFont}" />
+            <Setter Property="FontSize" Value="34" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Height" Value="60" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter
+                Property="Foreground"
+                Value="{StaticResource AccentColor}"
+            />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+            <Setter
+                Property="BorderBrush"
+                Value="{StaticResource AccentColor}"
+            />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Margin" Value="0,0,0,5" />
         </Style>
     </Window.Styles>
 
@@ -88,93 +114,224 @@
 
             <!-- Header -->
             <StackPanel Grid.Row="0" Margin="0,20,0,30">
-                <TextBlock Text="ຊຳລະເງິນ"
-                           FontSize="28" FontWeight="Bold"
-                           Foreground="White"
-                           HorizontalAlignment="Center"/>
-                 <TextBlock Text="PAYMENT"
-                           FontSize="12" FontWeight="Bold"
-                           Foreground="{StaticResource AccentColor}"
-                           HorizontalAlignment="Center"
-                           Opacity="0.8"
-                           LetterSpacing="2"
-                           Margin="0,5,0,0"/>
+                <TextBlock
+                    Text="ຊຳລະເງິນ"
+                    FontSize="28"
+                    FontWeight="Bold"
+                    Foreground="White"
+                    HorizontalAlignment="Center"
+                />
+                 <TextBlock
+                    Text="PAYMENT"
+                    FontSize="12"
+                    FontWeight="Bold"
+                    Foreground="{StaticResource AccentColor}"
+                    HorizontalAlignment="Center"
+                    Opacity="0.8"
+                    LetterSpacing="2"
+                    Margin="0,5,0,0"
+                />
             </StackPanel>
 
             <!-- Money Info Card -->
-            <Border Grid.Row="1"
-                    Background="{StaticResource CardBackground}"
-                    CornerRadius="16"
-                    Padding="25"
-                    Margin="0,0,0,25"
-                    BoxShadow="0 4 12 0 #000000">
+            <Border
+                Grid.Row="1"
+                Background="{StaticResource CardBackground}"
+                CornerRadius="16"
+                Padding="25"
+                Margin="0,0,0,25"
+                BoxShadow="0 4 12 0 #000000"
+            >
                 <StackPanel Spacing="15">
                     <!-- Total Amount Display -->
                     <Grid>
-                        <TextBlock Text="ຍອດລວມ / Total" FontSize="14" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N0}'}"
-                                   FontSize="42"
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,0,0"/>
+                        <TextBlock
+                            Text="ຍອດລວມ / Total"
+                            FontSize="14"
+                            Foreground="{StaticResource TextSecondary}"
+                            VerticalAlignment="Center"
+                        />
+                        <TextBlock
+                            Text="{Binding TotalAmount, StringFormat='{}{0:N0}'}"
+                            FontSize="42"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="0,0,0,0"
+                        />
                     </Grid>
 
-                    <Separator Height="1" Background="#333333" Margin="0,5,0,10"/>
+                    <Separator
+                        Height="1"
+                        Background="#333333"
+                        Margin="0,5,0,10"
+                    />
 
                     <!-- Received Input -->
                     <Grid>
-                        <TextBlock Text="ຮັບເງິນ / Received" FontSize="14" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding MoneyReceived, StringFormat='{}{0:N0}'}"
-                                   FontSize="34"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource AccentColor}"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center"/>
+                        <TextBlock
+                            Text="ຮັບເງິນ / Received"
+                            FontSize="14"
+                            Foreground="{StaticResource TextSecondary}"
+                            VerticalAlignment="Center"
+                        />
+                        <TextBlock
+                            Text="{Binding MoneyReceived, StringFormat='{}{0:N0}'}"
+                            FontSize="34"
+                            FontWeight="Bold"
+                            Foreground="{StaticResource AccentColor}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                        />
                     </Grid>
 
                     <!-- Change Display -->
                     <Grid>
-                        <TextBlock Text="ເງິນທອນ / Change" FontSize="14" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Change, StringFormat='{}{0:N0}'}"
-                                   FontSize="28"
-                                   FontWeight="SemiBold"
-                                   Foreground="#4CAF50"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center"/>
+                        <TextBlock
+                            Text="ເງິນທອນ / Change"
+                            FontSize="14"
+                            Foreground="{StaticResource TextSecondary}"
+                            VerticalAlignment="Center"
+                        />
+                        <TextBlock
+                            Text="{Binding Change, StringFormat='{}{0:N0}'}"
+                            FontSize="28"
+                            FontWeight="SemiBold"
+                            Foreground="#4CAF50"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                        />
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Numpad -->
-            <Grid Grid.Row="2"
-                  ColumnDefinitions="*,*,*,*"
-                  RowDefinitions="Auto,Auto,Auto,Auto"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  Margin="0,5,0,5">
+            <Grid
+                Grid.Row="2"
+                ColumnDefinitions="*,*,*,*"
+                RowDefinitions="Auto,Auto,Auto,Auto"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Margin="0,5,0,5"
+            >
 
                 <!-- Row 1: 1 2 3 4 -->
-                <Button Grid.Row="0" Grid.Column="0" Content="1" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="1"/>
-                <Button Grid.Row="0" Grid.Column="1" Content="2" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="2"/>
-                <Button Grid.Row="0" Grid.Column="2" Content="3" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="3"/>
-                <Button Grid.Row="0" Grid.Column="3" Content="4" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="4"/>
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Content="1"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="1"
+                />
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Content="2"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="2"
+                />
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Content="3"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="3"
+                />
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="3"
+                    Content="4"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="4"
+                />
 
                 <!-- Row 2: 5 6 7 8 -->
-                <Button Grid.Row="1" Grid.Column="0" Content="5" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="5"/>
-                <Button Grid.Row="1" Grid.Column="1" Content="6" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="6"/>
-                <Button Grid.Row="1" Grid.Column="2" Content="7" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="7"/>
-                <Button Grid.Row="1" Grid.Column="3" Content="8" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="8"/>
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Content="5"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="5"
+                />
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Content="6"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="6"
+                />
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    Content="7"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="7"
+                />
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="3"
+                    Content="8"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="8"
+                />
 
                 <!-- Row 3: 9 0 Back -->
-                <Button Grid.Row="2" Grid.Column="0" Content="9" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="9"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="0" Classes="numpad" Command="{Binding EnterNumberCommand}" CommandParameter="0"/>
-                <Button Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="ລຶບຄືນ" Classes="numpad" Command="{Binding BackspaceCommand}" FontSize="20"/>
+                <Button
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Content="9"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="9"
+                />
+                <Button
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Content="0"
+                    Classes="numpad"
+                    Command="{Binding EnterNumberCommand}"
+                    CommandParameter="0"
+                />
+                <Button
+                    Grid.Row="2"
+                    Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    Content="ລຶບຄືນ"
+                    Classes="numpad"
+                    Command="{Binding BackspaceCommand}"
+                    FontSize="20"
+                />
 
                 <!-- Row 4: Clear Pay -->
-                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="ລຶບທັງໝົດ" Classes="numpad" Command="{Binding ClearCommand}" FontSize="20"/>
-                <Button Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Content="ຊຳລະ" Classes="numpad" Command="{Binding ConfirmPayCommand}" Background="{StaticResource AccentColor}" Foreground="White" FontSize="20"/>
+                <Button
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Content="ລຶບທັງໝົດ"
+                    Classes="numpad"
+                    Command="{Binding ClearCommand}"
+                    FontSize="20"
+                />
+                <Button
+                    Grid.Row="3"
+                    Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    Content="ຊຳລະ"
+                    Classes="numpad"
+                    Command="{Binding ConfirmPayCommand}"
+                    Background="{StaticResource AccentColor}"
+                    Foreground="White"
+                    FontSize="20"
+                />
             </Grid>
 
         </Grid>
