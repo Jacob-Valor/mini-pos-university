@@ -44,13 +44,14 @@
         </Grid>
 
         <!-- List -->
-        <Border Grid.Row="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,1,1,0">
-            <Grid RowDefinitions="Auto, *">
+        <Border Grid.Row="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,1,1,0" Background="{DynamicResource SurfaceColor}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <Grid RowDefinitions="Auto, *">
                 <!-- Header -->
-                <Border Grid.Row="0" Background="#FFB74D" Height="40">
-                    <Grid ColumnDefinitions="120, 200, 150, 200, 100, 100, 60, 60">
+                <Border Grid.Row="0" Background="#FFB74D" Height="44">
+                    <Grid ColumnDefinitions="110, 2.2*, 1.6*, 2.2*, 1.2*, 3*, 60, 60">
                         <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                            <TextBlock Text="ລະຫັດຜູ້ສະຫນອງ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="ລະຫັດຜູ້ສະຫນອງ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" TextWrapping="Wrap" TextAlignment="Center"/>
                         </Border>
                         <Border Grid.Column="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
                             <TextBlock Text="ຊື່ຜູ້ສະຫນອງ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -78,18 +79,18 @@
                 <ListBox Grid.Row="1" ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}" Background="Transparent" BorderThickness="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="120, 200, 150, 200, 100, 100, 60, 60">
-                                <TextBlock Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding ContactName}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                <TextBlock Grid.Column="3" Text="{Binding Email}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                <TextBlock Grid.Column="4" Text="{Binding Phone}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                <TextBlock Grid.Column="5" Text="{Binding Address}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                
-                                <!-- Edit Button -->
-                                <Button Grid.Column="6" Background="Transparent" 
-                                        Command="{Binding $parent[UserControl].((vm:SupplierViewModel)DataContext).EditCommand}" 
-                                        HorizontalAlignment="Center">
+                            <Grid ColumnDefinitions="110, 2.2*, 1.6*, 2.2*, 1.2*, 3*, 60, 60" Height="44">
+                                <TextBlock Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextWrapping="NoWrap"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="2" Text="{Binding ContactName}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Email}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="4" Text="{Binding Phone}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextWrapping="NoWrap"/>
+                                <TextBlock Grid.Column="5" Text="{Binding Address}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                 
+                                 <!-- Edit Button -->
+                                 <Button Grid.Column="6" Background="Transparent" 
+                                         Command="{Binding $parent[UserControl].((vm:SupplierViewModel)DataContext).EditCommand}" 
+                                         HorizontalAlignment="Center">
                                    <PathIcon Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" 
                                              Width="16" Height="16" Foreground="#1976D2"/>
                                 </Button>
@@ -106,14 +107,15 @@
                     </ListBox.ItemTemplate>
                      <ListBox.Styles>
                          <Style Selector="ListBoxItem">
-                             <Setter Property="Padding" Value="0,8"/>
+                             <Setter Property="Padding" Value="0,6"/>
                              <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                              <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
                              <Setter Property="BorderThickness" Value="0,0,0,1"/>
                          </Style>
-                    </ListBox.Styles>
-                </ListBox>
-            </Grid>
+                     </ListBox.Styles>
+                 </ListBox>
+             </Grid>
+            </ScrollViewer>
         </Border>
 
     </Grid>

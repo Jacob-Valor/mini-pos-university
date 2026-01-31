@@ -107,7 +107,7 @@
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header Row -->
                     <Border Grid.Row="0" Background="#FFB74D" Height="40">
-                        <Grid ColumnDefinitions="30, 80, 130, 130, 60, 120, *">
+                         <Grid ColumnDefinitions="30, 120, 140, 140, 60, 130, *">
                             <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0"/>
 
                             <!-- Col 1: ID -->
@@ -141,7 +141,7 @@
                     <ListBox Grid.Row="1" ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}" Background="Transparent" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="30, 80, 130, 130, 60, 120, *">
+                                 <Grid ColumnDefinitions="30, 120, 140, 140, 60, 130, *">
                                     <PathIcon Data="M0,0 L8,5 L0,10 Z" Width="8" Height="10" Foreground="{DynamicResource TextColor}"
                                               IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>

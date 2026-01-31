@@ -145,10 +145,10 @@
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header -->
                     <Border Grid.Row="0" Background="#FFB74D" Height="40">
-                        <Grid ColumnDefinitions="80, 2*, 80, 80, 80, 100, 100, 100, 100, 80">
+                        <Grid ColumnDefinitions="110, 4*, 90, 70, 110, 110, 110, 100, 120, 80">
                             <!-- 1. Code -->
                             <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ລະຫັດສິນຄ້າ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="ລະຫັດສິນຄ້າ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" FontSize="11"/>
                             </Border>
                             <!-- 2. Name -->
                             <Border Grid.Column="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
@@ -168,11 +168,11 @@
                             </Border>
                             <!-- 6. Cost -->
                             <Border Grid.Column="5" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ລາຄາຕົ້ນທຶນ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="ລາຄາຕົ້ນທຶນ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" FontSize="11"/>
                             </Border>
                             <!-- 7. Price -->
                             <Border Grid.Column="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="ລາຄາຂາຍ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="ລາຄາຂາຍ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" FontSize="11"/>
                             </Border>
                             <!-- 8. Brand -->
                             <Border Grid.Column="7" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
@@ -193,16 +193,16 @@
                     <ListBox Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" Background="Transparent" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="80, 2*, 80, 80, 80, 100, 100, 100, 100, 80">
+                                <Grid ColumnDefinitions="110, 4*, 90, 70, 110, 110, 110, 100, 120, 80">
                                     <TextBlock Grid.Column="0" Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Grid.Column="2" Text="{Binding Unit}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     <TextBlock Grid.Column="3" Text="{Binding Quantity}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     <TextBlock Grid.Column="4" Text="{Binding MinQuantity}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     <TextBlock Grid.Column="5" Text="{Binding CostPrice, StringFormat='{}{0:N0}'}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     <TextBlock Grid.Column="6" Text="{Binding SellingPrice, StringFormat='{}{0:N0}'}" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="7" Text="{Binding Brand}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="8" Text="{Binding Type}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    <TextBlock Grid.Column="7" Text="{Binding Brand}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="8" Text="{Binding Type}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Grid.Column="9" Text="{Binding Status}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                 </Grid>
                             </DataTemplate>
