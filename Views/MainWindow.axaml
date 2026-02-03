@@ -204,7 +204,7 @@
                              <TextBlock Text="ລາຍງານ" VerticalAlignment="Center" FontFamily="{StaticResource LaoFont}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="ລາຍງານຂໍ້ມູນການຂາຍ" FontFamily="{StaticResource LaoFont}"/>
+                    <MenuItem Header="ລາຍງານຂໍ້ມູນການຂາຍ" Command="{Binding GoToSalesReportCommand}" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ລາຍງານຂໍ້ມູນສິນຄ້າໃກ້ໝົດ" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ລາຍງານຂໍ້ມູນສິນຄ້າໃນຮ້ານ" FontFamily="{StaticResource LaoFont}"/>
                     <MenuItem Header="ໃບບິນ" FontFamily="{StaticResource LaoFont}"/>

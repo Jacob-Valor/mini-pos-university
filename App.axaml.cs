@@ -45,6 +45,7 @@ public partial class App : Application
         // Register Services
         services.AddSingleton<IDatabaseService, DatabaseService>();
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IReportService, ReportService>();
 
         // Register ViewModels
         services.AddTransient<LoginViewModel>();

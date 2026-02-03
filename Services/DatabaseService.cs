@@ -68,6 +68,9 @@ public interface IDatabaseService
     // Exchange Rate Operations
     Task<List<ExchangeRate>> GetExchangeRateHistoryAsync();
     Task<bool> AddExchangeRateAsync(ExchangeRate rate);
+
+    // Report Operations
+    Task<List<SalesReportItem>> GetSalesReportAsync(DateTime startDate, DateTime endDate);
 }
 
 /// <summary>
@@ -214,6 +217,18 @@ public class DatabaseService : IDatabaseService
                 VALUES (@saleId, @prodId, @qty, @price, @total)";
         public const string UpdateStock = @"
                 UPDATE product SET quantity = quantity - @qty WHERE barcode = @prodId";
+        
+        public const string SalesReport = @"
+                SELECT sp.product_id, p.product_name, p.unit, 
+                       SUM(sp.qty) as total_qty, 
+                       sp.price, 
+                       SUM(sp.total) as total_amount
+                FROM sales s
+                JOIN sales_product sp ON s.sales_id = sp.sales_id
+                JOIN product p ON sp.product_id = p.barcode
+                WHERE s.date_sale BETWEEN @start AND @end
+                GROUP BY sp.product_id, sp.price
+                ORDER BY p.product_name";
     }
 
     private readonly string _connectionString;
@@ -1422,4 +1437,41 @@ public class DatabaseService : IDatabaseService
     }
 
     #endregion
+
+    public async Task<List<SalesReportItem>> GetSalesReportAsync(DateTime startDate, DateTime endDate)
+    {
+        var items = new List<SalesReportItem>();
+        try
+        {
+            await using var connection = await GetConnectionAsync();
+            await using var command = new MySqlCommand(SqlQueries.SalesReport, connection);
+            // Add time to end date to include the whole day
+            var endDateTime = endDate.Date.AddDays(1).AddTicks(-1);
+            
+            command.Parameters.AddWithValue("@start", startDate.Date);
+            command.Parameters.AddWithValue("@end", endDateTime);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            int no = 1;
+            while (await reader.ReadAsync())
+            {
+                items.Add(new SalesReportItem
+                {
+                    No = no++,
+                    Barcode = reader.GetString("product_id"),
+                    ProductName = reader.IsDBNull("product_name") ? "Unknown" : reader.GetString("product_name"),
+                    Unit = reader.IsDBNull("unit") ? "" : reader.GetString("unit"),
+                    Quantity = reader.GetInt32("total_qty"),
+                    Price = reader.GetDecimal("price"),
+                    Total = reader.GetDecimal("total_amount")
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error fetching sales report");
+        }
+        return items;
+    }
 }

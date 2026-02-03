@@ -60,14 +60,17 @@ public class MainWindowViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> GoToEmployeeCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToExchangeRateCommand { get; }
     public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
+    public ReactiveCommand<Unit, Unit> GoToSalesReportCommand { get; }
 
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService _dialogService;
+    private readonly IReportService _reportService;
 
-    public MainWindowViewModel(Employee? employee, IDatabaseService databaseService, IDialogService dialogService)
+    public MainWindowViewModel(Employee? employee, IDatabaseService databaseService, IDialogService dialogService, IReportService reportService)
     {
         _databaseService = databaseService;
         _dialogService = dialogService;
+        _reportService = reportService;
 
         _loggedInEmployee = employee;
         if (_loggedInEmployee != null)
@@ -125,6 +128,7 @@ public class MainWindowViewModel : ViewModelBase
         GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(_databaseService, _dialogService); });
         GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(_databaseService, _dialogService); });
         GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(_databaseService, _dialogService); });
+        GoToSalesReportCommand = ReactiveCommand.Create(() => { CurrentPage = new SalesReportViewModel(_databaseService, _reportService, _dialogService); });
 
         HomeCommand = ReactiveCommand.Create(() =>
         {
