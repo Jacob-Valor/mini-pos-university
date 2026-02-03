@@ -35,4 +35,10 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Tmds.DBus" Version="0.15.0" Condition="'$(OS)' == 'Linux'" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="mini_pos.Tests\**" />
+    <EmbeddedResource Remove="mini_pos.Tests\**" />
+    <AvaloniaResource Remove="mini_pos.Tests\**" />
+  </ItemGroup>
 </Project>
