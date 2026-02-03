@@ -12,7 +12,7 @@ public class ConfigurationService
 {
     private static ConfigurationService? _instance;
     private static readonly object _lock = new();
-    
+
     private readonly IConfiguration _configuration;
 
     /// <summary>
@@ -66,7 +66,7 @@ public class ConfigurationService
     {
         // Try AppContext.BaseDirectory first (works for published apps)
         var baseDir = AppContext.BaseDirectory;
-        
+
         // Check if appsettings.json exists in base directory
         if (File.Exists(Path.Combine(baseDir, "appsettings.json")))
         {
@@ -100,7 +100,7 @@ public class ConfigurationService
 
         // Fall back to appsettings.json
         var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        
+
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException(

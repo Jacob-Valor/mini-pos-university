@@ -22,30 +22,30 @@ public class ReportService : IReportService
     {
         // License setup for QuestPDF (Community License)
         QuestPDF.Settings.License = LicenseType.Community;
-        
+
         // Register Fonts
-            try 
+        try
+        {
+            // Load Regular Font
+            var regularFontUri = new Uri("avares://mini_pos/Assets/Fonts/NotoSansLaoLooped-Regular.ttf");
+            using (var assetStream = AssetLoader.Open(regularFontUri))
+            using (var ms = new MemoryStream())
             {
-                // Load Regular Font
-                var regularFontUri = new Uri("avares://mini_pos/Assets/Fonts/NotoSansLaoLooped-Regular.ttf");
-                using (var assetStream = AssetLoader.Open(regularFontUri))
-                using (var ms = new MemoryStream())
-                {
-                    assetStream.CopyTo(ms);
-                    ms.Position = 0;
-                    FontManager.RegisterFont(ms);
-                }
-                
-                // Load Bold Font
-                var boldFontUri = new Uri("avares://mini_pos/Assets/Fonts/NotoSansLaoLooped-Bold.ttf");
-                using (var assetStream = AssetLoader.Open(boldFontUri))
-                using (var ms = new MemoryStream())
-                {
-                    assetStream.CopyTo(ms);
-                    ms.Position = 0;
-                    FontManager.RegisterFont(ms);
-                }
+                assetStream.CopyTo(ms);
+                ms.Position = 0;
+                FontManager.RegisterFont(ms);
             }
+
+            // Load Bold Font
+            var boldFontUri = new Uri("avares://mini_pos/Assets/Fonts/NotoSansLaoLooped-Bold.ttf");
+            using (var assetStream = AssetLoader.Open(boldFontUri))
+            using (var ms = new MemoryStream())
+            {
+                assetStream.CopyTo(ms);
+                ms.Position = 0;
+                FontManager.RegisterFont(ms);
+            }
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"Error registering fonts: {ex.Message}");
@@ -63,7 +63,7 @@ public class ReportService : IReportService
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.PageColor(Colors.White);
-                
+
                 var textStyle = TextStyle.Default.FontFamily("Noto Sans Lao Looped");
 
                 page.Content()
@@ -76,7 +76,7 @@ public class ReportService : IReportService
                         column.Item().Height(10);
                         column.Item().AlignCenter().Text("ໃບລາຍງານການຂາຍສິນຄ້າ").FontSize(16).Bold().FontFamily("Noto Sans Lao Looped");
                         column.Item().Height(10);
-                        
+
                         // Date Range
                         column.Item().Text($"ເລີ່ມແຕ່ວັນທີ   {startDate:yyyy-MM-dd}   ຫາ   {endDate:yyyy-MM-dd}").FontSize(11).FontFamily("Noto Sans Lao Looped");
                         column.Item().Height(10);
@@ -113,18 +113,18 @@ public class ReportService : IReportService
                                 table.Cell().Element(CellStyle).AlignRight().Text(item.Price.ToString("N0"));
                                 table.Cell().Element(CellStyle).AlignRight().Text(item.Total.ToString("N0"));
                             }
-                            
+
                             // Footer row for total
-                             table.Cell().ColumnSpan(6).PaddingTop(10).AlignRight().Row(row => 
-                             {
-                                 row.RelativeItem().Text("ລວມທັງໝົດ:").Bold().FontSize(12).FontFamily("Noto Sans Lao Looped");
-                                 row.ConstantItem(100).AlignRight().Text(totalAmount.ToString("N0")).Bold().FontSize(12);
-                             });
+                            table.Cell().ColumnSpan(6).PaddingTop(10).AlignRight().Row(row =>
+                            {
+                                row.RelativeItem().Text("ລວມທັງໝົດ:").Bold().FontSize(12).FontFamily("Noto Sans Lao Looped");
+                                row.ConstantItem(100).AlignRight().Text(totalAmount.ToString("N0")).Bold().FontSize(12);
+                            });
 
                         });
 
                         column.Item().Height(20);
-                        
+
                         // Signatures
                         column.Item().AlignRight().Text($"ອັດຕະປື, ວັນທີ {DateTime.Now:dd/MM/yyyy}").FontSize(10).FontFamily("Noto Sans Lao Looped");
                         column.Item().AlignRight().Text("ຜູ້ຮັບຜິດຊອບ").FontSize(10).FontFamily("Noto Sans Lao Looped");
@@ -132,7 +132,7 @@ public class ReportService : IReportService
             });
         }).GeneratePdf(filePath);
     }
-    
+
     // Helper to style table cells
     static IContainer CellStyle(IContainer container)
     {

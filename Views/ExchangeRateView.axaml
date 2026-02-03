@@ -119,9 +119,9 @@
                                     
                                     <TextBlock Grid.Column="1" Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     
-                                    <TextBlock Grid.Column="2" Text="{Binding UsdRate, StringFormat='{}{0:N2}'}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                     <TextBlock Grid.Column="2" Text="{Binding UsdRate, StringFormat='{}{0:N0}'}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     
-                                    <TextBlock Grid.Column="3" Text="{Binding ThbRate, StringFormat='{}{0:N2}'}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                     <TextBlock Grid.Column="3" Text="{Binding ThbRate, StringFormat='{}{0:N0}'}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
                                     
                                     <TextBlock Grid.Column="4" Text="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy hh:mm:ss tt}'}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
 

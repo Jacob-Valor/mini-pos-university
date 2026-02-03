@@ -1,112 +1,227 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:mini_pos.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
-             x:Class="mini_pos.Views.ProductTypeView"
-             x:DataType="vm:ProductTypeViewModel"
-             FontFamily="{StaticResource LaoFont}">
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:mini_pos.ViewModels"
+    mc:Ignorable="d"
+    d:DesignWidth="1000"
+    d:DesignHeight="600"
+    x:Class="mini_pos.Views.ProductTypeView"
+    x:DataType="vm:ProductTypeViewModel"
+    FontFamily="{StaticResource LaoFont}"
+>
 
     <UserControl.Styles>
         <Style Selector="Button.action">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="CornerRadius" Value="4" />
         </Style>
     </UserControl.Styles>
 
     <Grid ColumnDefinitions="*, 1.5*" Margin="20" ShowGridLines="False">
-        
+
         <!-- Left Side: Manage Form -->
-        <Border Grid.Column="0" 
-                BorderBrush="{DynamicResource BorderColor}" 
-                BorderThickness="1" 
-                CornerRadius="4" 
-                Padding="20" 
-                VerticalAlignment="Top" 
-                Margin="0,0,20,0"
-                Background="{DynamicResource SurfaceColor}">
-            
+        <Border
+            Grid.Column="0"
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="1"
+            CornerRadius="4"
+            Padding="20"
+            VerticalAlignment="Top"
+            Margin="0,0,20,0"
+            Background="{DynamicResource SurfaceColor}"
+        >
+
             <StackPanel Spacing="20">
-                <TextBlock Text="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextColor}"/>
-                
+                <TextBlock
+                    Text="ຈັດການຂໍ້ມູນປະເພດສິນຄ້າ"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource TextColor}"
+                />
+
                 <StackPanel Spacing="10">
-                    <TextBlock Text="ປະເພດສິນຄ້າ" Foreground="{DynamicResource TextMutedColor}"/>
-                    <TextBox Classes="input" Text="{Binding ProductTypeName}" Watermark="ປ້ອນປະເພດສິນຄ້າ..."/>
+                    <TextBlock
+                        Text="ປະເພດສິນຄ້າ"
+                        Foreground="{DynamicResource TextMutedColor}"
+                    />
+                    <TextBox
+                        Classes="input"
+                        Text="{Binding ProductTypeName}"
+                        Watermark="ປ້ອນປະເພດສິນຄ້າ..."
+                    />
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    HorizontalAlignment="Center"
+                    Margin="0,20,0,0"
+                >
                     <!-- Add Button (Blue) -->
-                    <Button Classes="action" Background="#0D47A1" Command="{Binding AddCommand}">
-                        <TextBlock Text="ເພີ່ມ"/>
+                    <Button
+                        Classes="action"
+                        Background="#0D47A1"
+                        Command="{Binding AddCommand}"
+                    >
+                        <TextBlock Text="ເພີ່ມ" />
                     </Button>
-                    
+
                     <!-- Edit Button (Yellow/Gold) -->
-                    <Button Classes="action" Background="#FBC02D" Command="{Binding EditCommand}" Foreground="Black">
-                        <TextBlock Text="ແກ້ໄຂ"/>
+                    <Button
+                        Classes="action"
+                        Background="#FBC02D"
+                        Command="{Binding EditCommand}"
+                        Foreground="Black"
+                    >
+                        <TextBlock Text="ແກ້ໄຂ" />
                     </Button>
-                    
+
                     <!-- Delete Button (Red) -->
-                    <Button Classes="action" Background="#C62828" Command="{Binding DeleteCommand}">
-                        <TextBlock Text="ລຶບ"/>
+                    <Button
+                        Classes="action"
+                        Background="#C62828"
+                        Command="{Binding DeleteCommand}"
+                    >
+                        <TextBlock Text="ລຶບ" />
                     </Button>
-                    
+
                     <!-- Cancel Button (Gray) -->
-                    <Button Classes="action" Background="#616161" Command="{Binding CancelCommand}">
-                        <TextBlock Text="ຍົກເລີກ"/>
+                    <Button
+                        Classes="action"
+                        Background="#616161"
+                        Command="{Binding CancelCommand}"
+                    >
+                        <TextBlock Text="ຍົກເລີກ" />
                     </Button>
                 </StackPanel>
             </StackPanel>
         </Border>
 
         <!-- Right Side: List/Table -->
-        <Grid Grid.Column="1" RowDefinitions="Auto, *" VerticalAlignment="Stretch">
-            
+        <Grid
+            Grid.Column="1"
+            RowDefinitions="Auto, *"
+            VerticalAlignment="Stretch"
+        >
+
             <!-- Search Bar -->
-            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,0,0,10">
-                <TextBlock Text="ຄົ້ນຫາ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                <TextBox Classes="input" Width="250" Text="{Binding SearchText}"/>
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="10"
+                HorizontalAlignment="Right"
+                Margin="0,0,0,10"
+            >
+                <TextBlock
+                    Text="ຄົ້ນຫາ"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource TextMutedColor}"
+                />
+                <TextBox
+                    Classes="input"
+                    Width="250"
+                    Text="{Binding SearchText}"
+                />
             </StackPanel>
 
             <!-- Table Header -->
-            <Border Grid.Row="1" VerticalAlignment="Top" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,1,1,0">
+            <Border
+                Grid.Row="1"
+                VerticalAlignment="Top"
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1,1,1,0"
+            >
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header Row -->
                     <Border Grid.Row="0" Background="#FFB74D" Height="40">
                          <Grid ColumnDefinitions="30, 80, *">
-                             <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0"/>
-                             <Border Grid.Column="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-                                 <TextBlock Text="ລຳດັບ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <Border
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            />
+                             <Border
+                                Grid.Column="1"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="0,0,1,0"
+                            >
+                                 <TextBlock
+                                    Text="ລຳດັບ"
+                                    FontWeight="Bold"
+                                    Foreground="Black"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
                              </Border>
-                             <TextBlock Grid.Column="2" Text="ປະເພດສິນຄ້າ" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <TextBlock
+                                Grid.Column="2"
+                                Text="ປະເພດສິນຄ້າ"
+                                FontWeight="Bold"
+                                Foreground="Black"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            />
                          </Grid>
                     </Border>
-                    
+
                     <!-- Data List -->
-                    <ListBox Grid.Row="1" ItemsSource="{Binding ProductTypes}" SelectedItem="{Binding SelectedProductType}" Background="Transparent" BorderThickness="0">
+                    <ListBox
+                        Grid.Row="1"
+                        ItemsSource="{Binding ProductTypes}"
+                        SelectedItem="{Binding SelectedProductType}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                    >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="30, 80, *">
-                                    <PathIcon Data="M0,0 L8,5 L0,10 Z" Width="8" Height="10" Foreground="{DynamicResource TextColor}" 
-                                              IsVisible="{Binding $parent[ListBoxItem].IsSelected}" 
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="20,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
+                                    <PathIcon
+                                        Data="M0,0 L8,5 L0,10 Z"
+                                        Width="8"
+                                        Height="10"
+                                        Foreground="{DynamicResource TextColor}"
+                                        IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Text="{Binding Id}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Text="{Binding Name}"
+                                        Margin="20,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource TextColor}"
+                                    />
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.Styles>
                              <Style Selector="ListBoxItem">
-                                 <Setter Property="Padding" Value="0,10"/>
-                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                 <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                 <Setter Property="Padding" Value="0,10" />
+                                 <Setter
+                                    Property="HorizontalContentAlignment"
+                                    Value="Stretch"
+                                />
+                                 <Setter
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource BorderColor}"
+                                />
+                                 <Setter
+                                    Property="BorderThickness"
+                                    Value="0,0,0,1"
+                                />
                              </Style>
                         </ListBox.Styles>
                     </ListBox>

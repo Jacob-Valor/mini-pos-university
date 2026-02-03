@@ -52,7 +52,7 @@ public static class PasswordHelper
             try
             {
                 byte[] hashBytes = Convert.FromHexString(storedHash);
-                
+
                 // Extract salt
                 byte[] salt = new byte[SaltSize];
                 Array.Copy(hashBytes, 0, salt, 0, SaltSize);

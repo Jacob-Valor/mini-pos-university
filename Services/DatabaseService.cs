@@ -217,11 +217,11 @@ public class DatabaseService : IDatabaseService
                 VALUES (@saleId, @prodId, @qty, @price, @total)";
         public const string UpdateStock = @"
                 UPDATE product SET quantity = quantity - @qty WHERE barcode = @prodId";
-        
+
         public const string SalesReport = @"
-                SELECT sp.product_id, p.product_name, p.unit, 
-                       SUM(sp.qty) as total_qty, 
-                       sp.price, 
+                SELECT sp.product_id, p.product_name, p.unit,
+                       SUM(sp.qty) as total_qty,
+                       sp.price,
                        SUM(sp.total) as total_amount
                 FROM sales s
                 JOIN sales_product sp ON s.sales_id = sp.sales_id
@@ -1447,7 +1447,7 @@ public class DatabaseService : IDatabaseService
             await using var command = new MySqlCommand(SqlQueries.SalesReport, connection);
             // Add time to end date to include the whole day
             var endDateTime = endDate.Date.AddDays(1).AddTicks(-1);
-            
+
             command.Parameters.AddWithValue("@start", startDate.Date);
             command.Parameters.AddWithValue("@end", endDateTime);
 

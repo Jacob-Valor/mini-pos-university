@@ -80,7 +80,7 @@
 
                         <!-- Price -->
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="ລາຄາຕໍ່ໜ່ວຍ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Classes="input" Text="{Binding UnitPrice}" Margin="0,0,0,10" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Classes="input" Text="{Binding UnitPrice, StringFormat='{}{0:N0}'}" Margin="0,0,0,10" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}"/>
 
                         <!-- Quantity -->
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="ຈໍານວນ" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedColor}"/>
@@ -192,11 +192,11 @@
 
                             <!-- Row 2: Dollar -->
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="ໂດລາ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" Classes="input" Text="{Binding TotalDollar, StringFormat='{}{0:N2}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
+                             <TextBox Grid.Row="1" Grid.Column="1" Classes="input" Text="{Binding TotalDollar, StringFormat='{}{0:N0}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
 
                             <!-- Row 3: Baht -->
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="ບາດ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" Classes="input" Text="{Binding TotalBaht, StringFormat='{}{0:N2}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
+                             <TextBox Grid.Row="2" Grid.Column="1" Classes="input" Text="{Binding TotalBaht, StringFormat='{}{0:N0}'}" IsReadOnly="True" Background="{DynamicResource SurfaceLightColor}" HorizontalContentAlignment="Right" Foreground="{DynamicResource TextColor}" Margin="0,0,0,10"/>
 
                             <!-- Row 4: Money Received -->
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="ຊຳລະ" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" FontWeight="Bold"/>

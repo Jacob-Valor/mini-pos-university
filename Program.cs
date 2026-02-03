@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -33,6 +34,8 @@ sealed class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        SetGlobalCulture();
+
         // 1. Initialize Serilog (Logging)
         string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "log-.txt");
 
@@ -175,5 +178,22 @@ sealed class Program
         }
 
         return false;
+    }
+
+    private static void SetGlobalCulture()
+    {
+        var culture = (CultureInfo)CultureInfo.GetCultureInfo("lo-LA").Clone();
+
+        culture.NumberFormat.NumberGroupSeparator = ".";
+        culture.NumberFormat.NumberDecimalSeparator = ",";
+        culture.NumberFormat.CurrencyGroupSeparator = ".";
+        culture.NumberFormat.CurrencyDecimalSeparator = ",";
+        culture.NumberFormat.NumberDecimalDigits = 0;
+        culture.NumberFormat.CurrencyDecimalDigits = 0;
+
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
     }
 }

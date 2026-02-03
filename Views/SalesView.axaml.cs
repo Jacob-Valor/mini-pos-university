@@ -14,7 +14,7 @@ public partial class SalesView : ReactiveUserControl<SalesViewModel>
     public SalesView()
     {
         InitializeComponent();
-        this.WhenActivated(disposables => 
+        this.WhenActivated(disposables =>
         {
             if (ViewModel != null)
             {
@@ -29,7 +29,7 @@ public partial class SalesView : ReactiveUserControl<SalesViewModel>
         var window = new ReceiptWindow { DataContext = vm };
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
         {
-             window.ShowDialog(desktop.MainWindow);
+            window.ShowDialog(desktop.MainWindow);
         }
     }
 
