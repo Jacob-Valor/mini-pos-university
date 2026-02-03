@@ -1,82 +1,71 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Reactive;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
-using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
-public class ProfileViewModel : ViewModelBase
+public partial class ProfileViewModel : ViewModelBase
 {
     private readonly Employee _currentUser;
     private readonly IDialogService? _dialogService;
+    private readonly IDatabaseService _databaseService;
 
-    // Profile Fields
+    [ObservableProperty]
     private string _id = string.Empty;
-    public string Id { get => _id; set => this.RaiseAndSetIfChanged(ref _id, value); }
 
+    [ObservableProperty]
     private string _username = string.Empty;
-    public string Username { get => _username; set => this.RaiseAndSetIfChanged(ref _username, value); }
 
+    [ObservableProperty]
     private string _name = string.Empty;
-    public string Name { get => _name; set => this.RaiseAndSetIfChanged(ref _name, value); }
 
+    [ObservableProperty]
     private string _surname = string.Empty;
-    public string Surname { get => _surname; set => this.RaiseAndSetIfChanged(ref _surname, value); }
 
+    [ObservableProperty]
     private string _gender = "ຊາຍ";
-    public string Gender { get => _gender; set => this.RaiseAndSetIfChanged(ref _gender, value); }
 
+    [ObservableProperty]
     private DateTimeOffset _dateOfBirth = DateTimeOffset.Now;
-    public DateTimeOffset DateOfBirth { get => _dateOfBirth; set => this.RaiseAndSetIfChanged(ref _dateOfBirth, value); }
 
-    private DateTimeOffset _startDate = DateTimeOffset.Now; // Not in DB, placeholder
-    public DateTimeOffset StartDate { get => _startDate; set => this.RaiseAndSetIfChanged(ref _startDate, value); }
+    [ObservableProperty]
+    private DateTimeOffset _startDate = DateTimeOffset.Now;
 
+    [ObservableProperty]
     private string _phoneNumber = string.Empty;
-    public string PhoneNumber { get => _phoneNumber; set => this.RaiseAndSetIfChanged(ref _phoneNumber, value); }
 
+    [ObservableProperty]
     private string _province = string.Empty;
-    public string Province { get => _province; set => this.RaiseAndSetIfChanged(ref _province, value); }
 
+    [ObservableProperty]
     private string _district = string.Empty;
-    public string District { get => _district; set => this.RaiseAndSetIfChanged(ref _district, value); }
 
+    [ObservableProperty]
     private string _village = string.Empty;
-    public string Village { get => _village; set => this.RaiseAndSetIfChanged(ref _village, value); }
 
+    [ObservableProperty]
     private string _position = string.Empty;
-    public string Position { get => _position; set => this.RaiseAndSetIfChanged(ref _position, value); }
 
+    [ObservableProperty]
     private string _imagePath = string.Empty;
-    public string ImagePath { get => _imagePath; set => this.RaiseAndSetIfChanged(ref _imagePath, value); }
 
-    // Password Fields
+    [ObservableProperty]
     private string _oldPassword = string.Empty;
-    public string OldPassword { get => _oldPassword; set => this.RaiseAndSetIfChanged(ref _oldPassword, value); }
 
+    [ObservableProperty]
     private string _newPassword = string.Empty;
-    public string NewPassword { get => _newPassword; set => this.RaiseAndSetIfChanged(ref _newPassword, value); }
 
+    [ObservableProperty]
     private string _confirmPassword = string.Empty;
-    public string ConfirmPassword { get => _confirmPassword; set => this.RaiseAndSetIfChanged(ref _confirmPassword, value); }
 
-    // Mock Dropdown Data
     public ObservableCollection<string> Provinces { get; } = new() { "ນະຄອນຫຼວງວຽງຈັນ", "ວຽງຈັນ", "ຫຼວງພະບາງ", "ຈຳປາສັກ" };
     public ObservableCollection<string> Districts { get; } = new() { "ສີສັດຕະນາກ", "ໄຊເສດຖາ", "ຈັນທະບູລີ", "ສີໂຄດຕະບອງ" };
     public ObservableCollection<string> Villages { get; } = new() { "ວັດນາກ", "ທາດຂາວ", "ທົ່ງພານທອງ", "ດົງປ່າລານ" };
     public ObservableCollection<string> Positions { get; } = new() { "Admin", "Employee", "Manager" };
-
-    public ReactiveCommand<Unit, Unit> SaveProfileCommand { get; }
-    public ReactiveCommand<Unit, Unit> ChangePasswordCommand { get; }
-
-    private readonly IDatabaseService _databaseService;
 
     public ProfileViewModel(Employee employee, IDatabaseService databaseService, IDialogService? dialogService = null)
     {
@@ -84,9 +73,6 @@ public class ProfileViewModel : ViewModelBase
         _databaseService = databaseService;
         _dialogService = dialogService;
         LoadUserData();
-
-        SaveProfileCommand = ReactiveCommand.CreateFromTask(SaveProfileAsync);
-        ChangePasswordCommand = ReactiveCommand.CreateFromTask(ChangePasswordAsync);
     }
 
     private void LoadUserData()
@@ -97,7 +83,7 @@ public class ProfileViewModel : ViewModelBase
         Surname = _currentUser.Surname;
         Gender = _currentUser.Gender;
         DateOfBirth = _currentUser.DateOfBirth;
-        StartDate = _currentUser.DateOfBirth; // Placeholder as DB doesn't have start date
+        StartDate = _currentUser.DateOfBirth;
         PhoneNumber = _currentUser.PhoneNumber;
         Province = _currentUser.Province;
         District = _currentUser.District;
@@ -106,25 +92,21 @@ public class ProfileViewModel : ViewModelBase
         ImagePath = _currentUser.ImagePath;
     }
 
+    [RelayCommand]
     private async Task SaveProfileAsync()
     {
-        // Update local object
         _currentUser.Name = Name;
         _currentUser.Surname = Surname;
         _currentUser.Gender = Gender;
         _currentUser.DateOfBirth = DateOfBirth.DateTime;
         _currentUser.PhoneNumber = PhoneNumber;
         _currentUser.Username = Username;
-        // Address/Position fields not updated in DB for this task to avoid complexity
-        // but we can update them in memory at least.
-        
+
         bool success = await _databaseService.UpdateEmployeeProfileAsync(_currentUser);
         if (success)
         {
             if (_dialogService != null)
-            {
                 await _dialogService.ShowSuccessAsync("ອັບເດດໂປຣໄຟລ໌ສຳເລັດ (Profile updated)");
-            }
         }
         else if (_dialogService != null)
         {
@@ -132,55 +114,45 @@ public class ProfileViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     private async Task ChangePasswordAsync()
     {
         if (string.IsNullOrWhiteSpace(OldPassword) || string.IsNullOrWhiteSpace(NewPassword))
         {
             if (_dialogService != null)
-            {
                 await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນລະຫັດຜ່ານເກົ່າ ແລະ ລະຫັດໃໝ່");
-            }
-            return;
-        }
-        
-        if (NewPassword != ConfirmPassword)
-        {
-            if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານໃໝ່ບໍ່ຕົງກັນ");
-            }
             return;
         }
 
-        // Verify old password first
+        if (NewPassword != ConfirmPassword)
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານໃໝ່ບໍ່ຕົງກັນ");
+            return;
+        }
+
         var storedHash = await _databaseService.GetStoredPasswordHashAsync(Username);
         if (storedHash == null || !PasswordHelper.VerifyPassword(OldPassword, storedHash))
         {
             if (_dialogService != null)
-            {
                 await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານເກົ່າບໍ່ຖືກຕ້ອງ");
-            }
             return;
         }
 
         string newHash = PasswordHelper.HashPassword(NewPassword);
         bool success = await _databaseService.UpdatePasswordAsync(Id, newHash);
-        
+
         if (success)
         {
             OldPassword = "";
             NewPassword = "";
             ConfirmPassword = "";
             if (_dialogService != null)
-            {
                 await _dialogService.ShowSuccessAsync("ປ່ຽນລະຫັດຜ່ານສຳເລັດ (Password changed)");
-            }
         }
         else if (_dialogService != null)
         {
             await _dialogService.ShowErrorAsync("ປ່ຽນລະຫັດຜ່ານບໍ່ສຳເລັດ");
         }
     }
-
-
 }

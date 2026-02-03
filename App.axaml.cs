@@ -26,7 +26,6 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // Configure Dependency Injection
         var collection = new ServiceCollection();
         ConfigureServices(collection);
         ServiceProvider = collection.BuildServiceProvider();
@@ -42,20 +41,28 @@ public partial class App : Application
 
     private void ConfigureServices(IServiceCollection services)
     {
-        // Register Services
         services.AddSingleton<IDatabaseService, DatabaseService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IReportService, ReportService>();
+        services.AddSingleton<INavigationService, NavigationService>();
 
-        // Register ViewModels
         services.AddTransient<LoginViewModel>();
-        services.AddTransient<MainWindowViewModel>(); 
+        services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<BrandViewModel>();
+        services.AddTransient<CustomerViewModel>();
+        services.AddTransient<EmployeeViewModel>();
+        services.AddTransient<ExchangeRateViewModel>();
+        services.AddTransient<ProductTypeViewModel>();
         services.AddTransient<ProductViewModel>();
+        services.AddTransient<ProfileViewModel>();
+        services.AddTransient<ReceiptViewModel>();
+        services.AddTransient<SalesReportViewModel>();
+        services.AddTransient<SalesViewModel>();
+        services.AddTransient<SupplierViewModel>();
     }
 
     private void ShowLogin(IClassicDesktopStyleApplicationLifetime desktop)
     {
-        // Resolve LoginViewModel from DI container
         var loginViewModel = ServiceProvider!.GetRequiredService<LoginViewModel>();
         
         var loginView = new LoginView
@@ -75,10 +82,6 @@ public partial class App : Application
 
     private void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop, Employee? employee)
     {
-        // Use ActivatorUtilities to create MainWindowViewModel with mixed dependencies
-        // (IDatabaseService from DI, Employee passed manually)
-        // Note: We check if employee is null, although generally it shouldn't be here.
-        // If it is, ActivatorUtilities might warn but it will pass null to constructor.
         var mainWindowViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>(
             ServiceProvider!, 
             employee! 
@@ -101,11 +104,9 @@ public partial class App : Application
 
     private void DisableAvaloniaDataAnnotationValidation()
     {
-        // Get an array of plugins to remove
         var dataValidationPluginsToRemove =
             BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
 
-        // remove each entry found
         foreach (var plugin in dataValidationPluginsToRemove)
         {
             BindingPlugins.DataValidators.Remove(plugin);

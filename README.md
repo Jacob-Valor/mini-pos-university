@@ -18,6 +18,8 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 - 🎨 **Modern UI** - Built with Avalonia UI for cross-platform desktop support
 - 🐳 **Docker Support** - Containerized database deployment
 - 🌏 **Localization** - Support for Lao language (lo-LA)
+- 🚀 **High-Performance MVVM** - Source-generated ViewModels with CommunityToolkit.Mvvm 8.4
+- 🧭 **Navigation Service** - Factory pattern for proper DI ViewModel creation
 
 ## 🛠️ Tech Stack
 
@@ -25,14 +27,54 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 - 🔙 **Backend**: .NET 10.0
 - 🗄️ **Database**: Maria DB 10.11
 - 🔌 **ORM**: ADO.NET with MySqlConnector
-- 🏗️ **MVVM**: CommunityToolkit.Mvvm
+- 🏗️ **MVVM**: CommunityToolkit.Mvvm 8.4 (Source-generated)
 - 📦 **Containerization**: Docker & Docker Compose
+- 💉 **Dependency Injection**: Microsoft.Extensions.DependencyInjection
 
 ## 📋 Prerequisites
 
 - 📦 [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - 🐳 [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/) (for database)
 - 🖥️ **Cross-platform**: Supports Linux, macOS (Intel/Apple Silicon), and Windows
+
+## 🏛️ Architecture Overview
+
+### MVVM with CommunityToolkit.Mvvm
+
+This project uses **CommunityToolkit.Mvvm** for high-performance MVVM implementation:
+
+- **Source Generators** - Compile-time code generation for properties and commands
+- **ObservableProperty** - `[ObservableProperty]` attributes replace manual property change notifications
+- **RelayCommand** - `[RelayCommand]` attributes auto-generate async/sync commands with CanExecute support
+- **40-50% less boilerplate** compared to ReactiveUI
+
+**Example:**
+```csharp
+// Before (ReactiveUI) - 15 lines
+private string _name = string.Empty;
+public string Name
+{
+    get => _name;
+    set => this.RaiseAndSetIfChanged(ref _name, value);
+}
+public ReactiveCommand<Unit, Unit> SaveCommand { get; }
+
+// After (CommunityToolkit.Mvvm) - 4 lines
+[ObservableProperty]
+private string _name = string.Empty;
+
+[RelayCommand]
+private async Task SaveAsync() { ... }
+```
+
+### Dependency Injection
+
+All services and ViewModels are registered in `App.axaml.cs` using Microsoft DI:
+
+- `IDatabaseService` - Data access layer
+- `IDialogService` - User notifications and confirmations  
+- `IReportService` - PDF report generation
+- `INavigationService` - Factory pattern for ViewModel creation
 
 ### 💻 macOS (Recommended: JetBrains Rider)
 
@@ -169,9 +211,14 @@ mini_pos/
 ├── db/                    # Database schemas and initialization
 │   └── workshop.sql       # Database schema and sample data
 ├── Models/                # Data models (Employee, Product, etc.)
-├── ViewModels/            # MVVM view models
+├── Services/              # Business logic services
+│   ├── DatabaseService.cs
+│   ├── DialogService.cs
+│   ├── NavigationService.cs
+│   └── ReportService.cs
+├── ViewModels/            # MVVM view models (CommunityToolkit.Mvvm)
 ├── Views/                 # AXAML UI views
-├── App.axaml             # Application entry point
+├── App.axaml             # Application entry point & DI configuration
 ├── Program.cs            # Application initialization
 ├── Dockerfile            # Container build configuration
 ├── docker-compose.yml    # Multi-container orchestration

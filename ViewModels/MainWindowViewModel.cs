@@ -1,143 +1,172 @@
-using ReactiveUI;
-using System.Reactive;
 using System;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
 
 namespace mini_pos.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
     public string Greeting { get; } = "ຍິນດີຕ້ອນຮັບສູ່ ໂປຣແກຣມຂາຍໜ້າຮ້ານ";
 
-    public ReactiveCommand<Unit, Unit> HomeCommand { get; }
-    public ReactiveCommand<Unit, Unit> ManageDataCommand { get; }
-    public ReactiveCommand<Unit, Unit> ImportCommand { get; }
-    public ReactiveCommand<Unit, Unit> CustomersCommand { get; }
-    public ReactiveCommand<Unit, Unit> SaleCommand { get; }
-    public ReactiveCommand<Unit, Unit> SearchCommand { get; }
-    public ReactiveCommand<Unit, Unit> ReportsCommand { get; }
-    public ReactiveCommand<Unit, Unit> ProfileCommand { get; }
-    public ReactiveCommand<Unit, Unit> SettingsCommand { get; }
-    public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
-
-    public event EventHandler? LogoutRequested;
-
-    private Employee? _loggedInEmployee;
-
+    [ObservableProperty]
     private string _currentUser = string.Empty;
-    public string CurrentUser
-    {
-        get => _currentUser;
-        set => this.RaiseAndSetIfChanged(ref _currentUser, value);
-    }
 
+    [ObservableProperty]
     private string _loginTime = string.Empty;
-    public string LoginTime
-    {
-        get => _loginTime;
-        set => this.RaiseAndSetIfChanged(ref _loginTime, value);
-    }
 
+    [ObservableProperty]
     private string _currentDate = string.Empty;
-    public string CurrentDate
-    {
-        get => _currentDate;
-        private set => this.RaiseAndSetIfChanged(ref _currentDate, value);
-    }
 
-    public ViewModelBase? CurrentPage
-    {
-        get => _currentPage;
-        set => this.RaiseAndSetIfChanged(ref _currentPage, value);
-    }
+    [ObservableProperty]
     private ViewModelBase? _currentPage;
 
-    public ReactiveCommand<Unit, Unit> GoToBrandCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToProductTypeCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToProductCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToEmployeeCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToExchangeRateCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToSupplierCommand { get; }
-    public ReactiveCommand<Unit, Unit> GoToSalesReportCommand { get; }
+    public event EventHandler? LogoutRequested;
 
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService _dialogService;
     private readonly IReportService _reportService;
+    private readonly INavigationService _navigationService;
+    private readonly Employee? _loggedInEmployee;
 
-    public MainWindowViewModel(Employee? employee, IDatabaseService databaseService, IDialogService dialogService, IReportService reportService)
+    public MainWindowViewModel(
+        Employee? employee, 
+        IDatabaseService databaseService, 
+        IDialogService dialogService, 
+        IReportService reportService,
+        INavigationService navigationService)
     {
+        _loggedInEmployee = employee;
         _databaseService = databaseService;
         _dialogService = dialogService;
         _reportService = reportService;
+        _navigationService = navigationService;
 
-        _loggedInEmployee = employee;
+        CurrentUser = employee != null 
+            ? $"{employee.Name} {employee.Surname}" 
+            : "Guest";
+        LoginTime = DateTime.Now.ToString("HH:mm:ss");
+        
+        _ = UpdateDatePeriodicallyAsync();
+    }
+
+    [RelayCommand]
+    private void Home()
+    {
+        CurrentPage = null;
+    }
+
+    [RelayCommand]
+    private void ManageData()
+    {
+        Console.WriteLine("Manage Data clicked");
+    }
+
+    [RelayCommand]
+    private void Import()
+    {
+        Console.WriteLine("Import clicked");
+    }
+
+    [RelayCommand]
+    private void Customers()
+    {
+        CurrentPage = _navigationService.CreateViewModel<CustomerViewModel>();
+    }
+
+    [RelayCommand]
+    private void Sale()
+    {
         if (_loggedInEmployee != null)
         {
-            CurrentUser = $"{_loggedInEmployee.Name} {_loggedInEmployee.Surname}";
+            CurrentPage = _navigationService.CreateViewModelWithArgs<SalesViewModel>(_loggedInEmployee);
         }
         else
         {
-            CurrentUser = "Guest";
+            _ = _dialogService.ShowErrorAsync("ບໍ່ສາມາດຂາຍໄດ້: ບໍ່ມີຜູ້ໃຊ້ເຂົ້າສູ່ລະບົບ");
         }
+    }
 
-        LoginTime = DateTime.Now.ToString("HH:mm:ss");
+    [RelayCommand]
+    private void Search()
+    {
+        CurrentPage = _navigationService.CreateViewModel<ProductViewModel>();
+    }
 
-        _ = UpdateDatePeriodicallyAsync();
+    [RelayCommand]
+    private void Reports()
+    {
+        Console.WriteLine("Reports clicked");
+    }
 
-        CustomersCommand = ReactiveCommand.Create(() => { CurrentPage = new CustomerViewModel(_databaseService, _dialogService); });
-        SaleCommand = ReactiveCommand.Create(() =>
+    [RelayCommand]
+    private void Profile()
+    {
+        if (_loggedInEmployee != null)
         {
-            if (_loggedInEmployee != null)
-            {
-                CurrentPage = new SalesViewModel(_loggedInEmployee, _databaseService, _dialogService);
-            }
-            else
-            {
-                _ = _dialogService.ShowErrorAsync("ບໍ່ສາມາດຂາຍໄດ້: ບໍ່ມີຜູ້ໃຊ້ເຂົ້າສູ່ລະບົບ");
-            }
-        });
-        SearchCommand = ReactiveCommand.Create(() =>
+            CurrentPage = _navigationService.CreateViewModelWithArgs<ProfileViewModel>(_loggedInEmployee);
+        }
+        else
         {
-            CurrentPage = new ProductViewModel(_databaseService, _dialogService);
-        });
+            _ = _dialogService.ShowErrorAsync("ບໍ່ມີຂໍ້ມູນຜູ້ໃຊ້");
+        }
+    }
 
-        ProfileCommand = ReactiveCommand.Create(() =>
-        {
-            if (_loggedInEmployee != null)
-            {
-                CurrentPage = new ProfileViewModel(_loggedInEmployee, _databaseService, _dialogService);
-            }
-            else
-            {
-                _ = _dialogService.ShowErrorAsync("ບໍ່ມີຂໍ້ມູນຜູ້ໃຊ້");
-            }
-        });
+    [RelayCommand]
+    private void Settings()
+    {
+        Console.WriteLine("Settings clicked");
+    }
 
-        SettingsCommand = ReactiveCommand.Create(() => Console.WriteLine("Settings clicked"));
-        LogoutCommand = ReactiveCommand.Create(() =>
-        {
-            Console.WriteLine("Logout clicked");
-            LogoutRequested?.Invoke(this, EventArgs.Empty);
-        });
+    [RelayCommand]
+    private void Logout()
+    {
+        Console.WriteLine("Logout clicked");
+        LogoutRequested?.Invoke(this, EventArgs.Empty);
+    }
 
-        GoToBrandCommand = ReactiveCommand.Create(() => { CurrentPage = new BrandViewModel(_databaseService, _dialogService); });
-        GoToProductTypeCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductTypeViewModel(_databaseService, _dialogService); });
-        GoToProductCommand = ReactiveCommand.Create(() => { CurrentPage = new ProductViewModel(_databaseService, _dialogService); });
-        GoToEmployeeCommand = ReactiveCommand.Create(() => { CurrentPage = new EmployeeViewModel(_databaseService, _dialogService); });
-        GoToExchangeRateCommand = ReactiveCommand.Create(() => { CurrentPage = new ExchangeRateViewModel(_databaseService, _dialogService); });
-        GoToSupplierCommand = ReactiveCommand.Create(() => { CurrentPage = new SupplierViewModel(_databaseService, _dialogService); });
-        GoToSalesReportCommand = ReactiveCommand.Create(() => { CurrentPage = new SalesReportViewModel(_databaseService, _reportService, _dialogService); });
+    [RelayCommand]
+    private void GoToBrand()
+    {
+        CurrentPage = _navigationService.CreateViewModel<BrandViewModel>();
+    }
 
-        HomeCommand = ReactiveCommand.Create(() =>
-        {
-            CurrentPage = null;
-        });
+    [RelayCommand]
+    private void GoToProductType()
+    {
+        CurrentPage = _navigationService.CreateViewModel<ProductTypeViewModel>();
+    }
 
-        ManageDataCommand = ReactiveCommand.Create(() => Console.WriteLine("Manage Data clicked"));
-        ImportCommand = ReactiveCommand.Create(() => Console.WriteLine("Import clicked"));
-        ReportsCommand = ReactiveCommand.Create(() => Console.WriteLine("Reports clicked"));
+    [RelayCommand]
+    private void GoToProduct()
+    {
+        CurrentPage = _navigationService.CreateViewModel<ProductViewModel>();
+    }
+
+    [RelayCommand]
+    private void GoToEmployee()
+    {
+        CurrentPage = _navigationService.CreateViewModel<EmployeeViewModel>();
+    }
+
+    [RelayCommand]
+    private void GoToExchangeRate()
+    {
+        CurrentPage = _navigationService.CreateViewModel<ExchangeRateViewModel>();
+    }
+
+    [RelayCommand]
+    private void GoToSupplier()
+    {
+        CurrentPage = _navigationService.CreateViewModel<SupplierViewModel>();
+    }
+
+    [RelayCommand]
+    private void GoToSalesReport()
+    {
+        CurrentPage = _navigationService.CreateViewModel<SalesReportViewModel>();
     }
 
     private void UpdateCurrentDate()

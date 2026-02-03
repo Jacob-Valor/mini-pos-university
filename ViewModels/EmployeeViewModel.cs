@@ -1,209 +1,134 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
-using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
-public class EmployeeViewModel : ViewModelBase
+public partial class EmployeeViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService? _dialogService;
     private bool _suppressLocationUpdates;
 
+    [ObservableProperty]
     private Employee? _selectedEmployee;
-    public Employee? SelectedEmployee
-    {
-        get => _selectedEmployee;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _selectedEmployee, value);
-            if (value != null)
-            {
-                EmployeeId = value.Id;
-                EmployeeName = value.Name;
-                EmployeeSurname = value.Surname;
-                EmployeeGender = value.Gender;
-                EmployeeDateOfBirth = value.DateOfBirth;
-                EmployeePhoneNumber = value.PhoneNumber;
-                EmployeePassword = value.Password;
-                EmployeeImagePath = value.ImagePath;
-                SelectedPosition = value.Position;
 
-                _ = SetLocationFromEmployeeAsync(value);
-            }
+    partial void OnSelectedEmployeeChanged(Employee? value)
+    {
+        if (value != null)
+        {
+            EmployeeId = value.Id;
+            EmployeeName = value.Name;
+            EmployeeSurname = value.Surname;
+            EmployeeGender = value.Gender;
+            EmployeeDateOfBirth = value.DateOfBirth;
+            EmployeePhoneNumber = value.PhoneNumber;
+            EmployeePassword = value.Password;
+            EmployeeImagePath = value.ImagePath;
+            SelectedPosition = value.Position;
+            _ = SetLocationFromEmployeeAsync(value);
         }
+        CanEditOrDelete = value != null;
     }
 
+    [ObservableProperty]
     private string _employeeId = string.Empty;
-    public string EmployeeId
-    {
-        get => _employeeId;
-        set => this.RaiseAndSetIfChanged(ref _employeeId, value);
-    }
 
+    [ObservableProperty]
     private string _employeeName = string.Empty;
-    public string EmployeeName
-    {
-        get => _employeeName;
-        set => this.RaiseAndSetIfChanged(ref _employeeName, value);
-    }
 
+    [ObservableProperty]
     private string _employeeSurname = string.Empty;
-    public string EmployeeSurname
-    {
-        get => _employeeSurname;
-        set => this.RaiseAndSetIfChanged(ref _employeeSurname, value);
-    }
 
-    private string _employeeGender = "ຊາຍ"; // Default Male
-    public string EmployeeGender
-    {
-        get => _employeeGender;
-        set => this.RaiseAndSetIfChanged(ref _employeeGender, value);
-    }
+    [ObservableProperty]
+    private string _employeeGender = "ຊາຍ";
 
+    [ObservableProperty]
     private DateTimeOffset _employeeDateOfBirth = DateTimeOffset.Now;
-    public DateTimeOffset EmployeeDateOfBirth
-    {
-        get => _employeeDateOfBirth;
-        set => this.RaiseAndSetIfChanged(ref _employeeDateOfBirth, value);
-    }
 
+    [ObservableProperty]
     private string _employeePhoneNumber = string.Empty;
-    public string EmployeePhoneNumber
-    {
-        get => _employeePhoneNumber;
-        set => this.RaiseAndSetIfChanged(ref _employeePhoneNumber, value);
-    }
 
+    [ObservableProperty]
     private string _employeePassword = string.Empty;
-    public string EmployeePassword
-    {
-        get => _employeePassword;
-        set => this.RaiseAndSetIfChanged(ref _employeePassword, value);
-    }
 
+    [ObservableProperty]
     private string _employeeImagePath = string.Empty;
-    public string EmployeeImagePath
-    {
-        get => _employeeImagePath;
-        set => this.RaiseAndSetIfChanged(ref _employeeImagePath, value);
-    }
 
-    // Geo-Location Selected Items (Objects)
+    [ObservableProperty]
     private Province? _selectedProvinceItem;
-    public Province? SelectedProvinceItem
+
+    partial void OnSelectedProvinceItemChanged(Province? value)
     {
-        get => _selectedProvinceItem;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _selectedProvinceItem, value);
-            if (!_suppressLocationUpdates)
-            {
-                _ = LoadDistrictsAsync(value?.Id);
-            }
-        }
+        if (!_suppressLocationUpdates) _ = LoadDistrictsAsync(value?.Id);
     }
 
+    [ObservableProperty]
     private District? _selectedDistrictItem;
-    public District? SelectedDistrictItem
+
+    partial void OnSelectedDistrictItemChanged(District? value)
     {
-        get => _selectedDistrictItem;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _selectedDistrictItem, value);
-            if (!_suppressLocationUpdates)
-            {
-                _ = LoadVillagesAsync(value?.Id);
-            }
-        }
+        if (!_suppressLocationUpdates) _ = LoadVillagesAsync(value?.Id);
     }
 
+    [ObservableProperty]
     private Village? _selectedVillageItem;
-    public Village? SelectedVillageItem
-    {
-        get => _selectedVillageItem;
-        set => this.RaiseAndSetIfChanged(ref _selectedVillageItem, value);
-    }
 
+    [ObservableProperty]
     private string _searchText = string.Empty;
-    public string SearchText
-    {
-        get => _searchText;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _searchText, value);
-            FilterEmployees();
-        }
-    }
 
+    partial void OnSearchTextChanged(string value) => FilterEmployees();
+
+    [ObservableProperty]
     private string? _selectedPosition;
-    public string? SelectedPosition
-    {
-        get => _selectedPosition;
-        set => this.RaiseAndSetIfChanged(ref _selectedPosition, value);
-    }
+
+    [ObservableProperty]
+    private bool _canAdd;
+
+    partial void OnEmployeeIdChanged(string value) => UpdateCanAdd();
+    partial void OnEmployeeNameChanged(string value) => UpdateCanAdd();
+    partial void OnSelectedVillageItemChanged(Village? value) => UpdateCanAdd();
+
+    private void UpdateCanAdd() => CanAdd = !string.IsNullOrWhiteSpace(EmployeeId) &&
+                                             !string.IsNullOrWhiteSpace(EmployeeName) &&
+                                             SelectedVillageItem != null;
+
+    [ObservableProperty]
+    private bool _canEditOrDelete;
 
     public ObservableCollection<Employee> AllEmployees { get; } = new();
     public ObservableCollection<Employee> Employees { get; } = new();
-
-    // Data Sources
     public ObservableCollection<Province> Provinces { get; } = new();
     public ObservableCollection<District> Districts { get; } = new();
     public ObservableCollection<Village> Villages { get; } = new();
     public ObservableCollection<string> Positions { get; } = new();
 
-    public ReactiveCommand<Unit, Unit> AddCommand { get; }
-    public ReactiveCommand<Unit, Unit> EditCommand { get; }
-    public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
-    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
-
     public EmployeeViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
         _dialogService = dialogService;
-
         Positions.Add("Admin");
         Positions.Add("Employee");
-
-        var canAdd = this.WhenAnyValue(x => x.EmployeeId, x => x.EmployeeName, x => x.SelectedVillageItem)
-            .Select(t => !string.IsNullOrWhiteSpace(t.Item1) && 
-                         !string.IsNullOrWhiteSpace(t.Item2) && 
-                         t.Item3 != null);
-
-        AddCommand = ReactiveCommand.CreateFromTask(AddAsync, canAdd);
-
-        var canEditOrDelete = this.WhenAnyValue(x => x.SelectedEmployee)
-                                  .Select(x => x != null);
-
-        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
-        CancelCommand = ReactiveCommand.Create(Cancel);
-
         _ = LoadInitialDataAsync();
     }
 
     public EmployeeViewModel() : this(null!, null)
     {
-        // Design-time
     }
 
     private async Task LoadInitialDataAsync()
     {
         if (_databaseService == null) return;
 
-        // Load Provinces
         Provinces.Clear();
         var provs = await _databaseService.GetProvincesAsync();
         foreach (var p in provs) Provinces.Add(p);
 
-        // Load Employees
         await RefreshEmployeeList();
     }
 
@@ -241,7 +166,7 @@ public class EmployeeViewModel : ViewModelBase
     {
         Districts.Clear();
         if (string.IsNullOrEmpty(provinceId)) return;
-        
+
         var dists = await _databaseService.GetDistrictsByProvinceAsync(provinceId);
         foreach (var d in dists) Districts.Add(d);
     }
@@ -255,6 +180,7 @@ public class EmployeeViewModel : ViewModelBase
         foreach (var v in vils) Villages.Add(v);
     }
 
+    [RelayCommand(CanExecute = nameof(CanAdd))]
     private async Task AddAsync()
     {
         if (string.IsNullOrWhiteSpace(EmployeeId) || string.IsNullOrWhiteSpace(EmployeeName)) return;
@@ -285,9 +211,7 @@ public class EmployeeViewModel : ViewModelBase
             await RefreshEmployeeList();
             Cancel();
             if (_dialogService != null)
-            {
                 await _dialogService.ShowSuccessAsync("ເພີ່ມພະນັກງານສຳເລັດ (Employee added)");
-            }
         }
         else if (_dialogService != null)
         {
@@ -295,6 +219,7 @@ public class EmployeeViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
     private async Task EditAsync()
     {
         if (SelectedEmployee != null)
@@ -320,16 +245,14 @@ public class EmployeeViewModel : ViewModelBase
                 Position = SelectedPosition ?? string.Empty,
                 Username = SelectedEmployee.Username
             };
-            
+
             bool success = await _databaseService.UpdateEmployeeAsync(updatedEmployee);
             if (success)
             {
                 await RefreshEmployeeList();
                 Cancel();
                 if (_dialogService != null)
-                {
                     await _dialogService.ShowSuccessAsync("ແກ້ໄຂພະນັກງານສຳເລັດ (Employee updated)");
-                }
             }
             else if (_dialogService != null)
             {
@@ -338,15 +261,14 @@ public class EmployeeViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
     private async Task DeleteAsync()
     {
         if (SelectedEmployee != null)
         {
             bool confirm = true;
             if (_dialogService != null)
-            {
                 confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບພະນັກງານ {SelectedEmployee.Name} {SelectedEmployee.Surname} ຫຼືບໍ່?");
-            }
 
             if (!confirm) return;
 
@@ -356,9 +278,7 @@ public class EmployeeViewModel : ViewModelBase
                 await RefreshEmployeeList();
                 Cancel();
                 if (_dialogService != null)
-                {
                     await _dialogService.ShowSuccessAsync("ລຶບພະນັກງານສຳເລັດ (Employee deleted)");
-                }
             }
             else if (_dialogService != null)
             {
@@ -367,6 +287,7 @@ public class EmployeeViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     private void Cancel()
     {
         SelectedEmployee = null;
@@ -378,7 +299,6 @@ public class EmployeeViewModel : ViewModelBase
         EmployeePhoneNumber = string.Empty;
         EmployeePassword = string.Empty;
         EmployeeImagePath = string.Empty;
-        
         SelectedProvinceItem = null;
         SelectedDistrictItem = null;
         SelectedVillageItem = null;
@@ -398,9 +318,6 @@ public class EmployeeViewModel : ViewModelBase
                 e.Id.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 
-        foreach (var e in query)
-        {
-            Employees.Add(e);
-        }
+        foreach (var e in query) Employees.Add(e);
     }
 }

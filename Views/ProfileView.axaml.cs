@@ -2,12 +2,11 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
-using Avalonia.ReactiveUI;
 using mini_pos.ViewModels;
 
 namespace mini_pos.Views;
 
-public partial class ProfileView : ReactiveUserControl<ProfileViewModel>
+public partial class ProfileView : UserControl
 {
     public ProfileView()
     {

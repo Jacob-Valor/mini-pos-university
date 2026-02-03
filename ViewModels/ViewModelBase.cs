@@ -1,8 +1,7 @@
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace mini_pos.ViewModels;
 
-public class ViewModelBase : ReactiveObject
+public partial class ViewModelBase : ObservableObject
 {
-
 }

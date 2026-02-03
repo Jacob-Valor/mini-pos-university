@@ -1,81 +1,50 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
-using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
-public class ExchangeRateViewModel : ViewModelBase
+public partial class ExchangeRateViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService? _dialogService;
 
+    [ObservableProperty]
     private ExchangeRate? _selectedExchangeRate;
-    public ExchangeRate? SelectedExchangeRate
-    {
-        get => _selectedExchangeRate;
-        set => this.RaiseAndSetIfChanged(ref _selectedExchangeRate, value);
-    }
 
+    [ObservableProperty]
     private string _usdRateInput = string.Empty;
-    public string UsdRateInput
-    {
-        get => _usdRateInput;
-        set => this.RaiseAndSetIfChanged(ref _usdRateInput, value);
-    }
 
+    [ObservableProperty]
     private string _thbRateInput = string.Empty;
-    public string ThbRateInput
-    {
-        get => _thbRateInput;
-        set => this.RaiseAndSetIfChanged(ref _thbRateInput, value);
-    }
 
+    [ObservableProperty]
     private string _searchText = string.Empty;
-    public string SearchText
-    {
-        get => _searchText;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _searchText, value);
-            FilterExchangeRates();
-        }
-    }
+
+    partial void OnSearchTextChanged(string value) => FilterExchangeRates();
+
+    [ObservableProperty]
+    private bool _canDelete;
+
+    partial void OnSelectedExchangeRateChanged(ExchangeRate? value) => CanDelete = value != null;
 
     public ObservableCollection<ExchangeRate> AllExchangeRates { get; } = new();
     public ObservableCollection<ExchangeRate> ExchangeRates { get; } = new();
-
-    public ReactiveCommand<Unit, Unit> AddCommand { get; }
-    public ReactiveCommand<Unit, Unit> DeleteCommand { get; } // Probably not needed if we only keep history, but ok
-    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
 
     public ExchangeRateViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
         _dialogService = dialogService;
-
-        AddCommand = ReactiveCommand.CreateFromTask(AddAsync);
-        
-        var canDelete = this.WhenAnyValue(x => x.SelectedExchangeRate)
-                            .Select(x => x != null);
-
-        // Delete not implemented in DB service yet, usually we just keep history. 
-        // But for completeness let's disable or implement mock behavior locally for list.
-        // Actually I won't implement Delete in DB for rates to preserve history integrity for sales.
-        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canDelete); 
-        CancelCommand = ReactiveCommand.Create(Cancel);
-
         _ = LoadDataAsync();
     }
 
     public ExchangeRateViewModel() : this(null!, null)
     {
-        // Design-time
     }
 
     private async Task LoadDataAsync()
@@ -84,21 +53,17 @@ public class ExchangeRateViewModel : ViewModelBase
 
         AllExchangeRates.Clear();
         var history = await _databaseService.GetExchangeRateHistoryAsync();
-        foreach (var rate in history)
-        {
-            AllExchangeRates.Add(rate);
-        }
+        foreach (var rate in history) AllExchangeRates.Add(rate);
         FilterExchangeRates();
     }
 
+    [RelayCommand]
     private async Task AddAsync()
     {
         if (!decimal.TryParse(UsdRateInput, out decimal usd) || !decimal.TryParse(ThbRateInput, out decimal thb))
         {
             if (_dialogService != null)
-            {
                 await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນອັດຕາແລກປ່ຽນທີ່ຖືກຕ້ອງ (Invalid exchange rate)");
-            }
             return;
         }
 
@@ -115,9 +80,7 @@ public class ExchangeRateViewModel : ViewModelBase
             await LoadDataAsync();
             Cancel();
             if (_dialogService != null)
-            {
                 await _dialogService.ShowSuccessAsync("ເພີ່ມອັດຕາແລກປ່ຽນສຳເລັດ (Rate added)");
-            }
         }
         else if (_dialogService != null)
         {
@@ -125,26 +88,24 @@ public class ExchangeRateViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanDelete))]
     private async Task DeleteAsync()
     {
-        // Not implementing delete for audit trail reasons
         if (SelectedExchangeRate != null)
         {
             bool confirm = true;
             if (_dialogService != null)
-            {
                 confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", "ຈະລຶບອັດຕາແລກປ່ຽນຈາກລາຍການຊົ່ວຄາວບໍ?");
-            }
 
             if (!confirm) return;
 
-            // Just remove from UI for now if user persists
             AllExchangeRates.Remove(SelectedExchangeRate);
             FilterExchangeRates();
             Cancel();
         }
     }
 
+    [RelayCommand]
     private void Cancel()
     {
         UsdRateInput = string.Empty;
@@ -164,9 +125,6 @@ public class ExchangeRateViewModel : ViewModelBase
 
         query = query.OrderByDescending(x => x.CreatedDate);
 
-        foreach (var rate in query)
-        {
-            ExchangeRates.Add(rate);
-        }
+        foreach (var rate in query) ExchangeRates.Add(rate);
     }
 }

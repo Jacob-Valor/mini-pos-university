@@ -1,16 +1,15 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
-using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
-public class SalesViewModel : ViewModelBase
+public partial class SalesViewModel : ViewModelBase
 {
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService? _dialogService;
@@ -20,33 +19,18 @@ public class SalesViewModel : ViewModelBase
     private const decimal DefaultDollarRate = 23000m;
     private const decimal DefaultBahtRate = 626m;
 
-    // Input Fields
+    [ObservableProperty]
     private string _customerName = string.Empty;
-    public string CustomerName
-    {
-        get => _customerName;
-        set => this.RaiseAndSetIfChanged(ref _customerName, value);
-    }
 
+    [ObservableProperty]
     private string _customerCode = string.Empty;
-    public string CustomerCode
-    {
-        get => _customerCode;
-        set => this.RaiseAndSetIfChanged(ref _customerCode, value);
-    }
 
+    [ObservableProperty]
     private string _barcode = string.Empty;
-    public string Barcode
+
+    partial void OnBarcodeChanged(string value)
     {
-        get => _barcode;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _barcode, value);
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                _ = LookupProductByBarcode(value);
-            }
-        }
+        if (!string.IsNullOrWhiteSpace(value)) _ = LookupProductByBarcode(value);
     }
 
     private async Task LookupProductByBarcode(string code)
@@ -57,129 +41,80 @@ public class SalesViewModel : ViewModelBase
         {
             ProductName = product.Name;
             Unit = product.Unit;
-            // Apply price logic
             UnitPrice = product.SellingPrice;
         }
     }
 
+    [ObservableProperty]
     private string _productName = string.Empty;
-    public string ProductName
-    {
-        get => _productName;
-        set => this.RaiseAndSetIfChanged(ref _productName, value);
-    }
 
+    [ObservableProperty]
     private string _unit = string.Empty;
-    public string Unit
-    {
-        get => _unit;
-        set => this.RaiseAndSetIfChanged(ref _unit, value);
-    }
 
+    [ObservableProperty]
     private decimal _unitPrice;
-    public decimal UnitPrice
-    {
-        get => _unitPrice;
-        set => this.RaiseAndSetIfChanged(ref _unitPrice, value);
-    }
 
+    [ObservableProperty]
     private int _quantity = 1;
-    public int Quantity
-    {
-        get => _quantity;
-        set => this.RaiseAndSetIfChanged(ref _quantity, value);
-    }
 
+    [ObservableProperty]
     private bool _isWholesale;
-    public bool IsWholesale
-    {
-        get => _isWholesale;
-        set => this.RaiseAndSetIfChanged(ref _isWholesale, value);
-    }
 
-    // Cart
     public ObservableCollection<CartItemViewModel> CartItems { get; } = new();
 
+    [ObservableProperty]
     private CartItemViewModel? _selectedCartItem;
-    public CartItemViewModel? SelectedCartItem
-    {
-        get => _selectedCartItem;
-        set => this.RaiseAndSetIfChanged(ref _selectedCartItem, value);
-    }
 
-    // Totals
+    [ObservableProperty]
     private decimal _totalAmount;
-    public decimal TotalAmount
-    {
-        get => _totalAmount;
-        set => this.RaiseAndSetIfChanged(ref _totalAmount, value);
-    }
 
+    [ObservableProperty]
     private decimal _moneyReceived;
-    public decimal MoneyReceived
-    {
-        get => _moneyReceived;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _moneyReceived, value);
-            CalculateChange();
-        }
-    }
 
+    partial void OnMoneyReceivedChanged(decimal value) => CalculateChange();
+
+    [ObservableProperty]
     private decimal _change;
-    public decimal Change
-    {
-        get => _change;
-        set => this.RaiseAndSetIfChanged(ref _change, value);
-    }
 
+    [ObservableProperty]
     private decimal _exchangeRateDollar = DefaultDollarRate;
-    public decimal ExchangeRateDollar
-    {
-        get => _exchangeRateDollar;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _exchangeRateDollar, value);
-            RecalculateForeignTotals();
-        }
-    }
 
+    partial void OnExchangeRateDollarChanged(decimal value) => RecalculateForeignTotals();
+
+    [ObservableProperty]
     private decimal _exchangeRateBaht = DefaultBahtRate;
-    public decimal ExchangeRateBaht
-    {
-        get => _exchangeRateBaht;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _exchangeRateBaht, value);
-            RecalculateForeignTotals();
-        }
-    }
 
+    partial void OnExchangeRateBahtChanged(decimal value) => RecalculateForeignTotals();
+
+    [ObservableProperty]
     private decimal _totalDollar;
-    public decimal TotalDollar
-    {
-        get => _totalDollar;
-        set => this.RaiseAndSetIfChanged(ref _totalDollar, value);
-    }
 
+    [ObservableProperty]
     private decimal _totalBaht;
-    public decimal TotalBaht
-    {
-        get => _totalBaht;
-        set => this.RaiseAndSetIfChanged(ref _totalBaht, value);
-    }
 
-    // Commands
-    public ReactiveCommand<Unit, Unit> SearchCustomerCommand { get; }
-    public ReactiveCommand<Unit, Unit> AddProductCommand { get; }
-    public ReactiveCommand<Unit, Unit> RemoveProductCommand { get; }
-    public ReactiveCommand<Unit, Unit> ClearInputsCommand { get; }
-    public ReactiveCommand<Unit, Unit> ClearCartCommand { get; }
-    public ReactiveCommand<Unit, Unit> ClearAllCommand { get; }
-    public ReactiveCommand<Unit, Unit> SaveSaleCommand { get; }
-    public ReactiveCommand<Unit, Unit> PaymentCommand { get; }
+    [ObservableProperty]
+    private bool _canAddProduct;
 
-    // Events
+    partial void OnProductNameChanged(string value) => UpdateCanAddProduct();
+    partial void OnQuantityChanged(int value) => UpdateCanAddProduct();
+    partial void OnUnitPriceChanged(decimal value) => UpdateCanAddProduct();
+
+    private void UpdateCanAddProduct() => CanAddProduct = !string.IsNullOrWhiteSpace(ProductName) && Quantity > 0 && UnitPrice >= 0;
+
+    [ObservableProperty]
+    private bool _canRemoveProduct;
+
+    partial void OnSelectedCartItemChanged(CartItemViewModel? value) => CanRemoveProduct = value != null;
+
+    [ObservableProperty]
+    private bool _canClearCart;
+
+    [ObservableProperty]
+    private string _errorMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _hasError;
+
     public event Action<ReceiptViewModel>? ShowReceiptRequested;
 
     public SalesViewModel(Employee employee, IDatabaseService databaseService, IDialogService? dialogService = null)
@@ -187,31 +122,11 @@ public class SalesViewModel : ViewModelBase
         _currentEmployee = employee;
         _databaseService = databaseService;
         _dialogService = dialogService;
-
-        var canAddProduct = this.WhenAnyValue(
-            x => x.ProductName,
-            x => x.Quantity,
-            x => x.UnitPrice,
-            (name, qty, price) => !string.IsNullOrWhiteSpace(name) && qty > 0 && price >= 0);
-
-        var canRemoveProduct = this.WhenAnyValue(x => x.SelectedCartItem)
-            .Select(x => x != null);
-
-        var canClearCart = this.WhenAnyValue(x => x.CartItems.Count)
-            .Select(count => count > 0);
-
-        SearchCustomerCommand = ReactiveCommand.Create(SearchCustomer);
-        AddProductCommand = ReactiveCommand.Create(AddProduct, canAddProduct);
-        RemoveProductCommand = ReactiveCommand.Create(RemoveProduct, canRemoveProduct);
-        ClearInputsCommand = ReactiveCommand.Create(ClearInputs);
-        ClearCartCommand = ReactiveCommand.Create(ClearCart, canClearCart);
-        ClearAllCommand = ReactiveCommand.Create(ClearAll);
-        SaveSaleCommand = ReactiveCommand.Create(SaveSale, canClearCart);
-        PaymentCommand = ReactiveCommand.Create(Payment, canClearCart);
-
-        CartItems.CollectionChanged += (s, e) => UpdateTotals();
-
-        // Load exchange rate on startup
+        CartItems.CollectionChanged += (s, e) =>
+        {
+            UpdateTotals();
+            CanClearCart = CartItems.Count > 0;
+        };
         _ = LoadExchangeRateAsync();
     }
 
@@ -228,6 +143,7 @@ public class SalesViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     private async Task SearchCustomerAsync()
     {
         if (string.IsNullOrWhiteSpace(CustomerName)) return;
@@ -236,46 +152,22 @@ public class SalesViewModel : ViewModelBase
 
         if (results.Any())
         {
-            // For now, auto-select the first match
             var customer = results.First();
             CustomerCode = customer.Id;
-            CustomerName = $"{customer.Name} {customer.Surname}"; // Show full name
+            CustomerName = $"{customer.Name} {customer.Surname}";
         }
-        else
+        else if (_dialogService != null)
         {
-            if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ບໍ່ພົບລູກຄ້າ (Customer not found)");
-            }
+            await _dialogService.ShowErrorAsync("ບໍ່ພົບລູກຄ້າ (Customer not found)");
         }
     }
 
-    private void SearchCustomer()
-    {
-        _ = SearchCustomerAsync();
-    }
-
-    private string _errorMessage = string.Empty;
-    public string ErrorMessage
-    {
-        get => _errorMessage;
-        set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
-    }
-
-    private bool _hasError;
-    public bool HasError
-    {
-        get => _hasError;
-        set => this.RaiseAndSetIfChanged(ref _hasError, value);
-    }
-
+    [RelayCommand(CanExecute = nameof(CanAddProduct))]
     private async Task AddProductAsync()
     {
         HasError = false;
         ErrorMessage = string.Empty;
 
-        // 1. Validate Barcode or Name logic
-        // If we have barcode but no product details, try to find it first
         if (!string.IsNullOrWhiteSpace(Barcode) && string.IsNullOrWhiteSpace(ProductName))
         {
             var product = await _databaseService.GetProductByBarcodeAsync(Barcode);
@@ -283,18 +175,15 @@ public class SalesViewModel : ViewModelBase
             {
                 ProductName = product.Name;
                 Unit = product.Unit;
-                UnitPrice = product.SellingPrice; // Or wholesale logic
+                UnitPrice = product.SellingPrice;
 
-                // Stock Validation
                 int currentCartQty = CartItems.Where(c => c.Barcode == Barcode).Sum(c => c.Quantity);
                 if (product.Quantity < (Quantity + currentCartQty))
                 {
                     HasError = true;
                     ErrorMessage = $"ສິນຄ້າບໍ່ພຽງພໍ! ມີເຫຼືອ: {product.Quantity} (Stock low)";
                     if (_dialogService != null)
-                    {
                         await _dialogService.ShowErrorAsync(ErrorMessage);
-                    }
                     return;
                 }
             }
@@ -303,23 +192,17 @@ public class SalesViewModel : ViewModelBase
                 HasError = true;
                 ErrorMessage = "ບໍ່ພົບສິນຄ້າ (Product not found)";
                 if (_dialogService != null)
-                {
                     await _dialogService.ShowErrorAsync(ErrorMessage);
-                }
                 return;
             }
         }
 
         if (string.IsNullOrWhiteSpace(ProductName)) return;
 
-        // 2. Add to Cart
-        var total = Quantity * UnitPrice;
         var existingItem = CartItems.FirstOrDefault(c => c.Barcode == Barcode);
 
         if (existingItem != null)
-        {
             existingItem.Quantity += Quantity;
-        }
         else
         {
             var newItem = new CartItemViewModel
@@ -336,11 +219,7 @@ public class SalesViewModel : ViewModelBase
         ClearInputs();
     }
 
-    private void AddProduct()
-    {
-        _ = AddProductAsync();
-    }
-
+    [RelayCommand(CanExecute = nameof(CanRemoveProduct))]
     private void RemoveProduct()
     {
         if (SelectedCartItem != null)
@@ -350,6 +229,7 @@ public class SalesViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     private void ClearInputs()
     {
         Barcode = string.Empty;
@@ -360,6 +240,7 @@ public class SalesViewModel : ViewModelBase
         IsWholesale = false;
     }
 
+    [RelayCommand(CanExecute = nameof(CanClearCart))]
     private void ClearCart()
     {
         CartItems.Clear();
@@ -367,6 +248,7 @@ public class SalesViewModel : ViewModelBase
         UpdateTotals();
     }
 
+    [RelayCommand]
     private void ClearAll()
     {
         ClearInputs();
@@ -376,21 +258,18 @@ public class SalesViewModel : ViewModelBase
         MoneyReceived = 0;
     }
 
+    [RelayCommand(CanExecute = nameof(CanClearCart))]
     private async Task SaveSaleAsync()
     {
         if (CartItems.Count == 0) return;
 
-        // Ensure we have exchange rate
         if (_currentExchangeRate == null)
-        {
             _currentExchangeRate = await _databaseService.GetLatestExchangeRateAsync();
-        }
 
-        // Prepare Sale Model
         var sale = new Sale
         {
-            ExchangeRateId = _currentExchangeRate?.Id ?? 0, // Should handle if null, but schema might require it.
-            CustomerId = string.IsNullOrWhiteSpace(CustomerCode) ? "CUS0000001" : CustomerCode, // Default generic customer if empty
+            ExchangeRateId = _currentExchangeRate?.Id ?? 0,
+            CustomerId = string.IsNullOrWhiteSpace(CustomerCode) ? "CUS0000001" : CustomerCode,
             EmployeeId = _currentEmployee.Id,
             DateSale = DateTime.Now,
             SubTotal = TotalAmount,
@@ -398,7 +277,6 @@ public class SalesViewModel : ViewModelBase
             Change = Change
         };
 
-        // Prepare Details
         var details = CartItems.Select(item => new SaleDetail
         {
             ProductId = item.Barcode,
@@ -407,31 +285,21 @@ public class SalesViewModel : ViewModelBase
             Total = item.TotalPrice
         }).ToList();
 
-        // Save to DB
         bool success = await _databaseService.CreateSaleAsync(sale, details);
 
         if (success)
         {
             if (_dialogService != null)
-            {
                 await _dialogService.ShowSuccessAsync("ບັນທຶກການຂາຍສຳເລັດ (Sale saved successfully)");
-            }
             ClearAll();
         }
-        else
+        else if (_dialogService != null)
         {
-            if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ບັນທຶກການຂາຍບໍ່ສຳເລັດ (Failed to save sale)");
-            }
+            await _dialogService.ShowErrorAsync("ບັນທຶກການຂາຍບໍ່ສຳເລັດ (Failed to save sale)");
         }
     }
 
-    private void SaveSale()
-    {
-        _ = SaveSaleAsync();
-    }
-
+    [RelayCommand(CanExecute = nameof(CanClearCart))]
     private void Payment()
     {
         var receiptVM = new ReceiptViewModel(
@@ -471,50 +339,22 @@ public class SalesViewModel : ViewModelBase
     }
 }
 
-public class CartItemViewModel : ViewModelBase
+public partial class CartItemViewModel : ViewModelBase
 {
+    [ObservableProperty]
     private string _barcode = string.Empty;
-    public string Barcode
-    {
-        get => _barcode;
-        set => this.RaiseAndSetIfChanged(ref _barcode, value);
-    }
 
+    [ObservableProperty]
     private string _productName = string.Empty;
-    public string ProductName
-    {
-        get => _productName;
-        set => this.RaiseAndSetIfChanged(ref _productName, value);
-    }
 
+    [ObservableProperty]
     private string _unit = string.Empty;
-    public string Unit
-    {
-        get => _unit;
-        set => this.RaiseAndSetIfChanged(ref _unit, value);
-    }
 
+    [ObservableProperty]
     private int _quantity = 1;
-    public int Quantity
-    {
-        get => _quantity;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _quantity, value);
-            this.RaisePropertyChanged(nameof(TotalPrice));
-        }
-    }
 
+    [ObservableProperty]
     private decimal _unitPrice;
-    public decimal UnitPrice
-    {
-        get => _unitPrice;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _unitPrice, value);
-            this.RaisePropertyChanged(nameof(TotalPrice));
-        }
-    }
 
     public decimal TotalPrice => Quantity * UnitPrice;
 }

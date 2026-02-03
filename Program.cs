@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using Avalonia;
-using Avalonia.ReactiveUI;
 using Serilog;
 
 namespace mini_pos;
@@ -133,8 +132,7 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .LogToTrace()
-            .UseReactiveUI();
+            .LogToTrace();
 
     /// <summary>
     /// Checks if a graphical user session is available by examining environment variables.

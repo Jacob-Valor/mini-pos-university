@@ -1,27 +1,30 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.ReactiveUI;
+using Avalonia.VisualTree;
 using mini_pos.ViewModels;
-using ReactiveUI;
-using System.Reactive.Disposables;
 
 namespace mini_pos.Views;
 
-public partial class SalesView : ReactiveUserControl<SalesViewModel>
+public partial class SalesView : UserControl
 {
     public SalesView()
     {
         InitializeComponent();
-        this.WhenActivated(disposables =>
+        DataContextChanged += OnDataContextChanged;
+    }
+
+    private void OnDataContextChanged(object? sender, EventArgs e)
+    {
+        if (DataContext is SalesViewModel vm)
         {
-            if (ViewModel != null)
-            {
-                ViewModel.ShowReceiptRequested += ViewModel_ShowReceiptRequested;
-                Disposable.Create(() => ViewModel.ShowReceiptRequested -= ViewModel_ShowReceiptRequested).DisposeWith(disposables);
-            }
-        });
+            // Unsubscribe from previous VM if needed
+            vm.ShowReceiptRequested -= ViewModel_ShowReceiptRequested;
+            // Subscribe to new VM
+            vm.ShowReceiptRequested += ViewModel_ShowReceiptRequested;
+        }
     }
 
     private void ViewModel_ShowReceiptRequested(ReceiptViewModel vm)

@@ -1,12 +1,11 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
-using ReactiveUI;
 
 namespace mini_pos.ViewModels;
 
@@ -15,96 +14,73 @@ public partial class BrandViewModel : ViewModelBase
     private readonly IDatabaseService _databaseService;
     private readonly IDialogService? _dialogService;
 
+    [ObservableProperty]
     private Brand? _selectedBrand;
-    public Brand? SelectedBrand
+
+    partial void OnSelectedBrandChanged(Brand? value)
     {
-        get => _selectedBrand;
-        set
+        if (value != null)
         {
-            this.RaiseAndSetIfChanged(ref _selectedBrand, value);
-            if (value != null)
-            {
-                BrandName = value.Name;
-            }
+            BrandName = value.Name;
         }
+        CanEditOrDelete = value != null;
     }
 
+    [ObservableProperty]
     private string _brandName = string.Empty;
-    public string BrandName
+
+    partial void OnBrandNameChanged(string value)
     {
-        get => _brandName;
-        set => this.RaiseAndSetIfChanged(ref _brandName, value);
+        CanAdd = !string.IsNullOrWhiteSpace(value);
     }
 
+    [ObservableProperty]
     private string _searchText = string.Empty;
-    public string SearchText
-    {
-        get => _searchText;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _searchText, value);
-            FilterBrands();
-        }
-    }
+
+    partial void OnSearchTextChanged(string value) => FilterBrands();
 
     public ObservableCollection<Brand> AllBrands { get; } = new();
     public ObservableCollection<Brand> Brands { get; } = new();
 
-    public ReactiveCommand<Unit, Unit> AddCommand { get; }
-    public ReactiveCommand<Unit, Unit> EditCommand { get; }
-    public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
-    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
+    [ObservableProperty]
+    private bool _canAdd;
+
+    [ObservableProperty]
+    private bool _canEditOrDelete;
 
     public BrandViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
     {
         _databaseService = databaseService;
         _dialogService = dialogService;
-
-        var canAdd = this.WhenAnyValue(x => x.BrandName)
-                         .Select(name => !string.IsNullOrWhiteSpace(name));
-
-        AddCommand = ReactiveCommand.CreateFromTask(AddAsync, canAdd);
-
-        var canEditOrDelete = this.WhenAnyValue(x => x.SelectedBrand)
-                                  .Select(x => x != null);
-
-        EditCommand = ReactiveCommand.CreateFromTask(EditAsync, canEditOrDelete);
-        DeleteCommand = ReactiveCommand.CreateFromTask(DeleteAsync, canEditOrDelete);
-        CancelCommand = ReactiveCommand.Create(Cancel);
-
         _ = LoadDataAsync();
     }
 
     public BrandViewModel() : this(null!, null)
     {
-        // Design-time
     }
 
     private async Task LoadDataAsync()
     {
         if (_databaseService == null) return;
-        
+
         AllBrands.Clear();
         var brands = await _databaseService.GetBrandsAsync();
-        foreach (var b in brands)
-        {
-            AllBrands.Add(b);
-        }
+        foreach (var b in brands) AllBrands.Add(b);
         FilterBrands();
     }
 
+    [RelayCommand(CanExecute = nameof(CanAdd))]
     private async Task AddAsync()
     {
         if (string.IsNullOrWhiteSpace(BrandName)) return;
 
-        // Generate new ID
-        var maxId = AllBrands.Any() 
-            ? AllBrands.Max(b => int.TryParse(b.Id.Replace("B", ""), out var num) ? num : 0) + 1 
+        var maxId = AllBrands.Any()
+            ? AllBrands.Max(b => int.TryParse(b.Id.Replace("B", ""), out var num) ? num : 0) + 1
             : 1;
         var newId = $"B{maxId:D3}";
-        
+
         var brand = new Brand { Id = newId, Name = BrandName };
-        
+
         bool success = await _databaseService.AddBrandAsync(brand);
         if (success)
         {
@@ -112,9 +88,7 @@ public partial class BrandViewModel : ViewModelBase
             FilterBrands();
             Cancel();
             if (_dialogService != null)
-            {
                 await _dialogService.ShowSuccessAsync("ເພີ່ມຍີ່ຫໍ້ສຳເລັດ (Brand added)");
-            }
         }
         else if (_dialogService != null)
         {
@@ -122,6 +96,7 @@ public partial class BrandViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
     private async Task EditAsync()
     {
         if (SelectedBrand != null && !string.IsNullOrWhiteSpace(BrandName))
@@ -134,9 +109,7 @@ public partial class BrandViewModel : ViewModelBase
                 FilterBrands();
                 Cancel();
                 if (_dialogService != null)
-                {
                     await _dialogService.ShowSuccessAsync("ແກ້ໄຂຍີ່ຫໍ້ສຳເລັດ (Brand updated)");
-                }
             }
             else if (_dialogService != null)
             {
@@ -145,15 +118,14 @@ public partial class BrandViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
     private async Task DeleteAsync()
     {
         if (SelectedBrand != null)
         {
             bool confirm = true;
             if (_dialogService != null)
-            {
                 confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຍີ່ຫໍ້ {SelectedBrand.Name} ຫຼືບໍ່?");
-            }
 
             if (!confirm) return;
 
@@ -164,9 +136,7 @@ public partial class BrandViewModel : ViewModelBase
                 FilterBrands();
                 Cancel();
                 if (_dialogService != null)
-                {
                     await _dialogService.ShowSuccessAsync("ລຶບຍີ່ຫໍ້ສຳເລັດ (Brand deleted)");
-                }
             }
             else if (_dialogService != null)
             {
@@ -175,6 +145,7 @@ public partial class BrandViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     private void Cancel()
     {
         SelectedBrand = null;
@@ -191,7 +162,6 @@ public partial class BrandViewModel : ViewModelBase
                 return;
             }
         }
-
         AllBrands.Add(brand);
     }
 
@@ -213,13 +183,8 @@ public partial class BrandViewModel : ViewModelBase
         var query = AllBrands.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(SearchText))
-        {
             query = query.Where(b => b.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
-        }
 
-        foreach (var brand in query)
-        {
-            Brands.Add(brand);
-        }
+        foreach (var brand in query) Brands.Add(brand);
     }
 }
