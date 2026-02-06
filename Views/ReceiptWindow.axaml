@@ -9,7 +9,7 @@
     d:DesignHeight="700"
     x:Class="mini_pos.Views.ReceiptWindow"
     x:DataType="vm:ReceiptViewModel"
-    Title="Payment Form"
+    Title="ຟອມຊຳລະເງິນ"
     Width="460"
     Height="780"
     WindowStartupLocation="CenterOwner"
@@ -122,7 +122,7 @@
                     HorizontalAlignment="Center"
                 />
                  <TextBlock
-                    Text="PAYMENT"
+                    Text="ແບບຟອມຊຳລະ"
                     FontSize="12"
                     FontWeight="Bold"
                     Foreground="{StaticResource AccentColor}"
@@ -130,6 +130,7 @@
                     Opacity="0.8"
                     LetterSpacing="2"
                     Margin="0,5,0,0"
+                    ToolTip.Tip="ຊຳລະເງິນ"
                 />
             </StackPanel>
 

@@ -11,7 +11,7 @@ namespace mini_pos.ViewModels;
 
 public partial class SupplierViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly ISupplierRepository _supplierRepository;
     private readonly IDialogService? _dialogService;
 
     [ObservableProperty]
@@ -35,11 +35,13 @@ public partial class SupplierViewModel : ViewModelBase
 
     public Action? CloseDialogAction { get; set; }
 
+    public event Action? ShowSupplierDialogRequested;
+
     private bool _isEditMode;
 
-    public SupplierViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public SupplierViewModel(ISupplierRepository supplierRepository, IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _supplierRepository = supplierRepository;
         _dialogService = dialogService;
         _ = LoadDataAsync();
     }
@@ -50,16 +52,16 @@ public partial class SupplierViewModel : ViewModelBase
 
     private async Task LoadDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_supplierRepository == null) return;
 
         AllSuppliers.Clear();
-        var list = await _databaseService.GetSuppliersAsync();
+        var list = await _supplierRepository.GetSuppliersAsync();
         foreach (var s in list) AllSuppliers.Add(s);
         FilterSuppliers();
     }
 
     [RelayCommand]
-    private async Task AddAsync()
+    private Task AddAsync()
     {
         _isEditMode = false;
         var maxId = AllSuppliers.Any()
@@ -71,25 +73,36 @@ public partial class SupplierViewModel : ViewModelBase
             Id = $"SUP{maxId + 1:D3}",
             Sequence = AllSuppliers.Count + 1
         };
+
+        ShowSupplierDialogRequested?.Invoke();
+        return Task.CompletedTask;
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
-    private async Task EditAsync()
+    [RelayCommand]
+    private async Task EditAsync(Supplier? supplier)
     {
-        if (SelectedSupplier != null)
+        supplier ??= SelectedSupplier;
+        if (supplier == null)
         {
-            _isEditMode = true;
-            CurrentSupplier = new Supplier
-            {
-                Sequence = SelectedSupplier.Sequence,
-                Id = SelectedSupplier.Id,
-                Name = SelectedSupplier.Name,
-                ContactName = SelectedSupplier.ContactName,
-                Email = SelectedSupplier.Email,
-                Phone = SelectedSupplier.Phone,
-                Address = SelectedSupplier.Address
-            };
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກຜູ້ສະໜອງກ່ອນ");
+            return;
         }
+
+        _isEditMode = true;
+        SelectedSupplier = supplier;
+        CurrentSupplier = new Supplier
+        {
+            Sequence = supplier.Sequence,
+            Id = supplier.Id,
+            Name = supplier.Name,
+            ContactName = supplier.ContactName,
+            Email = supplier.Email,
+            Phone = supplier.Phone,
+            Address = supplier.Address
+        };
+
+        ShowSupplierDialogRequested?.Invoke();
     }
 
     [RelayCommand]
@@ -98,15 +111,15 @@ public partial class SupplierViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(CurrentSupplier.Name))
         {
             if (_dialogService != null)
-                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ຜູ້ສົ່ງ (Supplier name required)");
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ຜູ້ສະໜອງ");
             return;
         }
 
         bool success;
         if (_isEditMode)
-            success = await _databaseService.UpdateSupplierAsync(CurrentSupplier);
+            success = await _supplierRepository.UpdateSupplierAsync(CurrentSupplier);
         else
-            success = await _databaseService.AddSupplierAsync(CurrentSupplier);
+            success = await _supplierRepository.AddSupplierAsync(CurrentSupplier);
 
         if (success)
         {
@@ -114,11 +127,11 @@ public partial class SupplierViewModel : ViewModelBase
             FilterSuppliers();
             CloseDialogAction?.Invoke();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ບັນທຶກຜູ້ສົ່ງສຳເລັດ (Supplier saved)");
+                await _dialogService.ShowSuccessAsync("ບັນທຶກຜູ້ສະໜອງສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ບັນທຶກຜູ້ສົ່ງບໍ່ສຳເລັດ (Failed to save supplier)");
+            await _dialogService.ShowErrorAsync("ບັນທຶກຜູ້ສະໜອງບໍ່ສຳເລັດ");
         }
     }
 
@@ -128,29 +141,34 @@ public partial class SupplierViewModel : ViewModelBase
         CloseDialogAction?.Invoke();
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
-    private async Task DeleteAsync()
+    [RelayCommand]
+    private async Task DeleteAsync(Supplier? supplier)
     {
-        if (SelectedSupplier != null)
+        supplier ??= SelectedSupplier;
+        if (supplier == null)
         {
-            bool confirm = true;
             if (_dialogService != null)
-                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຜູ້ສົ່ງ {SelectedSupplier.Name} ຫຼືບໍ່?");
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກຜູ້ສະໜອງກ່ອນ");
+            return;
+        }
 
-            if (!confirm) return;
+        bool confirm = true;
+        if (_dialogService != null)
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຜູ້ສະໜອງ {supplier.Name} ຫຼືບໍ່?");
 
-            bool success = await _databaseService.DeleteSupplierAsync(SelectedSupplier.Id);
-            if (success)
-            {
-                RemoveSupplierById(SelectedSupplier.Id);
-                FilterSuppliers();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ລຶບຜູ້ສົ່ງສຳເລັດ (Supplier deleted)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ລຶບຜູ້ສົ່ງບໍ່ສຳເລັດ (Failed to delete supplier)");
-            }
+        if (!confirm) return;
+
+        bool success = await _supplierRepository.DeleteSupplierAsync(supplier.Id);
+        if (success)
+        {
+            RemoveSupplierById(supplier.Id);
+            FilterSuppliers();
+            if (_dialogService != null)
+                await _dialogService.ShowSuccessAsync("ລຶບຜູ້ສະໜອງສຳເລັດ");
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ລຶບຜູ້ສະໜອງບໍ່ສຳເລັດ");
         }
     }
 

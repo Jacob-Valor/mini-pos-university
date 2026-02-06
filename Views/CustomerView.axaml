@@ -11,20 +11,6 @@
     x:DataType="vm:CustomerViewModel"
     FontFamily="{StaticResource LaoFont}"
 >
-
-    <UserControl.Styles>
-        <Style Selector="Button.action">
-            <Setter Property="Width" Value="100" />
-            <Setter Property="Height" Value="40" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="CornerRadius" Value="4" />
-        </Style>
-    </UserControl.Styles>
-
     <Grid ColumnDefinitions="*, 2*" Margin="20" ShowGridLines="False">
 
         <!-- Left Side: Manage Form -->
@@ -143,39 +129,38 @@
                     Margin="0,20,0,0"
                 >
                     <!-- Add Button (Blue) -->
-                    <Button
-                        Classes="action"
-                        Background="#0D47A1"
-                        Command="{Binding AddCommand}"
-                    >
+                     <Button
+                         Classes="action primary"
+                         Command="{Binding AddCommand}"
+                         ToolTip.Tip="ເພີ່ມ"
+                     >
                         <TextBlock Text="ເພີ່ມ" />
                     </Button>
 
                     <!-- Edit Button (Yellow/Gold) -->
-                    <Button
-                        Classes="action"
-                        Background="#FBC02D"
-                        Command="{Binding EditCommand}"
-                        Foreground="Black"
-                    >
+                     <Button
+                         Classes="action warning"
+                         Command="{Binding EditCommand}"
+                         ToolTip.Tip="ແກ້ໄຂ"
+                     >
                         <TextBlock Text="ແກ້ໄຂ" />
                     </Button>
 
                     <!-- Delete Button (Red) -->
-                    <Button
-                        Classes="action"
-                        Background="#C62828"
-                        Command="{Binding DeleteCommand}"
-                    >
+                     <Button
+                         Classes="action danger"
+                         Command="{Binding DeleteCommand}"
+                         ToolTip.Tip="ລຶບ"
+                     >
                         <TextBlock Text="ລຶບ" />
                     </Button>
 
                     <!-- Cancel Button (Gray) -->
-                    <Button
-                        Classes="action"
-                        Background="#616161"
-                        Command="{Binding CancelCommand}"
-                    >
+                     <Button
+                         Classes="action neutral"
+                         Command="{Binding CancelCommand}"
+                         ToolTip.Tip="ຍົກເລີກ"
+                     >
                         <TextBlock Text="ຍົກເລີກ" />
                     </Button>
                 </StackPanel>
@@ -217,7 +202,11 @@
             >
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header Row -->
-                    <Border Grid.Row="0" Background="#FFB74D" Height="40">
+                    <Border
+                        Grid.Row="0"
+                        Background="{DynamicResource TableHeaderBackgroundColor}"
+                        Height="40"
+                    >
                          <Grid
                             ColumnDefinitions="30, 120, 140, 140, 60, 130, *"
                         >
@@ -318,8 +307,7 @@
                         Grid.Row="1"
                         ItemsSource="{Binding Customers}"
                         SelectedItem="{Binding SelectedCustomer}"
-                        Background="Transparent"
-                        BorderThickness="0"
+                        Classes="table"
                     >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -382,23 +370,6 @@
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                        <ListBox.Styles>
-                            <Style Selector="ListBoxItem">
-                                <Setter Property="Padding" Value="0,10" />
-                                <Setter
-                                    Property="HorizontalContentAlignment"
-                                    Value="Stretch"
-                                />
-                                <Setter
-                                    Property="BorderBrush"
-                                    Value="{DynamicResource BorderColor}"
-                                />
-                                <Setter
-                                    Property="BorderThickness"
-                                    Value="0,0,0,1"
-                                />
-                            </Style>
-                        </ListBox.Styles>
                     </ListBox>
                 </Grid>
             </Border>

@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
+using Serilog;
 
 namespace mini_pos.Services;
 
@@ -32,7 +33,7 @@ public class DialogService : IDialogService
         var window = GetMainWindow();
         if (window is null)
         {
-            Console.WriteLine($"DialogService: Could not get main window for message: {title} - {message}");
+            Log.Warning("DialogService: Could not get main window for message {Title}", title);
             return;
         }
 
@@ -43,7 +44,7 @@ public class DialogService : IDialogService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DialogService.ShowMessageAsync error: {ex.Message}");
+            Log.Error(ex, "DialogService.ShowMessageAsync error");
         }
     }
 
@@ -52,7 +53,7 @@ public class DialogService : IDialogService
         var window = GetMainWindow();
         if (window is null)
         {
-            Console.WriteLine($"DialogService: Could not get main window for confirmation: {title}");
+            Log.Warning("DialogService: Could not get main window for confirmation {Title}", title);
             return false;
         }
 
@@ -64,18 +65,18 @@ public class DialogService : IDialogService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DialogService.ShowConfirmationAsync error: {ex.Message}");
+            Log.Error(ex, "DialogService.ShowConfirmationAsync error");
             return false;
         }
     }
 
     public async Task ShowErrorAsync(string message)
     {
-        await ShowMessageAsync("Error", message, Icon.Error);
+        await ShowMessageAsync("ຜິດພາດ", message, Icon.Error);
     }
 
     public async Task ShowSuccessAsync(string message)
     {
-        await ShowMessageAsync("Success", message, Icon.Success);
+        await ShowMessageAsync("ສຳເລັດ", message, Icon.Success);
     }
 }

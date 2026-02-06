@@ -67,13 +67,13 @@
                     <DatePicker SelectedDate="{Binding EndDate}" Height="32"/>
                     
                     <!-- Search Button (Blue) -->
-                    <Button Classes="filter" Background="#0D47A1" Command="{Binding SearchCommand}" Content="ຄົ້ນຫາ"/>
+                    <Button Classes="filter" Background="{DynamicResource ActionPrimaryColor}" Command="{Binding SearchCommand}" Content="ຄົ້ນຫາ" ToolTip.Tip="ຄົ້ນຫາ"/>
                     
                     <!-- Print Button (Red) -->
-                    <Button Classes="filter" Background="#C62828" Command="{Binding PrintCommand}" Content="ພິມ"/>
+                    <Button Classes="filter" Background="{DynamicResource ActionDangerColor}" Command="{Binding PrintCommand}" Content="ພິມ" ToolTip.Tip="ພິມ"/>
                     
                     <!-- Cancel/Reset Button (Grey) -->
-                    <Button Classes="filter" Background="#616161" Command="{Binding ResetCommand}" Content="ຍົກເລີກ"/>
+                    <Button Classes="filter" Background="{DynamicResource ActionNeutralColor}" Command="{Binding ResetCommand}" Content="ຍົກເລີກ" ToolTip.Tip="ຍົກເລີກ"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -85,7 +85,7 @@
                 <!-- Header -->
                 <!-- Column Defs: No, Code, Name, Unit, Qty, Price, Total -->
                 <!-- Ratios estimated from image: Small, Medium, Large, Small, Small, Medium, Medium -->
-                <Grid Grid.Row="0" Background="#FFB74D" Height="40">
+                <Grid Grid.Row="0" Background="{DynamicResource TableHeaderBackgroundColor}" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60"/>  <!-- No -->
                         <ColumnDefinition Width="120"/> <!-- Code -->
@@ -138,14 +138,14 @@
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             <Setter Property="Background" Value="Transparent"/>
                         </Style>
-                        <Style Selector="ListBoxItem:pointerover">
-                            <Setter Property="Background" Value="#37474F"/>
-                        </Style>
-                        <Style Selector="ListBoxItem:selected">
-                            <Setter Property="Background" Value="#263238"/>
-                        </Style>
-                    </ListBox.Styles>
-                </ListBox>
+                         <Style Selector="ListBoxItem:pointerover">
+                             <Setter Property="Background" Value="{DynamicResource RowHoverColor}"/>
+                         </Style>
+                         <Style Selector="ListBoxItem:selected">
+                             <Setter Property="Background" Value="{DynamicResource RowSelectedColor}"/>
+                         </Style>
+                     </ListBox.Styles>
+                 </ListBox>
             </Grid>
         </Border>
 

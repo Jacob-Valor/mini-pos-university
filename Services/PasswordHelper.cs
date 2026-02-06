@@ -6,36 +6,45 @@ namespace mini_pos.Services;
 
 public static class PasswordHelper
 {
-    private const int SaltSize = 16; // 128 bit
-    private const int KeySize = 32;  // 256 bit
-    private const int Iterations = 10000;
+    private const int SaltSize = 16; // 128-bit
+    private const int KeySize = 32;  // 256-bit
+
+    private const int LegacyIterations = 10_000;
+    private const int CurrentIterations = 200_000;
+    private const string AlgorithmTag = "pbkdf2-sha256";
 
     /// <summary>
     /// Hashes a password using PBKDF2 (HMACSHA256) with a random salt.
-    /// Format: [16 bytes salt][32 bytes hash] as a hex string (96 chars).
+    /// Format: pbkdf2-sha256$&lt;iterations&gt;$&lt;saltHex&gt;$&lt;keyHex&gt;
     /// </summary>
     public static string HashPassword(string password)
     {
-        byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
-        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(
-            password,
-            salt,
-            Iterations,
-            HashAlgorithmName.SHA256,
-            KeySize);
+        return HashPasswordV2(password, CurrentIterations);
+    }
 
-        byte[] hashBytes = new byte[SaltSize + KeySize];
-        Array.Copy(salt, 0, hashBytes, 0, SaltSize);
-        Array.Copy(hash, 0, hashBytes, SaltSize, KeySize);
+    public static bool NeedsRehash(string? storedHash)
+    {
+        if (string.IsNullOrEmpty(storedHash))
+            return false;
 
-        return Convert.ToHexString(hashBytes).ToLower();
+        // Always upgrade legacy formats.
+        if (storedHash.Length == 32)
+            return true;
+
+        if (storedHash.Length == 96)
+            return true;
+
+        if (TryParseV2(storedHash, out var iterations, out _, out _))
+            return iterations < CurrentIterations;
+
+        return false;
     }
 
     /// <summary>
     /// Verifies a password against a stored hash.
-    /// Supports both legacy MD5 (32 chars) and new PBKDF2 (96 chars).
+    /// Supports legacy MD5 (32 chars), legacy PBKDF2 v1 (96 hex chars), and PBKDF2 v2 (tagged format).
     /// </summary>
-    public static bool VerifyPassword(string inputPassword, string storedHash)
+    public static bool VerifyPassword(string inputPassword, string? storedHash)
     {
         if (string.IsNullOrEmpty(storedHash)) return false;
 
@@ -46,26 +55,25 @@ public static class PasswordHelper
             return string.Equals(inputMd5, storedHash, StringComparison.OrdinalIgnoreCase);
         }
 
-        // New PBKDF2 Check (96 hex chars)
+        // Legacy PBKDF2 v1 (96 hex chars)
         if (storedHash.Length == 96)
         {
             try
             {
                 byte[] hashBytes = Convert.FromHexString(storedHash);
+                if (hashBytes.Length != SaltSize + KeySize)
+                    return false;
 
-                // Extract salt
                 byte[] salt = new byte[SaltSize];
                 Array.Copy(hashBytes, 0, salt, 0, SaltSize);
 
-                // Extract stored key
                 byte[] storedKey = new byte[KeySize];
                 Array.Copy(hashBytes, SaltSize, storedKey, 0, KeySize);
 
-                // Compute hash of input using extracted salt
                 byte[] computedKey = Rfc2898DeriveBytes.Pbkdf2(
                     inputPassword,
                     salt,
-                    Iterations,
+                    LegacyIterations,
                     HashAlgorithmName.SHA256,
                     KeySize);
 
@@ -78,13 +86,81 @@ public static class PasswordHelper
             }
         }
 
+        // PBKDF2 v2 (tagged format)
+        if (TryParseV2(storedHash, out var iterations, out var saltBytes, out var storedKeyBytes))
+        {
+            byte[] computedKey = Rfc2898DeriveBytes.Pbkdf2(
+                inputPassword,
+                saltBytes,
+                iterations,
+                HashAlgorithmName.SHA256,
+                KeySize);
+
+            return CryptographicOperations.FixedTimeEquals(storedKeyBytes, computedKey);
+        }
+
         return false;
+    }
+
+    private static string HashPasswordV2(string password, int iterations)
+    {
+        byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
+        byte[] key = Rfc2898DeriveBytes.Pbkdf2(
+            password,
+            salt,
+            iterations,
+            HashAlgorithmName.SHA256,
+            KeySize);
+
+        return $"{AlgorithmTag}${iterations}${Convert.ToHexString(salt).ToLowerInvariant()}${Convert.ToHexString(key).ToLowerInvariant()}";
+    }
+
+    private static bool TryParseV2(string storedHash, out int iterations, out byte[] salt, out byte[] key)
+    {
+        iterations = 0;
+        salt = Array.Empty<byte>();
+        key = Array.Empty<byte>();
+
+        var parts = storedHash.Split('$');
+        if (parts.Length != 4)
+            return false;
+
+        if (!string.Equals(parts[0], AlgorithmTag, StringComparison.Ordinal))
+            return false;
+
+        if (!int.TryParse(parts[1], out iterations) || iterations <= 0)
+            return false;
+
+        if (!TryDecodeHex(parts[2], SaltSize, out salt))
+            return false;
+
+        if (!TryDecodeHex(parts[3], KeySize, out key))
+            return false;
+
+        return true;
+    }
+
+    private static bool TryDecodeHex(string hex, int expectedBytes, out byte[] bytes)
+    {
+        bytes = Array.Empty<byte>();
+        if (hex.Length != expectedBytes * 2)
+            return false;
+
+        try
+        {
+            bytes = Convert.FromHexString(hex);
+            return bytes.Length == expectedBytes;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static string ComputeMd5Hash(string input)
     {
         byte[] inputBytes = Encoding.UTF8.GetBytes(input);
         byte[] hashBytes = MD5.HashData(inputBytes);
-        return Convert.ToHexString(hashBytes).ToLower();
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 }

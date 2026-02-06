@@ -1,9 +1,11 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
+using Serilog;
 
 namespace mini_pos.ViewModels;
 
@@ -13,6 +15,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _currentUser = string.Empty;
+
+    [ObservableProperty]
+    private string _currentRole = string.Empty;
+
+    [ObservableProperty]
+    private string _currentRoleDisplay = string.Empty;
 
     [ObservableProperty]
     private string _loginTime = string.Empty;
@@ -25,31 +33,42 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public event EventHandler? LogoutRequested;
 
-    private readonly IDatabaseService _databaseService;
+    private readonly CancellationTokenSource _dateUpdateCts = new();
+
     private readonly IDialogService _dialogService;
-    private readonly IReportService _reportService;
     private readonly INavigationService _navigationService;
     private readonly Employee? _loggedInEmployee;
 
     public MainWindowViewModel(
-        Employee? employee, 
-        IDatabaseService databaseService, 
-        IDialogService dialogService, 
-        IReportService reportService,
+        Employee? employee,
+        IDialogService dialogService,
         INavigationService navigationService)
     {
         _loggedInEmployee = employee;
-        _databaseService = databaseService;
         _dialogService = dialogService;
-        _reportService = reportService;
         _navigationService = navigationService;
 
-        CurrentUser = employee != null 
-            ? $"{employee.Name} {employee.Surname}" 
+        CurrentUser = employee != null
+            ? $"{employee.Name} {employee.Surname}"
             : "Guest";
+
+        CurrentRole = employee?.Position ?? string.Empty;
+        CurrentRoleDisplay = TranslateRoleToLao(CurrentRole);
         LoginTime = DateTime.Now.ToString("HH:mm:ss");
-        
-        _ = UpdateDatePeriodicallyAsync();
+
+        UpdateCurrentDate();
+        _ = UpdateDatePeriodicallyAsync(_dateUpdateCts.Token);
+    }
+
+    private static string TranslateRoleToLao(string role)
+    {
+        if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            return "ແອັດມິນ";
+
+        if (string.Equals(role, "Employee", StringComparison.OrdinalIgnoreCase))
+            return "ພະນັກງານ";
+
+        return role;
     }
 
     [RelayCommand]
@@ -61,13 +80,13 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ManageData()
     {
-        Console.WriteLine("Manage Data clicked");
+        Log.Debug("Manage Data clicked");
     }
 
     [RelayCommand]
     private void Import()
     {
-        Console.WriteLine("Import clicked");
+        Log.Debug("Import clicked");
     }
 
     [RelayCommand]
@@ -98,7 +117,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void Reports()
     {
-        Console.WriteLine("Reports clicked");
+        Log.Debug("Reports clicked");
     }
 
     [RelayCommand]
@@ -117,13 +136,14 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void Settings()
     {
-        Console.WriteLine("Settings clicked");
+        Log.Debug("Settings clicked");
     }
 
     [RelayCommand]
     private void Logout()
     {
-        Console.WriteLine("Logout clicked");
+        Log.Information("Logout requested");
+        _dateUpdateCts.Cancel();
         LogoutRequested?.Invoke(this, EventArgs.Empty);
     }
 
@@ -174,12 +194,19 @@ public partial class MainWindowViewModel : ViewModelBase
         CurrentDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
     }
 
-    private async Task UpdateDatePeriodicallyAsync()
+    private async Task UpdateDatePeriodicallyAsync(CancellationToken cancellationToken)
     {
-        while (true)
+        try
         {
-            UpdateCurrentDate();
-            await Task.Delay(1000);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                UpdateCurrentDate();
+                await Task.Delay(1000, cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignore cancellation on logout/close.
         }
     }
 }

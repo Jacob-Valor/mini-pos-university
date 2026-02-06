@@ -71,7 +71,8 @@
                             FontSize="14"
                         />
                         <TextBlock
-                            Text="Admin"
+                            Text="{Binding CurrentRoleDisplay}"
+                            ToolTip.Tip="{Binding CurrentRole}"
                             FontFamily="{StaticResource LaoFont}"
                             Foreground="{DynamicResource PrimaryColor}"
                             FontSize="10"

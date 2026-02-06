@@ -11,7 +11,7 @@ namespace mini_pos.ViewModels;
 
 public partial class ProductTypeViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IProductTypeRepository _productTypeRepository;
     private readonly IDialogService? _dialogService;
 
     [ObservableProperty]
@@ -45,9 +45,9 @@ public partial class ProductTypeViewModel : ViewModelBase
     [ObservableProperty]
     private bool _canEditOrDelete;
 
-    public ProductTypeViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public ProductTypeViewModel(IProductTypeRepository productTypeRepository, IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _productTypeRepository = productTypeRepository;
         _dialogService = dialogService;
         _ = LoadDataAsync();
     }
@@ -58,18 +58,23 @@ public partial class ProductTypeViewModel : ViewModelBase
 
     private async Task LoadDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_productTypeRepository == null) return;
 
         AllProductTypes.Clear();
-        var list = await _databaseService.GetProductTypesAsync();
+        var list = await _productTypeRepository.GetProductTypesAsync();
         foreach (var t in list) AllProductTypes.Add(t);
         FilterProductTypes();
     }
 
-    [RelayCommand(CanExecute = nameof(CanAdd))]
+    [RelayCommand]
     private async Task AddAsync()
     {
-        if (string.IsNullOrWhiteSpace(ProductTypeName)) return;
+        if (string.IsNullOrWhiteSpace(ProductTypeName))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ປະເພດສິນຄ້າ");
+            return;
+        }
 
         var maxId = AllProductTypes.Any()
             ? AllProductTypes.Max(t => int.TryParse(t.Id.Replace("C", ""), out var num) ? num : 0) + 1
@@ -78,67 +83,82 @@ public partial class ProductTypeViewModel : ViewModelBase
 
         var newType = new ProductType { Id = newId, Name = ProductTypeName };
 
-        bool success = await _databaseService.AddProductTypeAsync(newType);
+        bool success = await _productTypeRepository.AddProductTypeAsync(newType);
         if (success)
         {
             UpsertProductType(newType);
             FilterProductTypes();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ເພີ່ມປະເພດສິນຄ້າສຳເລັດ (Type added)");
+                await _dialogService.ShowSuccessAsync("ເພີ່ມປະເພດສິນຄ້າສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ເພີ່ມປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to add type)");
+            await _dialogService.ShowErrorAsync("ເພີ່ມປະເພດສິນຄ້າບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task EditAsync()
     {
-        if (SelectedProductType != null && !string.IsNullOrWhiteSpace(ProductTypeName))
+        if (SelectedProductType == null)
         {
-            var updatedType = new ProductType { Id = SelectedProductType.Id, Name = ProductTypeName };
-            bool success = await _databaseService.UpdateProductTypeAsync(updatedType);
-            if (success)
-            {
-                UpsertProductType(updatedType);
-                FilterProductTypes();
-                Cancel();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂປະເພດສິນຄ້າສຳເລັດ (Type updated)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ແກ້ໄຂປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to update type)");
-            }
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກປະເພດສິນຄ້າກ່ອນ");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ProductTypeName))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ປະເພດສິນຄ້າ");
+            return;
+        }
+
+        var updatedType = new ProductType { Id = SelectedProductType.Id, Name = ProductTypeName };
+        bool success = await _productTypeRepository.UpdateProductTypeAsync(updatedType);
+        if (success)
+        {
+            UpsertProductType(updatedType);
+            FilterProductTypes();
+            Cancel();
+            if (_dialogService != null)
+                await _dialogService.ShowSuccessAsync("ແກ້ໄຂປະເພດສິນຄ້າສຳເລັດ");
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ແກ້ໄຂປະເພດສິນຄ້າບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task DeleteAsync()
     {
-        if (SelectedProductType != null)
+        if (SelectedProductType == null)
         {
-            bool confirm = true;
             if (_dialogService != null)
-                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບປະເພດ {SelectedProductType.Name} ຫຼືບໍ່?");
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກປະເພດສິນຄ້າກ່ອນ");
+            return;
+        }
 
-            if (!confirm) return;
+        bool confirm = true;
+        if (_dialogService != null)
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບປະເພດ {SelectedProductType.Name} ຫຼືບໍ່?");
 
-            bool success = await _databaseService.DeleteProductTypeAsync(SelectedProductType.Id);
-            if (success)
-            {
-                RemoveProductTypeById(SelectedProductType.Id);
-                FilterProductTypes();
-                Cancel();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ລຶບປະເພດສິນຄ້າສຳເລັດ (Type deleted)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ລຶບປະເພດສິນຄ້າບໍ່ສຳເລັດ (Failed to delete type)");
-            }
+        if (!confirm) return;
+
+        bool success = await _productTypeRepository.DeleteProductTypeAsync(SelectedProductType.Id);
+        if (success)
+        {
+            RemoveProductTypeById(SelectedProductType.Id);
+            FilterProductTypes();
+            Cancel();
+            if (_dialogService != null)
+                await _dialogService.ShowSuccessAsync("ລຶບປະເພດສິນຄ້າສຳເລັດ");
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ລຶບປະເພດສິນຄ້າບໍ່ສຳເລັດ");
         }
     }
 

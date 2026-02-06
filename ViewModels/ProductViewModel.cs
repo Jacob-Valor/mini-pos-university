@@ -11,7 +11,9 @@ namespace mini_pos.ViewModels;
 
 public partial class ProductViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IProductRepository _productRepository;
+    private readonly IBrandRepository _brandRepository;
+    private readonly IProductTypeRepository _productTypeRepository;
     private readonly IDialogService? _dialogService;
 
     [ObservableProperty]
@@ -85,29 +87,35 @@ public partial class ProductViewModel : ViewModelBase
     public ObservableCollection<ProductType> ProductTypes { get; } = new();
     public ObservableCollection<string> Statuses { get; } = new();
 
-    public ProductViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public ProductViewModel(
+        IProductRepository productRepository,
+        IBrandRepository brandRepository,
+        IProductTypeRepository productTypeRepository,
+        IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _productRepository = productRepository;
+        _brandRepository = brandRepository;
+        _productTypeRepository = productTypeRepository;
         _dialogService = dialogService;
         Statuses.Add("ມີ");
         Statuses.Add("ໝົດ");
         _ = LoadDataAsync();
     }
 
-    public ProductViewModel() : this(null!, null)
+    public ProductViewModel() : this(null!, null!, null!, null)
     {
     }
 
     private async Task LoadDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_productRepository == null || _brandRepository == null || _productTypeRepository == null) return;
 
         Brands.Clear();
-        var brands = await _databaseService.GetBrandsAsync();
+        var brands = await _brandRepository.GetBrandsAsync();
         foreach (var b in brands) Brands.Add(b);
 
         ProductTypes.Clear();
-        var types = await _databaseService.GetProductTypesAsync();
+        var types = await _productTypeRepository.GetProductTypesAsync();
         foreach (var t in types) ProductTypes.Add(t);
 
         await RefreshProductList();
@@ -116,7 +124,7 @@ public partial class ProductViewModel : ViewModelBase
     private async Task RefreshProductList()
     {
         AllProducts.Clear();
-        var products = await _databaseService.GetProductsAsync();
+        var products = await _productRepository.GetProductsAsync();
         foreach (var p in products) AllProducts.Add(p);
         FilterProducts();
     }
@@ -150,11 +158,11 @@ public partial class ProductViewModel : ViewModelBase
 
         if (!await ValidateProductSelectionsAsync()) return;
 
-        bool exists = await _databaseService.ProductExistsAsync(ProductId);
+        bool exists = await _productRepository.ProductExistsAsync(ProductId);
         if (exists)
         {
             HasError = true;
-            ErrorMessage = $"ລະຫັດສິນຄ້າ {ProductId} ມີຢູ່ໃນລະບົບແລ້ວ (Duplicate Barcode)";
+            ErrorMessage = $"ລະຫັດສິນຄ້າ {ProductId} ມີຢູ່ໃນລະບົບແລ້ວ";
             if (_dialogService != null) await _dialogService.ShowErrorAsync(ErrorMessage);
             return;
         }
@@ -175,85 +183,92 @@ public partial class ProductViewModel : ViewModelBase
             Status = SelectedStatusItem ?? ""
         };
 
-        bool success = await _databaseService.AddProductAsync(newProduct);
+        bool success = await _productRepository.AddProductAsync(newProduct);
         if (success)
         {
             UpsertProduct(newProduct);
             FilterProducts();
             Cancel();
-            if (_dialogService != null) await _dialogService.ShowSuccessAsync("ເພີ່ມຂໍ້ມູນສຳເລັດ (Added Successfully)");
+            if (_dialogService != null) await _dialogService.ShowSuccessAsync("ເພີ່ມຂໍ້ມູນສຳເລັດ");
         }
         else
         {
-            if (_dialogService != null) await _dialogService.ShowErrorAsync("ບັນທຶກຂໍ້ມູນບໍ່ສຳເລັດ (Failed to save)");
+            if (_dialogService != null) await _dialogService.ShowErrorAsync("ບັນທຶກຂໍ້ມູນບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task EditAsync()
     {
-        if (SelectedProduct != null)
+        if (SelectedProduct == null)
         {
-            HasError = false;
-            ErrorMessage = string.Empty;
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກສິນຄ້າກ່ອນ");
+            return;
+        }
 
-            if (!await ValidateProductSelectionsAsync()) return;
+        HasError = false;
+        ErrorMessage = string.Empty;
 
-            var updatedProduct = new Product
-            {
-                Id = ProductId,
-                Name = ProductName,
-                Unit = ProductUnit,
-                Quantity = ProductQuantity,
-                MinQuantity = ProductMinQuantity,
-                CostPrice = ProductCostPrice,
-                SellingPrice = ProductSellingPrice,
-                BrandId = SelectedBrandItem?.Id ?? "",
-                BrandName = SelectedBrandItem?.Name ?? "",
-                CategoryId = SelectedTypeItem?.Id ?? "",
-                CategoryName = SelectedTypeItem?.Name ?? "",
-                Status = SelectedStatusItem ?? ""
-            };
+        if (!await ValidateProductSelectionsAsync()) return;
 
-            bool success = await _databaseService.UpdateProductAsync(updatedProduct);
-            if (success)
-            {
-                UpsertProduct(updatedProduct);
-                FilterProducts();
-                Cancel();
-                if (_dialogService != null) await _dialogService.ShowSuccessAsync("ແກ້ໄຂຂໍ້ມູນສຳເລັດ (Updated Successfully)");
-            }
-            else
-            {
-                if (_dialogService != null) await _dialogService.ShowErrorAsync("ແກ້ໄຂຂໍ້ມູນບໍ່ສຳເລັດ (Failed to update)");
-            }
+        var updatedProduct = new Product
+        {
+            Id = ProductId,
+            Name = ProductName,
+            Unit = ProductUnit,
+            Quantity = ProductQuantity,
+            MinQuantity = ProductMinQuantity,
+            CostPrice = ProductCostPrice,
+            SellingPrice = ProductSellingPrice,
+            BrandId = SelectedBrandItem?.Id ?? "",
+            BrandName = SelectedBrandItem?.Name ?? "",
+            CategoryId = SelectedTypeItem?.Id ?? "",
+            CategoryName = SelectedTypeItem?.Name ?? "",
+            Status = SelectedStatusItem ?? ""
+        };
+
+        bool success = await _productRepository.UpdateProductAsync(updatedProduct);
+        if (success)
+        {
+            UpsertProduct(updatedProduct);
+            FilterProducts();
+            Cancel();
+            if (_dialogService != null) await _dialogService.ShowSuccessAsync("ແກ້ໄຂຂໍ້ມູນສຳເລັດ");
+        }
+        else
+        {
+            if (_dialogService != null) await _dialogService.ShowErrorAsync("ແກ້ໄຂຂໍ້ມູນບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task DeleteAsync()
     {
-        if (SelectedProduct != null)
+        if (SelectedProduct == null)
         {
-            bool confirm = true;
             if (_dialogService != null)
-                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ທ່ານຕ້ອງການລຶບສິນຄ້າ {SelectedProduct.Name} ຫຼືບໍ່?");
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກສິນຄ້າກ່ອນ");
+            return;
+        }
 
-            if (confirm)
-            {
-                bool success = await _databaseService.DeleteProductAsync(SelectedProduct.Id);
-                if (success)
-                {
-                    RemoveProductById(SelectedProduct.Id);
-                    FilterProducts();
-                    Cancel();
-                    if (_dialogService != null) await _dialogService.ShowSuccessAsync("ລຶບຂໍ້ມູນສຳເລັດ (Deleted Successfully)");
-                }
-                else
-                {
-                    if (_dialogService != null) await _dialogService.ShowErrorAsync("ລຶບຂໍ້ມູນບໍ່ສຳເລັດ (Failed to delete)");
-                }
-            }
+        bool confirm = true;
+        if (_dialogService != null)
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ທ່ານຕ້ອງການລຶບສິນຄ້າ {SelectedProduct.Name} ຫຼືບໍ່?");
+
+        if (!confirm) return;
+
+        bool success = await _productRepository.DeleteProductAsync(SelectedProduct.Id);
+        if (success)
+        {
+            RemoveProductById(SelectedProduct.Id);
+            FilterProducts();
+            Cancel();
+            if (_dialogService != null) await _dialogService.ShowSuccessAsync("ລຶບຂໍ້ມູນສຳເລັດ");
+        }
+        else
+        {
+            if (_dialogService != null) await _dialogService.ShowErrorAsync("ລຶບຂໍ້ມູນບໍ່ສຳເລັດ");
         }
     }
 

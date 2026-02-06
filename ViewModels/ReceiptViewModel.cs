@@ -31,6 +31,9 @@ public partial class ReceiptViewModel : ViewModelBase
     [ObservableProperty]
     private decimal _change;
 
+    public Action? CloseDialogAction { get; set; }
+    public Action<decimal>? PaymentConfirmedAction { get; set; }
+
     public ReceiptViewModel(ObservableCollection<CartItem> items, decimal total, decimal payment, decimal change)
     {
         Items = items;
@@ -42,6 +45,7 @@ public partial class ReceiptViewModel : ViewModelBase
     [RelayCommand]
     private void Close()
     {
+        CloseDialogAction?.Invoke();
     }
 
     [RelayCommand]
@@ -77,7 +81,8 @@ public partial class ReceiptViewModel : ViewModelBase
     [RelayCommand]
     private void ConfirmPay()
     {
-        Close();
+        PaymentConfirmedAction?.Invoke(MoneyReceived);
+        CloseDialogAction?.Invoke();
     }
 
     private void CalculateChange()

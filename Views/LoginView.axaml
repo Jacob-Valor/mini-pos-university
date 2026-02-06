@@ -9,7 +9,7 @@
     x:DataType="vm:LoginViewModel"
     Width="400"
     Height="550"
-    Title="Login"
+    Title="ເຂົ້າໃຊ້ລະບົບ"
     Icon="/Assets/twitch.ico"
     WindowStartupLocation="CenterScreen"
     CanResize="False"
@@ -124,6 +124,7 @@
                     IsChecked="{Binding ShowPassword}"
                     Foreground="#03A9F4"
                     VerticalAlignment="Center"
+                    ToolTip.Tip="ສະແດງລະຫັດຜ່ານ"
                 />
 
         <Button
@@ -137,6 +138,7 @@
                     FontSize="14"
                     FontWeight="Bold"
                     VerticalAlignment="Center"
+                    ToolTip.Tip="ລ້າງ"
                 />
       </Grid>
 
@@ -162,6 +164,7 @@
                 Height="55"
                 IsEnabled="{Binding !IsLoading}"
                 IsVisible="{Binding !IsLoading}"
+                ToolTip.Tip="ເຂົ້າລະບົບ"
             />
 
         <Button

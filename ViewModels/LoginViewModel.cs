@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
+using Serilog;
 
 namespace mini_pos.ViewModels;
 
@@ -31,16 +32,21 @@ public partial class LoginViewModel : ViewModelBase
 
     public event EventHandler? LoginSuccessful;
 
-    private readonly IDatabaseService _databaseService;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IEmployeeCredentialsRepository _employeeCredentialsRepository;
     private readonly IDialogService? _dialogService;
 
-    public LoginViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public LoginViewModel(
+        IEmployeeRepository employeeRepository,
+        IEmployeeCredentialsRepository employeeCredentialsRepository,
+        IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _employeeRepository = employeeRepository;
+        _employeeCredentialsRepository = employeeCredentialsRepository;
         _dialogService = dialogService;
     }
 
-    public LoginViewModel() : this(null!, null)
+    public LoginViewModel() : this(null!, null!, null)
     {
     }
 
@@ -66,9 +72,9 @@ public partial class LoginViewModel : ViewModelBase
 
         try
         {
-            Console.WriteLine($"Login attempt for user: {MaskUsername(Username)}");
+            Log.Information("Login attempt for user {Username}", MaskUsername(Username));
 
-            var storedHash = await _databaseService.GetStoredPasswordHashAsync(Username ?? string.Empty);
+            var storedHash = await _employeeCredentialsRepository.GetStoredPasswordHashAsync(Username ?? string.Empty);
 
             if (storedHash != null)
             {
@@ -76,27 +82,27 @@ public partial class LoginViewModel : ViewModelBase
 
                 if (isValid)
                 {
-                    if (storedHash.Length == 32)
-                    {
-                        Console.WriteLine("Upgrading legacy MD5 password to PBKDF2...");
-                    }
-
-                    var employee = await _databaseService.GetEmployeeByUsernameAsync(Username ?? string.Empty);
-
+                    var employee = await _employeeRepository.GetEmployeeByUsernameAsync(Username ?? string.Empty);
                     if (employee != null)
                     {
-                        if (storedHash.Length == 32)
+                        if (PasswordHelper.NeedsRehash(storedHash))
                         {
+                            Log.Information("Upgrading password hash for user {Username}", MaskUsername(Username));
                             var newHash = PasswordHelper.HashPassword(Password ?? string.Empty);
-                            await _databaseService.UpdatePasswordAsync(employee.Id, newHash);
-                            Console.WriteLine("Password upgraded successfully.");
+                            var upgraded = await _employeeCredentialsRepository.UpdatePasswordAsync(employee.Id, newHash);
+                            if (upgraded)
+                                Log.Information("Password hash upgraded for employee {EmployeeId}", employee.Id);
+                            else
+                                Log.Warning("Password hash upgrade failed for employee {EmployeeId}", employee.Id);
                         }
 
                         CurrentEmployee = employee;
-                        Console.WriteLine($"Login successful for: {employee.Name} {employee.Surname}");
+                        Log.Information("Login successful for employee {EmployeeId}", employee.Id);
                         LoginSuccessful?.Invoke(this, EventArgs.Empty);
                         return;
                     }
+
+                    Log.Warning("Login verified password but employee lookup failed for user {Username}", MaskUsername(Username));
                 }
             }
 
@@ -106,17 +112,17 @@ public partial class LoginViewModel : ViewModelBase
             {
                 await _dialogService.ShowErrorAsync(ErrorMessage);
             }
-            Console.WriteLine("Login failed: Invalid credentials");
+            Log.Warning("Login failed for user {Username}", MaskUsername(Username));
         }
         catch (Exception ex)
         {
             HasError = true;
-            ErrorMessage = $"ເກີດຂໍ້ຜິດພາດ: {ex.Message}";
+            ErrorMessage = "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່";
             if (_dialogService != null)
             {
                 await _dialogService.ShowErrorAsync(ErrorMessage);
             }
-            Console.Error.WriteLine($"Login error: {ex.Message}");
+            Log.Error(ex, "Login error for user {Username}", MaskUsername(Username));
         }
         finally
         {

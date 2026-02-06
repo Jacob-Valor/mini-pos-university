@@ -189,8 +189,9 @@ public class LoginViewModelTests
 
     private static LoginViewModel CreateLoginViewModel()
     {
-        var mockDb = new Mock<IDatabaseService>();
-        return new LoginViewModel(mockDb.Object, null);
+        var mockEmployees = new Mock<IEmployeeRepository>();
+        var mockCredentials = new Mock<IEmployeeCredentialsRepository>();
+        return new LoginViewModel(mockEmployees.Object, mockCredentials.Object, null);
     }
 
     private static (bool IsValid, string ErrorMessage) CallValidateCredentials(LoginViewModel vm)

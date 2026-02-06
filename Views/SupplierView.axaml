@@ -9,22 +9,9 @@
     d:DesignHeight="600"
     x:Class="mini_pos.Views.SupplierView"
     x:DataType="vm:SupplierViewModel"
+    x:Name="Root"
     FontFamily="{StaticResource LaoFont}"
 >
-
-    <UserControl.Styles>
-        <Style Selector="Button.action">
-            <Setter Property="Width" Value="100" />
-            <Setter Property="Height" Value="40" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="CornerRadius" Value="4" />
-        </Style>
-    </UserControl.Styles>
-
     <Grid RowDefinitions="Auto, *" Margin="20">
 
         <!-- Top Bar -->
@@ -38,9 +25,9 @@
              <!-- Add Button -->
              <Button
                 Grid.Column="0"
-                Classes="action"
-                Background="#0D47A1"
+                Classes="action primary"
                 Command="{Binding AddCommand}"
+                ToolTip.Tip="ເພີ່ມຜູ້ສະໜອງ"
             >
                  <TextBlock Text="ເພີ່ມ" />
              </Button>
@@ -73,7 +60,11 @@
             >
                 <Grid RowDefinitions="Auto, *">
                 <!-- Header -->
-                <Border Grid.Row="0" Background="#FFB74D" Height="44">
+                <Border
+                        Grid.Row="0"
+                        Background="{DynamicResource TableHeaderBackgroundColor}"
+                        Height="44"
+                    >
                     <Grid
                             ColumnDefinitions="110, 2.2*, 1.6*, 2.2*, 1.2*, 3*, 60, 60"
                         >
@@ -248,54 +239,70 @@
                                     />
 
                                  <!-- Edit Button -->
-                                 <Button
+                                  <Button
                                         Grid.Column="6"
                                         Background="Transparent"
-                                        Command="{Binding $parent[UserControl].((vm:SupplierViewModel)DataContext).EditCommand}"
+                                        Command="{Binding #Root.DataContext.EditCommand}"
+                                        CommandParameter="{Binding}"
                                         HorizontalAlignment="Center"
+                                        ToolTip.Tip="ແກ້ໄຂ"
                                     >
                                    <PathIcon
                                             Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
                                             Width="16"
                                             Height="16"
-                                            Foreground="#1976D2"
+                                            Foreground="{DynamicResource PrimaryColor}"
                                         />
-                                </Button>
+                                 </Button>
 
                                 <!-- Delete Button -->
-                                <Button
+                                  <Button
                                         Grid.Column="7"
                                         Background="Transparent"
-                                        Command="{Binding $parent[UserControl].((vm:SupplierViewModel)DataContext).DeleteCommand}"
+                                        Command="{Binding #Root.DataContext.DeleteCommand}"
+                                        CommandParameter="{Binding}"
                                         HorizontalAlignment="Center"
+                                        ToolTip.Tip="ລຶບ"
                                     >
                                    <PathIcon
                                             Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
                                             Width="16"
                                             Height="16"
-                                            Foreground="#D32F2F"
+                                            Foreground="{DynamicResource ErrorColor}"
                                         />
-                                </Button>
+                                 </Button>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                     <ListBox.Styles>
-                         <Style Selector="ListBoxItem">
-                             <Setter Property="Padding" Value="0,6" />
-                             <Setter
+                      <ListBox.Styles>
+                          <Style Selector="ListBoxItem">
+                              <Setter Property="Padding" Value="0,6" />
+                              <Setter
                                     Property="HorizontalContentAlignment"
                                     Value="Stretch"
                                 />
-                             <Setter
+                              <Setter
                                     Property="BorderBrush"
                                     Value="{DynamicResource BorderColor}"
                                 />
-                             <Setter
+                              <Setter
                                     Property="BorderThickness"
                                     Value="0,0,0,1"
                                 />
-                         </Style>
-                     </ListBox.Styles>
+                          </Style>
+                          <Style Selector="ListBoxItem:pointerover">
+                              <Setter
+                                    Property="Background"
+                                    Value="{DynamicResource RowHoverColor}"
+                                />
+                          </Style>
+                          <Style Selector="ListBoxItem:selected">
+                              <Setter
+                                    Property="Background"
+                                    Value="{DynamicResource RowSelectedColor}"
+                                />
+                          </Style>
+                      </ListBox.Styles>
                  </ListBox>
              </Grid>
             </ScrollViewer>

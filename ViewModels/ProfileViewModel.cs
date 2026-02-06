@@ -12,7 +12,8 @@ public partial class ProfileViewModel : ViewModelBase
 {
     private readonly Employee _currentUser;
     private readonly IDialogService? _dialogService;
-    private readonly IDatabaseService _databaseService;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IEmployeeCredentialsRepository _employeeCredentialsRepository;
 
     [ObservableProperty]
     private string _id = string.Empty;
@@ -67,10 +68,15 @@ public partial class ProfileViewModel : ViewModelBase
     public ObservableCollection<string> Villages { get; } = new() { "ວັດນາກ", "ທາດຂາວ", "ທົ່ງພານທອງ", "ດົງປ່າລານ" };
     public ObservableCollection<string> Positions { get; } = new() { "Admin", "Employee", "Manager" };
 
-    public ProfileViewModel(Employee employee, IDatabaseService databaseService, IDialogService? dialogService = null)
+    public ProfileViewModel(
+        Employee employee,
+        IEmployeeRepository employeeRepository,
+        IEmployeeCredentialsRepository employeeCredentialsRepository,
+        IDialogService? dialogService = null)
     {
         _currentUser = employee;
-        _databaseService = databaseService;
+        _employeeRepository = employeeRepository;
+        _employeeCredentialsRepository = employeeCredentialsRepository;
         _dialogService = dialogService;
         LoadUserData();
     }
@@ -102,15 +108,15 @@ public partial class ProfileViewModel : ViewModelBase
         _currentUser.PhoneNumber = PhoneNumber;
         _currentUser.Username = Username;
 
-        bool success = await _databaseService.UpdateEmployeeProfileAsync(_currentUser);
+        bool success = await _employeeRepository.UpdateEmployeeProfileAsync(_currentUser);
         if (success)
         {
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ອັບເດດໂປຣໄຟລ໌ສຳເລັດ (Profile updated)");
+                await _dialogService.ShowSuccessAsync("ອັບເດດໂປຣໄຟລ໌ສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ອັບເດດໂປຣໄຟລ໌ບໍ່ສຳເລັດ (Failed to update profile)");
+            await _dialogService.ShowErrorAsync("ອັບເດດໂປຣໄຟລ໌ບໍ່ສຳເລັດ");
         }
     }
 
@@ -131,7 +137,7 @@ public partial class ProfileViewModel : ViewModelBase
             return;
         }
 
-        var storedHash = await _databaseService.GetStoredPasswordHashAsync(Username);
+        var storedHash = await _employeeCredentialsRepository.GetStoredPasswordHashAsync(Username);
         if (storedHash == null || !PasswordHelper.VerifyPassword(OldPassword, storedHash))
         {
             if (_dialogService != null)
@@ -140,7 +146,7 @@ public partial class ProfileViewModel : ViewModelBase
         }
 
         string newHash = PasswordHelper.HashPassword(NewPassword);
-        bool success = await _databaseService.UpdatePasswordAsync(Id, newHash);
+        bool success = await _employeeCredentialsRepository.UpdatePasswordAsync(Id, newHash);
 
         if (success)
         {
@@ -148,7 +154,7 @@ public partial class ProfileViewModel : ViewModelBase
             NewPassword = "";
             ConfirmPassword = "";
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ປ່ຽນລະຫັດຜ່ານສຳເລັດ (Password changed)");
+                await _dialogService.ShowSuccessAsync("ປ່ຽນລະຫັດຜ່ານສຳເລັດ");
         }
         else if (_dialogService != null)
         {

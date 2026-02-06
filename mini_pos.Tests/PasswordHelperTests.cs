@@ -1,19 +1,28 @@
 using Xunit;
 using mini_pos.Services;
+using System;
+using System.Security.Cryptography;
 
 namespace mini_pos.Tests;
 
 public class PasswordHelperTests
 {
     [Fact]
-    public void HashPassword_Returns96CharHexString()
+    public void HashPassword_ReturnsTaggedPbkdf2Hash()
     {
         var password = "TestPassword123";
         var hash = PasswordHelper.HashPassword(password);
         
         Assert.NotNull(hash);
-        Assert.Equal(96, hash.Length);
-        Assert.Matches("^[0-9a-f]{96}$", hash);
+        Assert.StartsWith("pbkdf2-sha256$", hash, StringComparison.Ordinal);
+
+        var parts = hash.Split('$');
+        Assert.Equal(4, parts.Length);
+        Assert.Equal("pbkdf2-sha256", parts[0]);
+        Assert.True(int.TryParse(parts[1], out var iterations));
+        Assert.True(iterations > 0);
+        Assert.Matches("^[0-9a-f]+$", parts[2]);
+        Assert.Matches("^[0-9a-f]+$", parts[3]);
     }
 
     [Fact]
@@ -34,6 +43,17 @@ public class PasswordHelperTests
         
         var result = PasswordHelper.VerifyPassword(password, hash);
         
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void VerifyPassword_LegacyPbkdf2V1_ReturnsTrue()
+    {
+        var password = "TestPassword123";
+        var legacyHash = CreateLegacyV1Hash(password);
+
+        var result = PasswordHelper.VerifyPassword(password, legacyHash);
+
         Assert.True(result);
     }
 
@@ -109,7 +129,7 @@ public class PasswordHelperTests
         var hash = PasswordHelper.HashPassword("");
         
         Assert.NotNull(hash);
-        Assert.Equal(96, hash.Length);
+        Assert.StartsWith("pbkdf2-sha256$", hash, StringComparison.Ordinal);
         Assert.True(PasswordHelper.VerifyPassword("", hash));
     }
 
@@ -120,7 +140,23 @@ public class PasswordHelperTests
         var hash = PasswordHelper.HashPassword(password);
         
         Assert.NotNull(hash);
-        Assert.Equal(96, hash.Length);
+        Assert.StartsWith("pbkdf2-sha256$", hash, StringComparison.Ordinal);
         Assert.True(PasswordHelper.VerifyPassword(password, hash));
+    }
+
+    private static string CreateLegacyV1Hash(string password)
+    {
+        const int saltSize = 16;
+        const int keySize = 32;
+        const int iterations = 10_000;
+
+        byte[] salt = RandomNumberGenerator.GetBytes(saltSize);
+        byte[] key = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, keySize);
+
+        byte[] hashBytes = new byte[saltSize + keySize];
+        Array.Copy(salt, 0, hashBytes, 0, saltSize);
+        Array.Copy(key, 0, hashBytes, saltSize, keySize);
+
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 }

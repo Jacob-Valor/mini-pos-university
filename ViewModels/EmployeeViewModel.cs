@@ -11,7 +11,9 @@ namespace mini_pos.ViewModels;
 
 public partial class EmployeeViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IEmployeeCredentialsRepository _employeeCredentialsRepository;
+    private readonly IGeoRepository _geoRepository;
     private readonly IDialogService? _dialogService;
     private bool _suppressLocationUpdates;
 
@@ -28,7 +30,7 @@ public partial class EmployeeViewModel : ViewModelBase
             EmployeeGender = value.Gender;
             EmployeeDateOfBirth = value.DateOfBirth;
             EmployeePhoneNumber = value.PhoneNumber;
-            EmployeePassword = value.Password;
+            EmployeePassword = string.Empty;
             EmployeeImagePath = value.ImagePath;
             SelectedPosition = value.Position;
             _ = SetLocationFromEmployeeAsync(value);
@@ -108,25 +110,31 @@ public partial class EmployeeViewModel : ViewModelBase
     public ObservableCollection<Village> Villages { get; } = new();
     public ObservableCollection<string> Positions { get; } = new();
 
-    public EmployeeViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public EmployeeViewModel(
+        IEmployeeRepository employeeRepository,
+        IEmployeeCredentialsRepository employeeCredentialsRepository,
+        IGeoRepository geoRepository,
+        IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _employeeRepository = employeeRepository;
+        _employeeCredentialsRepository = employeeCredentialsRepository;
+        _geoRepository = geoRepository;
         _dialogService = dialogService;
         Positions.Add("Admin");
         Positions.Add("Employee");
         _ = LoadInitialDataAsync();
     }
 
-    public EmployeeViewModel() : this(null!, null)
+    public EmployeeViewModel() : this(null!, null!, null!, null)
     {
     }
 
     private async Task LoadInitialDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_employeeRepository == null || _employeeCredentialsRepository == null || _geoRepository == null) return;
 
         Provinces.Clear();
-        var provs = await _databaseService.GetProvincesAsync();
+        var provs = await _geoRepository.GetProvincesAsync();
         foreach (var p in provs) Provinces.Add(p);
 
         await RefreshEmployeeList();
@@ -157,7 +165,7 @@ public partial class EmployeeViewModel : ViewModelBase
     private async Task RefreshEmployeeList()
     {
         AllEmployees.Clear();
-        var emps = await _databaseService.GetEmployeesAsync();
+        var emps = await _employeeRepository.GetEmployeesAsync();
         foreach (var e in emps) AllEmployees.Add(e);
         FilterEmployees();
     }
@@ -167,7 +175,7 @@ public partial class EmployeeViewModel : ViewModelBase
         Districts.Clear();
         if (string.IsNullOrEmpty(provinceId)) return;
 
-        var dists = await _databaseService.GetDistrictsByProvinceAsync(provinceId);
+        var dists = await _geoRepository.GetDistrictsByProvinceAsync(provinceId);
         foreach (var d in dists) Districts.Add(d);
     }
 
@@ -176,14 +184,33 @@ public partial class EmployeeViewModel : ViewModelBase
         Villages.Clear();
         if (string.IsNullOrEmpty(districtId)) return;
 
-        var vils = await _databaseService.GetVillagesByDistrictAsync(districtId);
+        var vils = await _geoRepository.GetVillagesByDistrictAsync(districtId);
         foreach (var v in vils) Villages.Add(v);
     }
 
-    [RelayCommand(CanExecute = nameof(CanAdd))]
+    [RelayCommand]
     private async Task AddAsync()
     {
-        if (string.IsNullOrWhiteSpace(EmployeeId) || string.IsNullOrWhiteSpace(EmployeeName)) return;
+        if (string.IsNullOrWhiteSpace(EmployeeId) || string.IsNullOrWhiteSpace(EmployeeName) || SelectedVillageItem == null)
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນລະຫັດ, ຊື່ ແລະ ເລືອກບ້ານ");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EmployeePassword))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນລະຫັດຜ່ານ");
+            return;
+        }
+
+        if (EmployeePassword.Length < 4 || EmployeePassword.Length > 100)
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານຕ້ອງມີ 4-100 ຕົວອັກສອນ");
+            return;
+        }
 
         var newEmployee = new Employee
         {
@@ -205,85 +232,113 @@ public partial class EmployeeViewModel : ViewModelBase
             ImagePath = EmployeeImagePath
         };
 
-        bool success = await _databaseService.AddEmployeeAsync(newEmployee);
+        bool success = await _employeeRepository.AddEmployeeAsync(newEmployee);
         if (success)
         {
             await RefreshEmployeeList();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ເພີ່ມພະນັກງານສຳເລັດ (Employee added)");
+                await _dialogService.ShowSuccessAsync("ເພີ່ມພະນັກງານສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ເພີ່ມພະນັກງານບໍ່ສຳເລັດ (Failed to add employee)");
+            await _dialogService.ShowErrorAsync("ເພີ່ມພະນັກງານບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task EditAsync()
     {
-        if (SelectedEmployee != null)
+        if (SelectedEmployee == null)
         {
-            var provinceId = SelectedProvinceItem?.Id ?? SelectedEmployee.ProvinceId;
-            var districtId = SelectedDistrictItem?.Id ?? SelectedEmployee.DistrictId;
-            var villageId = SelectedVillageItem?.Id ?? SelectedEmployee.VillageId;
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກພະນັກງານກ່ອນ");
+            return;
+        }
 
-            var updatedEmployee = new Employee
-            {
-                Id = SelectedEmployee.Id,
-                Name = EmployeeName,
-                Surname = EmployeeSurname,
-                Gender = EmployeeGender,
-                DateOfBirth = EmployeeDateOfBirth.DateTime,
-                PhoneNumber = EmployeePhoneNumber,
-                Province = SelectedProvinceItem?.Name ?? SelectedEmployee.Province,
-                District = SelectedDistrictItem?.Name ?? SelectedEmployee.District,
-                Village = SelectedVillageItem?.Name ?? SelectedEmployee.Village,
-                ProvinceId = provinceId,
-                DistrictId = districtId,
-                VillageId = villageId,
-                Position = SelectedPosition ?? string.Empty,
-                Username = SelectedEmployee.Username
-            };
+        if (!string.IsNullOrWhiteSpace(EmployeePassword) && (EmployeePassword.Length < 4 || EmployeePassword.Length > 100))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ລະຫັດຜ່ານຕ້ອງມີ 4-100 ຕົວອັກສອນ");
+            return;
+        }
 
-            bool success = await _databaseService.UpdateEmployeeAsync(updatedEmployee);
-            if (success)
-            {
-                await RefreshEmployeeList();
-                Cancel();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂພະນັກງານສຳເລັດ (Employee updated)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ແກ້ໄຂພະນັກງານບໍ່ສຳເລັດ (Failed to update employee)");
-            }
+        var provinceId = SelectedProvinceItem?.Id ?? SelectedEmployee.ProvinceId;
+        var districtId = SelectedDistrictItem?.Id ?? SelectedEmployee.DistrictId;
+        var villageId = SelectedVillageItem?.Id ?? SelectedEmployee.VillageId;
+
+        var updatedEmployee = new Employee
+        {
+            Id = SelectedEmployee.Id,
+            Name = EmployeeName,
+            Surname = EmployeeSurname,
+            Gender = EmployeeGender,
+            DateOfBirth = EmployeeDateOfBirth.DateTime,
+            PhoneNumber = EmployeePhoneNumber,
+            Province = SelectedProvinceItem?.Name ?? SelectedEmployee.Province,
+            District = SelectedDistrictItem?.Name ?? SelectedEmployee.District,
+            Village = SelectedVillageItem?.Name ?? SelectedEmployee.Village,
+            ProvinceId = provinceId,
+            DistrictId = districtId,
+            VillageId = villageId,
+            Position = SelectedPosition ?? string.Empty,
+            Username = SelectedEmployee.Username
+        };
+
+        bool success = await _employeeRepository.UpdateEmployeeAsync(updatedEmployee);
+        if (!success)
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂພະນັກງານບໍ່ສຳເລັດ");
+            return;
+        }
+
+        bool passwordUpdated = true;
+        if (!string.IsNullOrWhiteSpace(EmployeePassword))
+        {
+            string newHash = PasswordHelper.HashPassword(EmployeePassword);
+            passwordUpdated = await _employeeCredentialsRepository.UpdatePasswordAsync(updatedEmployee.Id, newHash);
+        }
+
+        await RefreshEmployeeList();
+        Cancel();
+
+        if (_dialogService != null)
+        {
+            if (passwordUpdated)
+                await _dialogService.ShowSuccessAsync("ແກ້ໄຂພະນັກງານສຳເລັດ");
+            else
+                await _dialogService.ShowErrorAsync("ແກ້ໄຂພະນັກງານສຳເລັດ ແຕ່ ປ່ຽນລະຫັດຜ່ານບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task DeleteAsync()
     {
-        if (SelectedEmployee != null)
+        if (SelectedEmployee == null)
         {
-            bool confirm = true;
             if (_dialogService != null)
-                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບພະນັກງານ {SelectedEmployee.Name} {SelectedEmployee.Surname} ຫຼືບໍ່?");
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກພະນັກງານກ່ອນ");
+            return;
+        }
 
-            if (!confirm) return;
+        bool confirm = true;
+        if (_dialogService != null)
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບພະນັກງານ {SelectedEmployee.Name} {SelectedEmployee.Surname} ຫຼືບໍ່?");
 
-            bool success = await _databaseService.DeleteEmployeeAsync(SelectedEmployee.Id);
-            if (success)
-            {
-                await RefreshEmployeeList();
-                Cancel();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ລຶບພະນັກງານສຳເລັດ (Employee deleted)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ລຶບພະນັກງານບໍ່ສຳເລັດ (Failed to delete employee)");
-            }
+        if (!confirm) return;
+
+        bool success = await _employeeRepository.DeleteEmployeeAsync(SelectedEmployee.Id);
+        if (success)
+        {
+            await RefreshEmployeeList();
+            Cancel();
+            if (_dialogService != null)
+                await _dialogService.ShowSuccessAsync("ລຶບພະນັກງານສຳເລັດ");
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ລຶບພະນັກງານບໍ່ສຳເລັດ");
         }
     }
 

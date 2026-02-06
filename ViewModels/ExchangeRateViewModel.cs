@@ -11,7 +11,7 @@ namespace mini_pos.ViewModels;
 
 public partial class ExchangeRateViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IExchangeRateRepository _exchangeRateRepository;
     private readonly IDialogService? _dialogService;
 
     [ObservableProperty]
@@ -36,9 +36,9 @@ public partial class ExchangeRateViewModel : ViewModelBase
     public ObservableCollection<ExchangeRate> AllExchangeRates { get; } = new();
     public ObservableCollection<ExchangeRate> ExchangeRates { get; } = new();
 
-    public ExchangeRateViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public ExchangeRateViewModel(IExchangeRateRepository exchangeRateRepository, IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _exchangeRateRepository = exchangeRateRepository;
         _dialogService = dialogService;
         _ = LoadDataAsync();
     }
@@ -49,10 +49,10 @@ public partial class ExchangeRateViewModel : ViewModelBase
 
     private async Task LoadDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_exchangeRateRepository == null) return;
 
         AllExchangeRates.Clear();
-        var history = await _databaseService.GetExchangeRateHistoryAsync();
+        var history = await _exchangeRateRepository.GetExchangeRateHistoryAsync();
         foreach (var rate in history) AllExchangeRates.Add(rate);
         FilterExchangeRates();
     }
@@ -63,7 +63,7 @@ public partial class ExchangeRateViewModel : ViewModelBase
         if (!decimal.TryParse(UsdRateInput, out decimal usd) || !decimal.TryParse(ThbRateInput, out decimal thb))
         {
             if (_dialogService != null)
-                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນອັດຕາແລກປ່ຽນທີ່ຖືກຕ້ອງ (Invalid exchange rate)");
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນອັດຕາແລກປ່ຽນທີ່ຖືກຕ້ອງ");
             return;
         }
 
@@ -74,35 +74,40 @@ public partial class ExchangeRateViewModel : ViewModelBase
             CreatedDate = DateTime.Now
         };
 
-        bool success = await _databaseService.AddExchangeRateAsync(newRate);
+        bool success = await _exchangeRateRepository.AddExchangeRateAsync(newRate);
         if (success)
         {
             await LoadDataAsync();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ເພີ່ມອັດຕາແລກປ່ຽນສຳເລັດ (Rate added)");
+                await _dialogService.ShowSuccessAsync("ເພີ່ມອັດຕາແລກປ່ຽນສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ເພີ່ມອັດຕາແລກປ່ຽນບໍ່ສຳເລັດ (Failed to add rate)");
+            await _dialogService.ShowErrorAsync("ເພີ່ມອັດຕາແລກປ່ຽນບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanDelete))]
-    private async Task DeleteAsync()
+    [RelayCommand]
+    private async Task DeleteAsync(ExchangeRate? exchangeRate)
     {
-        if (SelectedExchangeRate != null)
+        exchangeRate ??= SelectedExchangeRate;
+        if (exchangeRate == null)
         {
-            bool confirm = true;
             if (_dialogService != null)
-                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", "ຈະລຶບອັດຕາແລກປ່ຽນຈາກລາຍການຊົ່ວຄາວບໍ?");
-
-            if (!confirm) return;
-
-            AllExchangeRates.Remove(SelectedExchangeRate);
-            FilterExchangeRates();
-            Cancel();
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກອັດຕາແລກປ່ຽນກ່ອນ");
+            return;
         }
+
+        bool confirm = true;
+        if (_dialogService != null)
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", "ຈະລຶບອັດຕາແລກປ່ຽນຈາກລາຍການຊົ່ວຄາວບໍ?");
+
+        if (!confirm) return;
+
+        AllExchangeRates.Remove(exchangeRate);
+        FilterExchangeRates();
+        Cancel();
     }
 
     [RelayCommand]

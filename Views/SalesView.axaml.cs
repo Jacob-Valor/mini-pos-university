@@ -10,6 +10,8 @@ namespace mini_pos.Views;
 
 public partial class SalesView : UserControl
 {
+    private SalesViewModel? _vm;
+
     public SalesView()
     {
         InitializeComponent();
@@ -18,22 +20,42 @@ public partial class SalesView : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if (DataContext is SalesViewModel vm)
-        {
-            // Unsubscribe from previous VM if needed
-            vm.ShowReceiptRequested -= ViewModel_ShowReceiptRequested;
-            // Subscribe to new VM
-            vm.ShowReceiptRequested += ViewModel_ShowReceiptRequested;
-        }
+        if (_vm != null)
+            _vm.ShowReceiptRequested -= ViewModel_ShowReceiptRequested;
+
+        _vm = DataContext as SalesViewModel;
+        if (_vm != null)
+            _vm.ShowReceiptRequested += ViewModel_ShowReceiptRequested;
     }
 
-    private void ViewModel_ShowReceiptRequested(ReceiptViewModel vm)
+    private void ViewModel_ShowReceiptRequested(ReceiptViewModel receiptVm)
     {
-        var window = new ReceiptWindow { DataContext = vm };
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
+        var sourceVm = _vm ?? DataContext as SalesViewModel;
+        var window = new ReceiptWindow { DataContext = receiptVm };
+
+        Action closeAction = window.Close;
+        receiptVm.CloseDialogAction = closeAction;
+
+        Action<decimal> confirmedAction = amount =>
         {
+            if (sourceVm != null)
+                sourceVm.MoneyReceived = amount;
+        };
+        receiptVm.PaymentConfirmedAction = confirmedAction;
+
+        window.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(receiptVm.CloseDialogAction, closeAction))
+                receiptVm.CloseDialogAction = null;
+
+            if (ReferenceEquals(receiptVm.PaymentConfirmedAction, confirmedAction))
+                receiptVm.PaymentConfirmedAction = null;
+        };
+
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
             window.ShowDialog(desktop.MainWindow);
-        }
+        else
+            window.Show();
     }
 
     private void InitializeComponent()

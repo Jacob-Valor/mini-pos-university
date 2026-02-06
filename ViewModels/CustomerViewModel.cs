@@ -14,7 +14,7 @@ namespace mini_pos.ViewModels;
 /// </summary>
 public partial class CustomerViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly ICustomerRepository _customerRepository;
     private readonly IDialogService? _dialogService;
 
     [ObservableProperty]
@@ -60,9 +60,9 @@ public partial class CustomerViewModel : ViewModelBase
     public ObservableCollection<Customer> AllCustomers { get; } = new();
     public ObservableCollection<Customer> Customers { get; } = new();
 
-    public CustomerViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public CustomerViewModel(ICustomerRepository customerRepository, IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _customerRepository = customerRepository;
         _dialogService = dialogService;
         _ = LoadDataAsync();
     }
@@ -73,10 +73,10 @@ public partial class CustomerViewModel : ViewModelBase
 
     private async Task LoadDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_customerRepository == null) return;
 
         AllCustomers.Clear();
-        var customers = await _databaseService.GetCustomersAsync();
+        var customers = await _customerRepository.GetCustomersAsync();
         foreach (var c in customers) AllCustomers.Add(c);
         FilterCustomers();
         GenerateNewId();
@@ -98,9 +98,16 @@ public partial class CustomerViewModel : ViewModelBase
         Address = customer.Address;
     }
 
-    [RelayCommand(CanExecute = nameof(CanAdd))]
+    [RelayCommand]
     private async Task AddAsync()
     {
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ລູກຄ້າ");
+            return;
+        }
+
         var newCustomer = new Customer
         {
             Id = CustomerId,
@@ -111,25 +118,37 @@ public partial class CustomerViewModel : ViewModelBase
             Address = Address
         };
 
-        bool success = await _databaseService.AddCustomerAsync(newCustomer);
+        bool success = await _customerRepository.AddCustomerAsync(newCustomer);
         if (success)
         {
             UpsertCustomer(newCustomer);
             FilterCustomers();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ເພີ່ມລູກຄ້າສຳເລັດ (Customer added)");
+                await _dialogService.ShowSuccessAsync("ເພີ່ມລູກຄ້າສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ເພີ່ມລູກຄ້າບໍ່ສຳເລັດ (Failed to add customer)");
+            await _dialogService.ShowErrorAsync("ເພີ່ມລູກຄ້າບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task EditAsync()
     {
-        if (SelectedCustomer == null) return;
+        if (SelectedCustomer == null)
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ລູກຄ້າ");
+            return;
+        }
 
         var updateCustomer = new Customer
         {
@@ -141,25 +160,30 @@ public partial class CustomerViewModel : ViewModelBase
             Address = Address
         };
 
-        bool success = await _databaseService.UpdateCustomerAsync(updateCustomer);
+        bool success = await _customerRepository.UpdateCustomerAsync(updateCustomer);
         if (success)
         {
             UpsertCustomer(updateCustomer);
             FilterCustomers();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ແກ້ໄຂລູກຄ້າສຳເລັດ (Customer updated)");
+                await _dialogService.ShowSuccessAsync("ແກ້ໄຂລູກຄ້າສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ແກ້ໄຂລູກຄ້າບໍ່ສຳເລັດ (Failed to update customer)");
+            await _dialogService.ShowErrorAsync("ແກ້ໄຂລູກຄ້າບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task DeleteAsync()
     {
-        if (SelectedCustomer == null) return;
+        if (SelectedCustomer == null)
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+            return;
+        }
 
         bool confirm = true;
         if (_dialogService != null)
@@ -167,18 +191,18 @@ public partial class CustomerViewModel : ViewModelBase
 
         if (!confirm) return;
 
-        bool success = await _databaseService.DeleteCustomerAsync(SelectedCustomer.Id);
+        bool success = await _customerRepository.DeleteCustomerAsync(SelectedCustomer.Id);
         if (success)
         {
             RemoveCustomerById(SelectedCustomer.Id);
             FilterCustomers();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ລຶບລູກຄ້າສຳເລັດ (Customer deleted)");
+                await _dialogService.ShowSuccessAsync("ລຶບລູກຄ້າສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ລຶບລູກຄ້າບໍ່ສຳເລັດ (Failed to delete customer)");
+            await _dialogService.ShowErrorAsync("ລຶບລູກຄ້າບໍ່ສຳເລັດ");
         }
     }
 

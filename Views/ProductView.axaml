@@ -237,31 +237,31 @@
                     Margin="0,20,0,0"
                 >
                     <Button
-                        Classes="action"
-                        Background="#0D47A1"
+                        Classes="action primary"
                         Command="{Binding AddCommand}"
+                        ToolTip.Tip="ເພີ່ມ"
                     >
                         <TextBlock Text="ເພີ່ມ" />
                     </Button>
                     <Button
-                        Classes="action"
-                        Background="#FBC02D"
+                        Classes="action warning"
                         Command="{Binding EditCommand}"
                         Foreground="Black"
+                        ToolTip.Tip="ແກ້ໄຂ"
                     >
                         <TextBlock Text="ແກ້ໄຂ" />
                     </Button>
                     <Button
-                        Classes="action"
-                        Background="#C62828"
+                        Classes="action danger"
                         Command="{Binding DeleteCommand}"
+                        ToolTip.Tip="ລຶບ"
                     >
                         <TextBlock Text="ລຶບ" />
                     </Button>
                     <Button
-                        Classes="action"
-                        Background="#616161"
+                        Classes="action neutral"
                         Command="{Binding CancelCommand}"
+                        ToolTip.Tip="ຍົກເລີກ"
                     >
                         <TextBlock Text="ຍົກເລີກ" />
                     </Button>
@@ -294,7 +294,11 @@
             >
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header -->
-                    <Border Grid.Row="0" Background="#FFB74D" Height="40">
+                    <Border
+                        Grid.Row="0"
+                        Background="{DynamicResource TableHeaderBackgroundColor}"
+                        Height="40"
+                    >
                         <Grid
                             ColumnDefinitions="110, 4*, 90, 70, 110, 110, 110, 100, 120, 80"
                         >
@@ -540,22 +544,34 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.Styles>
-                             <Style Selector="ListBoxItem">
-                                 <Setter Property="Padding" Value="0,8" />
-                                 <Setter
+                              <Style Selector="ListBoxItem">
+                                  <Setter Property="Padding" Value="0,8" />
+                                  <Setter
                                     Property="HorizontalContentAlignment"
                                     Value="Stretch"
                                 />
-                                 <Setter
+                                  <Setter
                                     Property="BorderBrush"
                                     Value="{DynamicResource BorderColor}"
                                 />
-                                 <Setter
+                                  <Setter
                                     Property="BorderThickness"
                                     Value="0,0,0,1"
                                 />
-                             </Style>
-                        </ListBox.Styles>
+                              </Style>
+                              <Style Selector="ListBoxItem:pointerover">
+                                  <Setter
+                                    Property="Background"
+                                    Value="{DynamicResource RowHoverColor}"
+                                />
+                              </Style>
+                              <Style Selector="ListBoxItem:selected">
+                                  <Setter
+                                    Property="Background"
+                                    Value="{DynamicResource RowSelectedColor}"
+                                />
+                              </Style>
+                         </ListBox.Styles>
                     </ListBox>
                 </Grid>
             </Border>

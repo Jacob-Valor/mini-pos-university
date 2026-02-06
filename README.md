@@ -37,6 +37,57 @@ A modern Point of Sale (POS) system built with .NET 10 and Avalonia UI, featurin
 - 🐳 [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/) (for database)
 - 🖥️ **Cross-platform**: Supports Linux, macOS (Intel/Apple Silicon), and Windows
 
+## ✅ Quick Demo (Grade-Max)
+
+### 1) Start Database (Docker)
+
+```bash
+cp .env.example .env
+docker-compose up -d mariadb
+```
+
+### 2) Run App
+
+```bash
+dotnet restore
+dotnet run
+```
+
+Optional DB smoke test (no UI):
+
+```bash
+dotnet run -- --test-db
+```
+
+Run tests:
+
+```bash
+dotnet test
+```
+
+Note: `dotnet test` runs integration tests that start a MariaDB container via Testcontainers, so Docker must be running.
+
+Unit tests only (skip integration tests):
+
+```bash
+dotnet test --filter "FullyQualifiedName!~mini_pos.Tests.Integration"
+```
+
+### 3) Login Accounts (Seed Data)
+
+These accounts are included in `db/workshop.sql`:
+
+- Admin: `admin` / `1234`
+- Employee: `phut` / `1234`
+
+### 4) Suggested Demo Flow
+
+1. Login
+2. Go to Sales
+3. Scan/enter a barcode from seed data (examples): `002`, `003`, `006`
+4. Add to cart, enter money received, save sale
+5. Generate a sales report PDF
+
 ## 🏛️ Architecture Overview
 
 ### MVVM with CommunityToolkit.Mvvm
@@ -71,7 +122,8 @@ private async Task SaveAsync() { ... }
 
 All services and ViewModels are registered in `App.axaml.cs` using Microsoft DI:
 
-- `IDatabaseService` - Data access layer
+- `IMySqlConnectionFactory` - Opens MySQL/MariaDB connections
+- `IBrandRepository`, `IProductRepository`, `ICustomerRepository`, ... - Data access repositories
 - `IDialogService` - User notifications and confirmations  
 - `IReportService` - PDF report generation
 - `INavigationService` - Factory pattern for ViewModel creation

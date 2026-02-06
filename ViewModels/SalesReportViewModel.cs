@@ -6,12 +6,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
 using mini_pos.Services;
+using Serilog;
 
 namespace mini_pos.ViewModels;
 
 public partial class SalesReportViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly ISalesRepository _salesRepository;
     private readonly IReportService? _reportService;
     private readonly IDialogService? _dialogService;
 
@@ -27,9 +28,9 @@ public partial class SalesReportViewModel : ViewModelBase
     [ObservableProperty]
     private decimal _totalAmount;
 
-    public SalesReportViewModel(IDatabaseService databaseService, IReportService? reportService = null, IDialogService? dialogService = null)
+    public SalesReportViewModel(ISalesRepository salesRepository, IReportService? reportService = null, IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _salesRepository = salesRepository;
         _reportService = reportService;
         _dialogService = dialogService;
     }
@@ -41,25 +42,44 @@ public partial class SalesReportViewModel : ViewModelBase
     [RelayCommand]
     private async Task SearchAsync()
     {
-        if (_databaseService == null) return;
+        if (_salesRepository == null) return;
 
-        var items = await _databaseService.GetSalesReportAsync(StartDate.DateTime, EndDate.DateTime);
+        if (StartDate > EndDate)
+        {
+            await (_dialogService?.ShowErrorAsync("ວັນທີເລີ່ມຕ້ອງນ້ອຍກວ່າ ຫຼື ເທົ່າກັບ ວັນທີສິ້ນສຸດ") ?? Task.CompletedTask);
+            return;
+        }
+
+        var items = await _salesRepository.GetSalesReportAsync(StartDate.DateTime, EndDate.DateTime);
         ReportItems = new ObservableCollection<SalesReportItem>(items);
 
-        decimal total = 0;
-        foreach (var item in items) total += item.Total;
-        TotalAmount = total;
+        TotalAmount = items.Sum(x => x.Total);
     }
 
     [RelayCommand]
-    private void Print()
+    private async Task PrintAsync()
     {
-        if (_reportService == null || ReportItems.Count == 0) return;
+        if (_reportService == null)
+        {
+            await (_dialogService?.ShowErrorAsync("ບໍ່ມີບໍລິການສ້າງລາຍງານ") ?? Task.CompletedTask);
+            return;
+        }
+
+        if (ReportItems.Count == 0)
+        {
+            await (_dialogService?.ShowErrorAsync("ບໍ່ມີຂໍ້ມູນໃນລາຍງານ") ?? Task.CompletedTask);
+            return;
+        }
 
         try
         {
             var fileName = $"SalesReport_{DateTime.Now:yyyyMMddHHmmss}.pdf";
-            var path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), fileName);
+
+            var outputDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            if (string.IsNullOrWhiteSpace(outputDir) || !System.IO.Directory.Exists(outputDir))
+                outputDir = System.IO.Directory.GetCurrentDirectory();
+
+            var path = System.IO.Path.Combine(outputDir, fileName);
 
             var itemsList = new System.Collections.Generic.List<SalesReportItem>(ReportItems);
 
@@ -67,24 +87,22 @@ public partial class SalesReportViewModel : ViewModelBase
 
             try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path)
                 {
-                    FileName = "xdg-open",
-                    Arguments = path,
                     UseShellExecute = true
                 });
             }
             catch (Exception)
             {
-                Console.WriteLine($"Generated PDF at {path}. Could not open automatically.");
+                Log.Warning("Generated PDF at {Path} but could not open automatically", path);
             }
 
-            _dialogService?.ShowSuccessAsync($"ສ້າງໃບລາຍງານສຳເລັດ (Report Generated): {fileName}");
+            await (_dialogService?.ShowSuccessAsync($"ສ້າງໃບລາຍງານສຳເລັດ: {fileName}\n{path}") ?? Task.CompletedTask);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error generating report: {ex.Message}");
-            _dialogService?.ShowErrorAsync($"ເກີດຂໍ້ຜິດພາດ: {ex.Message}");
+            Log.Error(ex, "Error generating sales report");
+            await (_dialogService?.ShowErrorAsync("ເກີດຂໍ້ຜິດພາດ ບໍ່ສາມາດສ້າງລາຍງານໄດ້") ?? Task.CompletedTask);
         }
     }
 

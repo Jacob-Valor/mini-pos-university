@@ -166,9 +166,9 @@
                 Margin="0,0,0,30"
             >
                 <Button
-                    Classes="action"
-                    Background="#0D47A1"
+                    Classes="action primary"
                     Command="{Binding SaveCommand}"
+                    ToolTip.Tip="ເພີ່ມ"
                 >
                     <TextBlock Text="ເພີ່ມ" />
                 </Button>
@@ -176,17 +176,17 @@
                      Usually we toggle Add/Edit visibility.
                      For strictly following image, I will put them there. -->
                  <Button
-                    Classes="action"
-                    Background="#FBC02D"
+                    Classes="action warning"
                     Command="{Binding SaveCommand}"
                     Foreground="Black"
+                    ToolTip.Tip="ແກ້ໄຂ"
                 >
                     <TextBlock Text="ແກ້ໄຂ" />
                 </Button>
                  <Button
-                    Classes="action"
-                    Background="#616161"
+                    Classes="action neutral"
                     Command="{Binding CancelCommand}"
+                    ToolTip.Tip="ຍົກເລີກ"
                 >
                     <TextBlock Text="ຍົກເລີກ" />
                 </Button>

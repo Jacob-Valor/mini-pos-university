@@ -11,7 +11,7 @@ namespace mini_pos.ViewModels;
 
 public partial class BrandViewModel : ViewModelBase
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IBrandRepository _brandRepository;
     private readonly IDialogService? _dialogService;
 
     [ObservableProperty]
@@ -48,9 +48,9 @@ public partial class BrandViewModel : ViewModelBase
     [ObservableProperty]
     private bool _canEditOrDelete;
 
-    public BrandViewModel(IDatabaseService databaseService, IDialogService? dialogService = null)
+    public BrandViewModel(IBrandRepository brandRepository, IDialogService? dialogService = null)
     {
-        _databaseService = databaseService;
+        _brandRepository = brandRepository;
         _dialogService = dialogService;
         _ = LoadDataAsync();
     }
@@ -61,18 +61,23 @@ public partial class BrandViewModel : ViewModelBase
 
     private async Task LoadDataAsync()
     {
-        if (_databaseService == null) return;
+        if (_brandRepository == null) return;
 
         AllBrands.Clear();
-        var brands = await _databaseService.GetBrandsAsync();
+        var brands = await _brandRepository.GetBrandsAsync();
         foreach (var b in brands) AllBrands.Add(b);
         FilterBrands();
     }
 
-    [RelayCommand(CanExecute = nameof(CanAdd))]
+    [RelayCommand]
     private async Task AddAsync()
     {
-        if (string.IsNullOrWhiteSpace(BrandName)) return;
+        if (string.IsNullOrWhiteSpace(BrandName))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ຍີ່ຫໍ້");
+            return;
+        }
 
         var maxId = AllBrands.Any()
             ? AllBrands.Max(b => int.TryParse(b.Id.Replace("B", ""), out var num) ? num : 0) + 1
@@ -81,67 +86,82 @@ public partial class BrandViewModel : ViewModelBase
 
         var brand = new Brand { Id = newId, Name = BrandName };
 
-        bool success = await _databaseService.AddBrandAsync(brand);
+        bool success = await _brandRepository.AddBrandAsync(brand);
         if (success)
         {
             UpsertBrand(brand);
             FilterBrands();
             Cancel();
             if (_dialogService != null)
-                await _dialogService.ShowSuccessAsync("ເພີ່ມຍີ່ຫໍ້ສຳເລັດ (Brand added)");
+                await _dialogService.ShowSuccessAsync("ເພີ່ມຍີ່ຫໍ້ສຳເລັດ");
         }
         else if (_dialogService != null)
         {
-            await _dialogService.ShowErrorAsync("ເພີ່ມຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to add brand)");
+            await _dialogService.ShowErrorAsync("ເພີ່ມຍີ່ຫໍ້ບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task EditAsync()
     {
-        if (SelectedBrand != null && !string.IsNullOrWhiteSpace(BrandName))
+        if (SelectedBrand == null)
         {
-            var updatedBrand = new Brand { Id = SelectedBrand.Id, Name = BrandName };
-            bool success = await _databaseService.UpdateBrandAsync(updatedBrand);
-            if (success)
-            {
-                UpsertBrand(updatedBrand);
-                FilterBrands();
-                Cancel();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ແກ້ໄຂຍີ່ຫໍ້ສຳເລັດ (Brand updated)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ແກ້ໄຂຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to update brand)");
-            }
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກຍີ່ຫໍ້ກ່ອນ");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(BrandName))
+        {
+            if (_dialogService != null)
+                await _dialogService.ShowErrorAsync("ກະລຸນາປ້ອນຊື່ຍີ່ຫໍ້");
+            return;
+        }
+
+        var updatedBrand = new Brand { Id = SelectedBrand.Id, Name = BrandName };
+        bool success = await _brandRepository.UpdateBrandAsync(updatedBrand);
+        if (success)
+        {
+            UpsertBrand(updatedBrand);
+            FilterBrands();
+            Cancel();
+            if (_dialogService != null)
+                await _dialogService.ShowSuccessAsync("ແກ້ໄຂຍີ່ຫໍ້ສຳເລັດ");
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ແກ້ໄຂຍີ່ຫໍ້ບໍ່ສຳເລັດ");
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditOrDelete))]
+    [RelayCommand]
     private async Task DeleteAsync()
     {
-        if (SelectedBrand != null)
+        if (SelectedBrand == null)
         {
-            bool confirm = true;
             if (_dialogService != null)
-                confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຍີ່ຫໍ້ {SelectedBrand.Name} ຫຼືບໍ່?");
+                await _dialogService.ShowErrorAsync("ກະລຸນາເລືອກຍີ່ຫໍ້ກ່ອນ");
+            return;
+        }
 
-            if (!confirm) return;
+        bool confirm = true;
+        if (_dialogService != null)
+            confirm = await _dialogService.ShowConfirmationAsync("ຢືນຢັນການລຶບ", $"ລຶບຍີ່ຫໍ້ {SelectedBrand.Name} ຫຼືບໍ່?");
 
-            bool success = await _databaseService.DeleteBrandAsync(SelectedBrand.Id);
-            if (success)
-            {
-                RemoveBrandById(SelectedBrand.Id);
-                FilterBrands();
-                Cancel();
-                if (_dialogService != null)
-                    await _dialogService.ShowSuccessAsync("ລຶບຍີ່ຫໍ້ສຳເລັດ (Brand deleted)");
-            }
-            else if (_dialogService != null)
-            {
-                await _dialogService.ShowErrorAsync("ລຶບຍີ່ຫໍ້ບໍ່ສຳເລັດ (Failed to delete brand)");
-            }
+        if (!confirm) return;
+
+        bool success = await _brandRepository.DeleteBrandAsync(SelectedBrand.Id);
+        if (success)
+        {
+            RemoveBrandById(SelectedBrand.Id);
+            FilterBrands();
+            Cancel();
+            if (_dialogService != null)
+                await _dialogService.ShowSuccessAsync("ລຶບຍີ່ຫໍ້ສຳເລັດ");
+        }
+        else if (_dialogService != null)
+        {
+            await _dialogService.ShowErrorAsync("ລຶບຍີ່ຫໍ້ບໍ່ສຳເລັດ");
         }
     }
 

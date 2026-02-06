@@ -279,12 +279,14 @@
                                 Text="ລະຫັດຜ່ານ"
                             />
                              <TextBox
-                                Grid.Row="0"
-                                Grid.Column="1"
-                                Classes="form"
-                                Text="{Binding EmployeePassword}"
-                                PasswordChar="*"
-                            />
+                                 Grid.Row="0"
+                                 Grid.Column="1"
+                                 Classes="form"
+                                 Text="{Binding EmployeePassword}"
+                                 PasswordChar="*"
+                                 Watermark="ປ້ອນລະຫັດຜ່ານ..."
+                                 ToolTip.Tip="ໃນການແກ້ໄຂ: ປ່ອຍວ່າງໄວ້ເພື່ອບໍ່ປ່ຽນລະຫັດ"
+                             />
                          </Grid>
                          <Grid ColumnDefinitions="Auto, *">
                             <TextBlock
@@ -321,12 +323,13 @@
                                 VerticalAlignment="Center"
                             />
                         </Border>
-                        <Button
+        <Button
                             Content="ເລືອກຮູບ"
                             Click="SelectImage_Click"
                             HorizontalAlignment="Center"
-                            Background="#37474F"
+                            Background="{DynamicResource ActionNeutralColor}"
                             Foreground="White"
+                            ToolTip.Tip="ເລືອກຮູບ"
                         />
                     </StackPanel>
                 </Grid>
@@ -339,31 +342,31 @@
                     Margin="0,20,0,0"
                 >
                     <Button
-                        Classes="action"
-                        Background="#0D47A1"
+                        Classes="action primary"
                         Command="{Binding AddCommand}"
+                        ToolTip.Tip="ເພີ່ມ"
                     >
                         <TextBlock Text="ເພີ່ມ" />
                     </Button>
                     <Button
-                        Classes="action"
-                        Background="#FBC02D"
+                        Classes="action warning"
                         Command="{Binding EditCommand}"
                         Foreground="Black"
+                        ToolTip.Tip="ແກ້ໄຂ"
                     >
                         <TextBlock Text="ແກ້ໄຂ" />
                     </Button>
                     <Button
-                        Classes="action"
-                        Background="#C62828"
+                        Classes="action danger"
                         Command="{Binding DeleteCommand}"
+                        ToolTip.Tip="ລຶບ"
                     >
                         <TextBlock Text="ລຶບ" />
                     </Button>
                     <Button
-                        Classes="action"
-                        Background="#616161"
+                        Classes="action neutral"
                         Command="{Binding CancelCommand}"
+                        ToolTip.Tip="ຍົກເລີກ"
                     >
                         <TextBlock Text="ຍົກເລີກ" />
                     </Button>
@@ -401,7 +404,11 @@
                 >
                     <Grid RowDefinitions="Auto, *">
                         <!-- Header -->
-                        <Border Grid.Row="0" Background="#FFB74D" Height="44">
+                        <Border
+                            Grid.Row="0"
+                            Background="{DynamicResource TableHeaderBackgroundColor}"
+                            Height="44"
+                        >
                             <Grid
                                 ColumnDefinitions="60, 90, 1.6*, 1.6*, 60, 110, 110, 120, 120, 1.8*, 120, 80, 110"
                             >
@@ -804,13 +811,13 @@
                                 <Style Selector="ListBoxItem:pointerover">
                                     <Setter
                                         Property="Background"
-                                        Value="{DynamicResource SurfaceLightColor}"
+                                        Value="{DynamicResource RowHoverColor}"
                                     />
                                 </Style>
                                 <Style Selector="ListBoxItem:selected">
                                     <Setter
                                         Property="Background"
-                                        Value="#263238"
+                                        Value="{DynamicResource RowSelectedColor}"
                                     />
                                 </Style>
                             </ListBox.Styles>

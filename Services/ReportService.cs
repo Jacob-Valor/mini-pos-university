@@ -8,6 +8,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Drawing;
 using mini_pos.Models;
+using Serilog;
 
 namespace mini_pos.Services;
 
@@ -48,8 +49,7 @@ public class ReportService : IReportService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error registering fonts: {ex.Message}");
-            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            Log.Error(ex, "Error registering report fonts");
         }
     }
 
