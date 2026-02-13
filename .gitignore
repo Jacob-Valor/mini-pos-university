@@ -92,6 +92,7 @@ Avalonia/resources
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 coverage/
+coverage-report/
 
 # ================================================================================================
 # Keep templates

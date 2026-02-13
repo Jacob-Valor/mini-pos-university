@@ -2,12 +2,26 @@ name: CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
   pull_request:
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root_password
+          MARIADB_DATABASE: mini_pos
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout
@@ -19,10 +33,37 @@ jobs:
           dotnet-version: 10.0.100
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore mini_pos.sln
 
       - name: Build
-        run: dotnet build --no-restore -c Release
+        run: dotnet build mini_pos.sln --no-restore -c Release
 
       - name: Test
-        run: dotnet test --no-build -c Release
+        run: dotnet test tests/mini_pos.Tests/mini_pos.Tests.csproj --no-build -c Release --collect:"XPlat Code Coverage"
+        env:
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_NAME: mini_pos
+          DB_USER: root
+          DB_PASSWORD: root_password
+
+      - name: Test API
+        run: dotnet test tests/mini_pos.Api.Tests/mini_pos.Api.Tests.csproj --no-build -c Release --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage reports
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            tests/mini_pos.Tests/TestResults/*/coverage.cobertura.xml
+            tests/mini_pos.Api.Tests/TestResults/*/coverage.cobertura.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            tests/mini_pos.Tests/TestResults/
+            tests/mini_pos.Api.Tests/TestResults/

@@ -50,13 +50,13 @@ docker-compose up -d mariadb
 
 ```bash
 dotnet restore
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 Optional DB smoke test (no UI):
 
 ```bash
-dotnet run -- --test-db
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj -- --test-db
 ```
 
 Run tests:
@@ -156,7 +156,7 @@ docker run -d --name mini_pos_db \
 
 # Run the application
 dotnet restore
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 **Using Rider:**
@@ -178,7 +178,7 @@ sudo systemctl start docker
 docker-compose up mariadb -d
 
 # Run the application
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 ### 🪟 Windows
@@ -192,7 +192,7 @@ dotnet run
 docker run -d --name mini_pos_db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root_password -e MYSQL_DATABASE=mini_pos mariadb:10.11
 
 # Run the application
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 Alternatively, use Visual Studio 2022 with the Avalonia extension.
@@ -226,7 +226,7 @@ docker-compose logs -f mariadb
 ```bash
 # Restore dependencies and run
 dotnet restore
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 Alternatively, use your IDE (Visual Studio, Rider, VS Code) to build and run the project.
@@ -258,31 +258,24 @@ See [Docker GUI Configuration](#docker-gui-configuration) for Linux X11 setup.
 
 ```
 mini_pos/
-├── Assets/                 # Application resources (fonts, icons)
-├── Converters/            # Value converters for data binding
 ├── db/                    # Database schemas and initialization
 │   └── workshop.sql       # Database schema and sample data
-├── Models/                # Data models (Employee, Product, etc.)
-├── Services/              # Business logic services
-│   ├── DatabaseService.cs
-│   ├── DialogService.cs
-│   ├── NavigationService.cs
-│   └── ReportService.cs
-├── ViewModels/            # MVVM view models (CommunityToolkit.Mvvm)
-├── Views/                 # AXAML UI views
-├── App.axaml             # Application entry point & DI configuration
-├── Program.cs            # Application initialization
+├── src/
+│   ├── mini_pos.Desktop/  # Avalonia desktop app project
+│   └── mini_pos.Api/      # ASP.NET Core API project
+├── tests/
+│   ├── mini_pos.Tests/    # Desktop app tests
+│   └── mini_pos.Api.Tests/# API tests
 ├── Dockerfile            # Container build configuration
 ├── docker-compose.yml    # Multi-container orchestration
-├── appsettings.json      # Application configuration
-└── mini_pos.csproj       # Project file
+└── mini_pos.sln          # Solution file
 ```
 
 ## ⚙️ Configuration
 
 ### 🔌 Database Connection
 
-Edit `appsettings.json` or set environment variables:
+Edit `src/mini_pos.Desktop/appsettings.json` or set environment variables:
 
 ```json
 {
@@ -352,7 +345,7 @@ For the best development experience, run the database in Docker and the applicat
 docker-compose up mariadb -d
 
 # Run the application locally
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 ## 💻 Development
@@ -371,10 +364,10 @@ dotnet build -c Release
 
 ```bash
 # Development mode
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 
 # Watch mode (auto-reload)
-dotnet watch run
+dotnet watch --project src/mini_pos.Desktop/mini_pos.csproj run
 ```
 
 ### 📦 Adding NuGet Packages
@@ -394,13 +387,13 @@ dotnet add package PackageName
 
 ```bash
 export DISPLAY=:0
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 Alternatively, use `xvfb` for headless environments:
 
 ```bash
-xvfb-run -a dotnet run
+xvfb-run -a dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 **On macOS:**

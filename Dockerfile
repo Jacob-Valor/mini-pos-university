@@ -4,7 +4,7 @@
 # This Dockerfile builds the Mini POS application for Linux deployment with X11 support.
 #
 # IMPORTANT: For cross-platform development (macOS/Windows), run the application natively:
-#   dotnet run
+#   dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 #
 # This Linux container build is useful for:
 #   - CI/CD pipelines
@@ -38,12 +38,12 @@ WORKDIR /src
 
 # Copy project file and restore dependencies
 # This is done separately to leverage Docker layer caching
-COPY ["mini_pos.csproj", "./"]
-RUN dotnet restore "./mini_pos.csproj"
+COPY ["src/mini_pos.Desktop/mini_pos.csproj", "src/mini_pos.Desktop/"]
+RUN dotnet restore "./src/mini_pos.Desktop/mini_pos.csproj"
 
 # Copy all source files and build the application
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/src/mini_pos.Desktop"
 RUN dotnet build "mini_pos.csproj" \
     -c Release \
     -o /app/build
