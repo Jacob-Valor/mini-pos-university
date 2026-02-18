@@ -275,15 +275,23 @@ mini_pos/
 
 ### 🔌 Database Connection
 
-Edit `src/mini_pos.Desktop/appsettings.json` or set environment variables:
+Edit `src/mini_pos.Desktop/appsettings.json` and set `DB_PASSWORD` in your environment:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=3306;Database=mini_pos;User=root;Password=your_password;"
+    "DefaultConnection": "Server=localhost;Port=3306;Database=mini_pos;User=root;"
   }
 }
 ```
+
+```bash
+export DB_PASSWORD=your_password
+```
+
+Or place `DB_PASSWORD` in a `.env` file at the repository root. The app loads `.env` automatically at startup.
+
+Use the same pattern for `src/mini_pos.Api/appsettings.json`.
 
 ### 📝 Environment Variables
 

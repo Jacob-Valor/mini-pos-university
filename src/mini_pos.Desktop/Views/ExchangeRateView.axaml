@@ -230,67 +230,77 @@
                                 <Grid
                                     ColumnDefinitions="20, 50, 120, 120, *, 50"
                                 >
-                                    <PathIcon
-                                        Data="M0,0 L8,5 L0,10 Z"
-                                        Width="8"
-                                        Height="10"
-                                        Foreground="{DynamicResource TextColor}"
-                                        IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                    />
+                                    <Border Classes="tableCell">
+                                        <PathIcon
+                                            Data="M0,0 L8,5 L0,10 Z"
+                                            Width="8"
+                                            Height="10"
+                                            Foreground="{DynamicResource TextColor}"
+                                            IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                        />
+                                    </Border>
 
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="{Binding Id}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
+                                    <Border Grid.Column="1" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Id}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
 
-                                     <TextBlock
-                                        Grid.Column="2"
-                                        Text="{Binding UsdRate, StringFormat='{}{0:N0}'}"
-                                        HorizontalAlignment="Right"
-                                        Margin="0,0,20,0"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
+                                    <Border Grid.Column="2" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding UsdRate, StringFormat='{}{0:N0}'}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,20,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
 
-                                     <TextBlock
-                                        Grid.Column="3"
-                                        Text="{Binding ThbRate, StringFormat='{}{0:N0}'}"
-                                        HorizontalAlignment="Right"
-                                        Margin="0,0,20,0"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
+                                    <Border Grid.Column="3" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding ThbRate, StringFormat='{}{0:N0}'}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,20,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
 
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Text="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
+                                    <Border Grid.Column="4" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
 
                                     <!-- Delete Icon -->
-                                     <Button
+                                    <Border
                                         Grid.Column="5"
-                                        Classes="icon"
-                                        Background="Transparent"
-                                        Command="{Binding #Root.DataContext.DeleteCommand}"
-                                        CommandParameter="{Binding}"
-                                        HorizontalAlignment="Center"
-                                        ToolTip.Tip="ລຶບ"
+                                        Classes="tableCellLast"
                                     >
-                                        <PathIcon
-                                            Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
-                                            Width="16"
-                                            Height="16"
-                                            Foreground="{DynamicResource ErrorColor}"
-                                        />
-                                     </Button>
+                                        <Button
+                                            Classes="icon"
+                                            Background="Transparent"
+                                            Command="{Binding #Root.DataContext.DeleteCommand}"
+                                            CommandParameter="{Binding}"
+                                            HorizontalAlignment="Center"
+                                            ToolTip.Tip="ລຶບ"
+                                        >
+                                            <PathIcon
+                                                Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
+                                                Width="16"
+                                                Height="16"
+                                                Foreground="{DynamicResource ErrorColor}"
+                                            />
+                                        </Button>
+                                    </Border>
 
                                 </Grid>
                             </DataTemplate>

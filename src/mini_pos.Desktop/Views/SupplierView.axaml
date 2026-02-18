@@ -186,15 +186,17 @@
                                     ColumnDefinitions="110, 2.2*, 1.6*, 2.2*, 1.2*, 3*, 60, 60"
                                     Height="44"
                                 >
-                                <TextBlock
+                                <Border Classes="tableCell">
+                                    <TextBlock
                                         Text="{Binding Id}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Foreground="{DynamicResource TextColor}"
                                         TextWrapping="NoWrap"
                                     />
-                                <TextBlock
-                                        Grid.Column="1"
+                                </Border>
+                                <Border Grid.Column="1" Classes="tableCell">
+                                    <TextBlock
                                         Text="{Binding Name}"
                                         Margin="10,0"
                                         VerticalAlignment="Center"
@@ -202,8 +204,9 @@
                                         TextWrapping="NoWrap"
                                         TextTrimming="CharacterEllipsis"
                                     />
-                                <TextBlock
-                                        Grid.Column="2"
+                                </Border>
+                                <Border Grid.Column="2" Classes="tableCell">
+                                    <TextBlock
                                         Text="{Binding ContactName}"
                                         Margin="10,0"
                                         VerticalAlignment="Center"
@@ -211,8 +214,9 @@
                                         TextWrapping="NoWrap"
                                         TextTrimming="CharacterEllipsis"
                                     />
-                                <TextBlock
-                                        Grid.Column="3"
+                                </Border>
+                                <Border Grid.Column="3" Classes="tableCell">
+                                    <TextBlock
                                         Text="{Binding Email}"
                                         Margin="10,0"
                                         VerticalAlignment="Center"
@@ -220,16 +224,18 @@
                                         TextWrapping="NoWrap"
                                         TextTrimming="CharacterEllipsis"
                                     />
-                                <TextBlock
-                                        Grid.Column="4"
+                                </Border>
+                                <Border Grid.Column="4" Classes="tableCell">
+                                    <TextBlock
                                         Text="{Binding Phone}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Foreground="{DynamicResource TextColor}"
                                         TextWrapping="NoWrap"
                                     />
-                                <TextBlock
-                                        Grid.Column="5"
+                                </Border>
+                                <Border Grid.Column="5" Classes="tableCell">
+                                    <TextBlock
                                         Text="{Binding Address}"
                                         Margin="10,0"
                                         VerticalAlignment="Center"
@@ -237,40 +243,46 @@
                                         TextWrapping="NoWrap"
                                         TextTrimming="CharacterEllipsis"
                                     />
+                                </Border>
 
-                                 <!-- Edit Button -->
-                                  <Button
-                                        Grid.Column="6"
+                                <!-- Edit Button -->
+                                <Border Grid.Column="6" Classes="tableCell">
+                                    <Button
                                         Background="Transparent"
                                         Command="{Binding #Root.DataContext.EditCommand}"
                                         CommandParameter="{Binding}"
                                         HorizontalAlignment="Center"
                                         ToolTip.Tip="ແກ້ໄຂ"
                                     >
-                                   <PathIcon
+                                        <PathIcon
                                             Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
                                             Width="16"
                                             Height="16"
                                             Foreground="{DynamicResource PrimaryColor}"
                                         />
-                                 </Button>
+                                    </Button>
+                                </Border>
 
                                 <!-- Delete Button -->
-                                  <Button
-                                        Grid.Column="7"
+                                <Border
+                                    Grid.Column="7"
+                                    Classes="tableCellLast"
+                                >
+                                    <Button
                                         Background="Transparent"
                                         Command="{Binding #Root.DataContext.DeleteCommand}"
                                         CommandParameter="{Binding}"
                                         HorizontalAlignment="Center"
                                         ToolTip.Tip="ລຶບ"
                                     >
-                                   <PathIcon
+                                        <PathIcon
                                             Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
                                             Width="16"
                                             Height="16"
                                             Foreground="{DynamicResource ErrorColor}"
                                         />
-                                 </Button>
+                                    </Button>
+                                </Border>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

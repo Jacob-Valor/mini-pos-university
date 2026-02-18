@@ -97,7 +97,13 @@ public sealed class ExchangeRateRepository : IExchangeRateRepository
                 Value = DateTime.UtcNow
             });
 
-            await command.ExecuteNonQueryAsync();
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Exchange rate insert affected {Rows} rows", rows);
+                return false;
+            }
+
             Log.Information("Exchange rate added: USD={Usd}, THB={Thb}", rate.UsdRate, rate.ThbRate);
             return true;
         }

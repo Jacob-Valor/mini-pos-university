@@ -37,6 +37,11 @@ public class Employee
     public DateTime DateOfBirth { get; set; } = DateTime.Now;
 
     /// <summary>
+    /// Gets or sets the employee's start date.
+    /// </summary>
+    public DateTime StartDate { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
     /// Gets or sets the employee's phone number.
     /// Format varies by region (e.g., 020-12345678 for Lao numbers).    /// </summary>
     public string PhoneNumber { get; set; } = string.Empty;
@@ -85,6 +90,11 @@ public class Employee
     /// Examples: "Admin", "Cashier", "Manager".
     /// </summary>
     public string Position { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the employee's stored status value.
+    /// </summary>
+    public string Status { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the file path to the employee's profile image.

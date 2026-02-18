@@ -38,6 +38,8 @@ public partial class App : Application
         ConfigureServices(collection);
         ServiceProvider = collection.BuildServiceProvider();
 
+        _ = ServiceProvider.GetRequiredService<IMySqlConnectionFactory>();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             DisableAvaloniaDataAnnotationValidation();
@@ -101,6 +103,8 @@ public partial class App : Application
             if (File.Exists(Path.Combine(currentDir, "appsettings.json")))
                 baseDir = currentDir;
         }
+
+        DotEnvLoader.LoadFromSearchPaths(baseDir, Directory.GetCurrentDirectory(), AppContext.BaseDirectory);
 
         return new ConfigurationBuilder()
             .SetBasePath(baseDir)

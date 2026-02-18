@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,16 +37,22 @@ public class EmployeesController : ControllerBase
         return Ok(MapToDto(employee));
     }
 
-    private static EmployeeDto MapToDto(Employee e) => new(
-        e.Id,
-        e.Name,
-        e.Surname,
-        e.Gender,
-        e.DateOfBirth,
-        e.VillageId,
-        e.PhoneNumber,
-        DateTime.Now,
-        e.Position,
-        "active"
-    );
+    private static EmployeeDto MapToDto(Employee e)
+    {
+        var position = string.IsNullOrWhiteSpace(e.Position) ? e.Status : e.Position;
+        var status = string.IsNullOrWhiteSpace(e.Status) ? position : e.Status;
+
+        return new EmployeeDto(
+            e.Id,
+            e.Name,
+            e.Surname,
+            e.Gender,
+            e.DateOfBirth,
+            e.VillageId,
+            e.PhoneNumber,
+            e.StartDate,
+            position,
+            status
+        );
+    }
 }

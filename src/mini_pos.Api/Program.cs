@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using mini_pos.Api.Services;
 using mini_pos.Configuration;
 using mini_pos.Services;
@@ -18,6 +20,8 @@ if (!File.Exists(Path.Combine(baseDir, "appsettings.json")))
     if (File.Exists(Path.Combine(currentDir, "appsettings.json")))
         baseDir = currentDir;
 }
+
+DotEnvLoader.LoadFromSearchPaths(baseDir, Directory.GetCurrentDirectory(), AppContext.BaseDirectory);
 
 builder.Configuration
     .SetBasePath(baseDir)
@@ -54,6 +58,8 @@ builder.Services.AddSingleton<ISalesRepository, SalesRepository>();
 builder.Services.AddScoped<ISalesApplicationService, SalesApplicationService>();
 
 var app = builder.Build();
+
+_ = app.Services.GetRequiredService<IMySqlConnectionFactory>();
 
 app.UseExceptionHandler();
 

@@ -123,6 +123,8 @@ public static class DatabaseConnectionTest
                 baseDir = currentDir;
         }
 
+        DotEnvLoader.LoadFromSearchPaths(baseDir, Directory.GetCurrentDirectory(), AppContext.BaseDirectory);
+
         return new ConfigurationBuilder()
             .SetBasePath(baseDir)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)

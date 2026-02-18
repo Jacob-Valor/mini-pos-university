@@ -255,5 +255,20 @@
                 Value="{StaticResource RowSelectedColor}"
             />
         </Style>
+
+        <Style Selector="Border.tableCell">
+            <Setter
+                Property="BorderBrush"
+                Value="{DynamicResource BorderColor}"
+            />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+        </Style>
+        <Style Selector="Border.tableCellLast">
+            <Setter
+                Property="BorderBrush"
+                Value="{DynamicResource BorderColor}"
+            />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
     </Application.Styles>
 </Application>

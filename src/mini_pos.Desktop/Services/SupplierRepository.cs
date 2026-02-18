@@ -62,7 +62,13 @@ public sealed class SupplierRepository : ISupplierRepository
             command.Parameters.AddWithValue("@tel", supplier.Phone);
             command.Parameters.AddWithValue("@addr", supplier.Address);
 
-            await command.ExecuteNonQueryAsync();
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Supplier insert affected {Rows} rows for {Id}", rows, supplier.Id);
+                return false;
+            }
+
             Log.Information("Supplier added: {Name}", supplier.Name);
             return true;
         }
@@ -86,9 +92,21 @@ public sealed class SupplierRepository : ISupplierRepository
             command.Parameters.AddWithValue("@addr", supplier.Address);
             command.Parameters.AddWithValue("@id", supplier.Id);
 
-            await command.ExecuteNonQueryAsync();
-            Log.Information("Supplier updated: {Id}", supplier.Id);
-            return true;
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Supplier updated: {Id}", supplier.Id);
+                return true;
+            }
+
+            if (await SupplierExistsAsync(connection, supplier.Id))
+            {
+                Log.Information("Supplier update skipped because data was unchanged: {Id}", supplier.Id);
+                return true;
+            }
+
+            Log.Warning("Supplier update failed because supplier was not found: {Id}", supplier.Id);
+            return false;
         }
         catch (Exception ex)
         {
@@ -104,7 +122,14 @@ public sealed class SupplierRepository : ISupplierRepository
             await using var connection = await _connectionFactory.OpenConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.DeleteSupplier, connection);
             command.Parameters.AddWithValue("@id", supplierId);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Supplier delete affected {Rows} rows for {Id}", rows, supplierId);
+                return false;
+            }
+
             Log.Information("Supplier deleted: {Id}", supplierId);
             return true;
         }
@@ -113,5 +138,13 @@ public sealed class SupplierRepository : ISupplierRepository
             Log.Error(ex, "Error deleting supplier: {Id}", supplierId);
             return false;
         }
+    }
+
+    private static async Task<bool> SupplierExistsAsync(MySqlConnection connection, string supplierId)
+    {
+        await using var existsCommand = new MySqlCommand(SqlQueries.SupplierExists, connection);
+        existsCommand.Parameters.AddWithValue("@id", supplierId);
+        var result = await existsCommand.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

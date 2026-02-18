@@ -169,29 +169,36 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="30, 80, *">
-                                    <PathIcon
-                                        Data="M0,0 L8,5 L0,10 Z"
-                                        Width="8"
-                                        Height="10"
-                                        Foreground="{DynamicResource TextColor}"
-                                        IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="{Binding Id}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
+                                    <Border Classes="tableCell">
+                                        <PathIcon
+                                            Data="M0,0 L8,5 L0,10 Z"
+                                            Width="8"
+                                            Height="10"
+                                            Foreground="{DynamicResource TextColor}"
+                                            IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="1" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Id}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border
                                         Grid.Column="2"
-                                        Text="{Binding Name}"
-                                        Margin="20,0,0,0"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
+                                        Classes="tableCellLast"
+                                    >
+                                        <TextBlock
+                                            Text="{Binding Name}"
+                                            Margin="20,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

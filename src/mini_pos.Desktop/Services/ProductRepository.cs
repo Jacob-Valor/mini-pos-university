@@ -99,10 +99,7 @@ public sealed class ProductRepository : IProductRepository
         try
         {
             await using var connection = await _connectionFactory.OpenConnectionAsync();
-            await using var command = new MySqlCommand(SqlQueries.ProductExists, connection);
-            command.Parameters.AddWithValue("@id", barcode);
-            var result = await command.ExecuteScalarAsync();
-            return Convert.ToInt32(result) > 0;
+            return await ProductExistsAsync(connection, barcode);
         }
         catch (Exception ex)
         {
@@ -141,7 +138,13 @@ public sealed class ProductRepository : IProductRepository
             command.Parameters.AddWithValue("@type", product.CategoryId);
             command.Parameters.AddWithValue("@status", product.Status);
 
-            await command.ExecuteNonQueryAsync();
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Product insert affected {Rows} rows for {Barcode}", rows, product.Barcode);
+                return false;
+            }
+
             Log.Information("Product added: {ProductName} ({Barcode})", product.ProductName, product.Barcode);
             return true;
         }
@@ -181,9 +184,21 @@ public sealed class ProductRepository : IProductRepository
             command.Parameters.AddWithValue("@type", product.CategoryId);
             command.Parameters.AddWithValue("@status", product.Status);
 
-            await command.ExecuteNonQueryAsync();
-            Log.Information("Product updated: {ProductName} ({Barcode})", product.ProductName, product.Barcode);
-            return true;
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Product updated: {ProductName} ({Barcode})", product.ProductName, product.Barcode);
+                return true;
+            }
+
+            if (await ProductExistsAsync(connection, product.Barcode))
+            {
+                Log.Information("Product update skipped because data was unchanged: {Barcode}", product.Barcode);
+                return true;
+            }
+
+            Log.Warning("Product update failed because product was not found: {Barcode}", product.Barcode);
+            return false;
         }
         catch (Exception ex)
         {
@@ -201,7 +216,13 @@ public sealed class ProductRepository : IProductRepository
             await using var connection = await _connectionFactory.OpenConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.DeleteProduct, connection);
             command.Parameters.AddWithValue("@id", barcode);
-            await command.ExecuteNonQueryAsync();
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Product delete affected {Rows} rows for {Barcode}", rows, barcode);
+                return false;
+            }
+
             Log.Information("Product deleted: {Barcode}", barcode);
             return true;
         }
@@ -210,5 +231,13 @@ public sealed class ProductRepository : IProductRepository
             Log.Error(ex, "Error deleting product: {Barcode}", barcode);
             return false;
         }
+    }
+
+    private static async Task<bool> ProductExistsAsync(MySqlConnection connection, string barcode)
+    {
+        await using var command = new MySqlCommand(SqlQueries.ProductExists, connection);
+        command.Parameters.AddWithValue("@id", barcode);
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

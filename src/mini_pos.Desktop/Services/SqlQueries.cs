@@ -58,6 +58,12 @@ internal static class SqlQueries
     public const string ExchangeRateHistory = "SELECT id, dolar, bath, ex_date FROM exchange_rate ORDER BY ex_date DESC LIMIT 50";
 
     public const string ProductExists = "SELECT COUNT(1) FROM product WHERE barcode = @id";
+    public const string CustomerExists = "SELECT COUNT(1) FROM customer WHERE cus_id = @id";
+    public const string BrandExists = "SELECT COUNT(1) FROM brand WHERE brand_id = @id";
+    public const string ProductTypeExists = "SELECT COUNT(1) FROM category WHERE category_id = @id";
+    public const string EmployeeExists = "SELECT COUNT(1) FROM employee WHERE emp_id = @id";
+    public const string SupplierExists = "SELECT COUNT(1) FROM supplier WHERE sup_id = @id";
+
     public const string InsertProduct = @"
                 INSERT INTO product (barcode, product_name, unit, quantity, quantity_min, cost_price, retail_price, brand_id, category_id, status)
                 VALUES (@id, @name, @unit, @qty, @min, @cost, @price, @brand, @type, @status)";

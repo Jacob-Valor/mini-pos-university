@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using mini_pos.Configuration;
@@ -12,18 +11,12 @@ public sealed class MySqlConnectionFactory : IMySqlConnectionFactory
 
     public MySqlConnectionFactory(IOptions<DatabaseOptions> options)
     {
-        _connectionString = options.Value.DefaultConnection;
-        if (string.IsNullOrWhiteSpace(_connectionString))
-        {
-            throw new InvalidOperationException(
-                "Database connection string not found. " +
-                "Please check appsettings.json ConnectionStrings:DefaultConnection or set ConnectionStrings__DefaultConnection environment variable.");
-        }
+        _connectionString = DatabaseConnectionStringResolver.Resolve(options.Value.DefaultConnection);
     }
 
     public MySqlConnectionFactory(string connectionString)
     {
-        _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        _connectionString = DatabaseConnectionStringResolver.Resolve(connectionString);
     }
 
     public async Task<MySqlConnection> OpenConnectionAsync()

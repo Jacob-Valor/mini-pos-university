@@ -48,6 +48,19 @@ public sealed class ApiEndpointTests : IClassFixture<ApiWebApplicationFactory>
     }
 
     [Fact]
+    public async Task GetEmployees_ReturnsActualStatusAndStartDateFromRepository()
+    {
+        var employees = await _client.GetFromJsonAsync<List<EmployeeResponse>>("/api/employees");
+        Assert.NotNull(employees);
+
+        var employee = Assert.Single(employees!);
+        Assert.Equal("EMP001", employee.EmpId);
+        Assert.Equal("Admin", employee.Position);
+        Assert.Equal("Admin", employee.Status);
+        Assert.Equal(new DateTime(2020, 1, 1), employee.StartDate.Date);
+    }
+
+    [Fact]
     public async Task GetCustomers_ReturnsOk()
     {
         var response = await _client.GetAsync("/api/customers");
@@ -129,4 +142,11 @@ public sealed class ApiEndpointTests : IClassFixture<ApiWebApplicationFactory>
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
+
+    private sealed record EmployeeResponse(
+        string EmpId,
+        DateTime StartDate,
+        string Position,
+        string Status
+    );
 }

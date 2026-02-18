@@ -93,7 +93,13 @@ public sealed class CustomerRepository : ICustomerRepository
             command.Parameters.AddWithValue("@addr", customer.Address);
             command.Parameters.AddWithValue("@tel", customer.PhoneNumber);
 
-            await command.ExecuteNonQueryAsync();
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Customer insert affected {Rows} rows for {Id}", rows, customer.Id);
+                return false;
+            }
+
             Log.Information("Customer added: {Name} {Surname}", customer.Name, customer.Surname);
             return true;
         }
@@ -119,9 +125,21 @@ public sealed class CustomerRepository : ICustomerRepository
             command.Parameters.AddWithValue("@addr", customer.Address);
             command.Parameters.AddWithValue("@tel", customer.PhoneNumber);
 
-            await command.ExecuteNonQueryAsync();
-            Log.Information("Customer updated: {Id}", customer.Id);
-            return true;
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Customer updated: {Id}", customer.Id);
+                return true;
+            }
+
+            if (await CustomerExistsAsync(connection, customer.Id))
+            {
+                Log.Information("Customer update skipped because data was unchanged: {Id}", customer.Id);
+                return true;
+            }
+
+            Log.Warning("Customer update failed because customer was not found: {Id}", customer.Id);
+            return false;
         }
         catch (Exception ex)
         {
@@ -139,7 +157,14 @@ public sealed class CustomerRepository : ICustomerRepository
             await using var connection = await _connectionFactory.OpenConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.DeleteCustomer, connection);
             command.Parameters.AddWithValue("@id", customerId);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Customer delete affected {Rows} rows for {Id}", rows, customerId);
+                return false;
+            }
+
             Log.Information("Customer deleted: {Id}", customerId);
             return true;
         }
@@ -148,5 +173,13 @@ public sealed class CustomerRepository : ICustomerRepository
             Log.Error(ex, "Error deleting customer: {Id}", customerId);
             return false;
         }
+    }
+
+    private static async Task<bool> CustomerExistsAsync(MySqlConnection connection, string customerId)
+    {
+        await using var existsCommand = new MySqlCommand(SqlQueries.CustomerExists, connection);
+        existsCommand.Parameters.AddWithValue("@id", customerId);
+        var result = await existsCommand.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

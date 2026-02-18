@@ -48,7 +48,14 @@ public sealed class ProductTypeRepository : IProductTypeRepository
             await using var command = new MySqlCommand(SqlQueries.InsertProductType, connection);
             command.Parameters.AddWithValue("@id", type.Id);
             command.Parameters.AddWithValue("@name", type.Name);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Product type insert affected {Rows} rows for {Id}", rows, type.Id);
+                return false;
+            }
+
             Log.Information("Product type added: {Name}", type.Name);
             return true;
         }
@@ -67,9 +74,22 @@ public sealed class ProductTypeRepository : IProductTypeRepository
             await using var command = new MySqlCommand(SqlQueries.UpdateProductType, connection);
             command.Parameters.AddWithValue("@id", type.Id);
             command.Parameters.AddWithValue("@name", type.Name);
-            await command.ExecuteNonQueryAsync();
-            Log.Information("Product type updated: {Id}", type.Id);
-            return true;
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Product type updated: {Id}", type.Id);
+                return true;
+            }
+
+            if (await ProductTypeExistsAsync(connection, type.Id))
+            {
+                Log.Information("Product type update skipped because data was unchanged: {Id}", type.Id);
+                return true;
+            }
+
+            Log.Warning("Product type update failed because category was not found: {Id}", type.Id);
+            return false;
         }
         catch (Exception ex)
         {
@@ -85,7 +105,14 @@ public sealed class ProductTypeRepository : IProductTypeRepository
             await using var connection = await _connectionFactory.OpenConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.DeleteProductType, connection);
             command.Parameters.AddWithValue("@id", typeId);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Product type delete affected {Rows} rows for {Id}", rows, typeId);
+                return false;
+            }
+
             Log.Information("Product type deleted: {Id}", typeId);
             return true;
         }
@@ -94,5 +121,13 @@ public sealed class ProductTypeRepository : IProductTypeRepository
             Log.Error(ex, "Error deleting product type: {Id}", typeId);
             return false;
         }
+    }
+
+    private static async Task<bool> ProductTypeExistsAsync(MySqlConnection connection, string typeId)
+    {
+        await using var existsCommand = new MySqlCommand(SqlQueries.ProductTypeExists, connection);
+        existsCommand.Parameters.AddWithValue("@id", typeId);
+        var result = await existsCommand.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

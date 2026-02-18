@@ -46,6 +46,8 @@ public sealed class EmployeeRepository : IEmployeeRepository
             await using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
+                var status = reader.GetString("status");
+
                 Log.Information("User lookup succeeded for {Username}", MaskUsername(username));
                 return new Employee
                 {
@@ -61,7 +63,9 @@ public sealed class EmployeeRepository : IEmployeeRepository
                     ProvinceId = reader.IsDBNull("province_id") ? string.Empty : reader.GetString("province_id"),
                     DistrictId = reader.IsDBNull("district_id") ? string.Empty : reader.GetString("district_id"),
                     VillageId = reader.IsDBNull("village_id") ? string.Empty : reader.GetString("village_id"),
-                    Position = reader.GetString("status"),
+                    StartDate = reader.GetDateTime("start_date"),
+                    Position = status,
+                    Status = status,
                     Username = reader.GetString("username")
                 };
             }
@@ -87,6 +91,8 @@ public sealed class EmployeeRepository : IEmployeeRepository
 
             while (await reader.ReadAsync())
             {
+                var status = reader.GetString("status");
+
                 employees.Add(new Employee
                 {
                     Id = reader.GetString("emp_id"),
@@ -101,7 +107,9 @@ public sealed class EmployeeRepository : IEmployeeRepository
                     VillageId = reader.IsDBNull("village_id") ? string.Empty : reader.GetString("village_id"),
                     DistrictId = reader.IsDBNull("district_id") ? string.Empty : reader.GetString("district_id"),
                     ProvinceId = reader.IsDBNull("province_id") ? string.Empty : reader.GetString("province_id"),
-                    Position = reader.GetString("status"),
+                    StartDate = reader.GetDateTime("start_date"),
+                    Position = status,
+                    Status = status,
                     Username = reader.GetString("username")
                 });
             }
@@ -127,6 +135,13 @@ public sealed class EmployeeRepository : IEmployeeRepository
                 return false;
             }
 
+            var status = !string.IsNullOrWhiteSpace(emp.Status) ? emp.Status : emp.Position;
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                Log.Warning("Employee missing status/position for {Id}", emp.Id);
+                return false;
+            }
+
             await using var command = new MySqlCommand(SqlQueries.InsertEmployee, connection);
             command.Parameters.AddWithValue("@id", emp.Id);
             command.Parameters.AddWithValue("@name", emp.Name);
@@ -144,9 +159,15 @@ public sealed class EmployeeRepository : IEmployeeRepository
             });
             command.Parameters.AddWithValue("@user", emp.Username);
             command.Parameters.AddWithValue("@pass", emp.Password);
-            command.Parameters.AddWithValue("@status", emp.Position);
+            command.Parameters.AddWithValue("@status", status);
 
-            await command.ExecuteNonQueryAsync();
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Employee insert affected {Rows} rows for {Id}", rows, emp.Id);
+                return false;
+            }
+
             Log.Information("Employee added: {Name} {Surname}", emp.Name, emp.Surname);
             return true;
         }
@@ -170,6 +191,13 @@ public sealed class EmployeeRepository : IEmployeeRepository
                 return false;
             }
 
+            var status = !string.IsNullOrWhiteSpace(emp.Status) ? emp.Status : emp.Position;
+            if (string.IsNullOrWhiteSpace(status))
+            {
+                Log.Warning("Employee missing status/position for {Id}", emp.Id);
+                return false;
+            }
+
             await using var command = new MySqlCommand(SqlQueries.UpdateEmployee, connection);
             command.Parameters.AddWithValue("@name", emp.Name);
             command.Parameters.AddWithValue("@surname", emp.Surname);
@@ -180,12 +208,24 @@ public sealed class EmployeeRepository : IEmployeeRepository
             });
             command.Parameters.AddWithValue("@vid", villageId);
             command.Parameters.AddWithValue("@tel", emp.PhoneNumber);
-            command.Parameters.AddWithValue("@status", emp.Position);
+            command.Parameters.AddWithValue("@status", status);
             command.Parameters.AddWithValue("@id", emp.Id);
 
-            await command.ExecuteNonQueryAsync();
-            Log.Information("Employee updated: {Id}", emp.Id);
-            return true;
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Employee updated: {Id}", emp.Id);
+                return true;
+            }
+
+            if (await EmployeeExistsAsync(connection, emp.Id))
+            {
+                Log.Information("Employee update skipped because data was unchanged: {Id}", emp.Id);
+                return true;
+            }
+
+            Log.Warning("Employee update failed because employee was not found: {Id}", emp.Id);
+            return false;
         }
         catch (Exception ex)
         {
@@ -201,7 +241,14 @@ public sealed class EmployeeRepository : IEmployeeRepository
             await using var connection = await _connectionFactory.OpenConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.DeleteEmployee, connection);
             command.Parameters.AddWithValue("@id", empId);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Employee delete affected {Rows} rows for {Id}", rows, empId);
+                return false;
+            }
+
             Log.Information("Employee deleted: {Id}", empId);
             return true;
         }
@@ -230,13 +277,33 @@ public sealed class EmployeeRepository : IEmployeeRepository
             command.Parameters.AddWithValue("@id", emp.Id);
 
             int rows = await command.ExecuteNonQueryAsync();
-            Log.Information("Profile updated for employee {Id}", emp.Id);
-            return rows > 0;
+            if (rows > 0)
+            {
+                Log.Information("Profile updated for employee {Id}", emp.Id);
+                return true;
+            }
+
+            if (await EmployeeExistsAsync(connection, emp.Id))
+            {
+                Log.Information("Profile update skipped because data was unchanged for employee {Id}", emp.Id);
+                return true;
+            }
+
+            Log.Warning("Profile update failed because employee was not found: {Id}", emp.Id);
+            return false;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error updating profile for employee {Id}", emp.Id);
             return false;
         }
+    }
+
+    private static async Task<bool> EmployeeExistsAsync(MySqlConnection connection, string employeeId)
+    {
+        await using var existsCommand = new MySqlCommand(SqlQueries.EmployeeExists, connection);
+        existsCommand.Parameters.AddWithValue("@id", employeeId);
+        var result = await existsCommand.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

@@ -465,81 +465,91 @@
                                 <Grid
                                     ColumnDefinitions="110, 4*, 90, 70, 110, 110, 110, 100, 120, 80"
                                 >
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Text="{Binding Id}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Text="{Binding Name}"
-                                        Margin="10,0"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                        TextTrimming="CharacterEllipsis"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        Text="{Binding Unit}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="3"
-                                        Text="{Binding Quantity}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="4"
-                                        Text="{Binding MinQuantity}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="5"
-                                        Text="{Binding CostPrice, StringFormat='{}{0:N0}'}"
-                                        HorizontalAlignment="Right"
-                                        Margin="0,0,10,0"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="6"
-                                        Text="{Binding SellingPrice, StringFormat='{}{0:N0}'}"
-                                        HorizontalAlignment="Right"
-                                        Margin="0,0,10,0"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="7"
-                                        Text="{Binding Brand}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                        TextTrimming="CharacterEllipsis"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="8"
-                                        Text="{Binding Type}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                        TextTrimming="CharacterEllipsis"
-                                    />
-                                    <TextBlock
-                                        Grid.Column="9"
-                                        Text="{Binding Status}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Foreground="{DynamicResource TextColor}"
-                                    />
+                                    <Border Grid.Column="0" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Id}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="1" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Name}"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                            TextTrimming="CharacterEllipsis"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="2" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Unit}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="3" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Quantity}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="4" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding MinQuantity}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="5" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding CostPrice, StringFormat='{}{0:N0}'}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="6" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding SellingPrice, StringFormat='{}{0:N0}'}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="7" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Brand}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                            TextTrimming="CharacterEllipsis"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="8" Classes="tableCell">
+                                        <TextBlock
+                                            Text="{Binding Type}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                            TextTrimming="CharacterEllipsis"
+                                        />
+                                    </Border>
+                                    <Border Grid.Column="9" Classes="tableCellLast">
+                                        <TextBlock
+                                            Text="{Binding Status}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource TextColor}"
+                                        />
+                                    </Border>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

@@ -229,6 +229,7 @@ public partial class EmployeeViewModel : ViewModelBase
             Username = EmployeeId,
             Password = PasswordHelper.HashPassword(EmployeePassword),
             Position = SelectedPosition ?? "Employee",
+            Status = SelectedPosition ?? "Employee",
             ImagePath = EmployeeImagePath
         };
 
@@ -282,6 +283,7 @@ public partial class EmployeeViewModel : ViewModelBase
             DistrictId = districtId,
             VillageId = villageId,
             Position = SelectedPosition ?? string.Empty,
+            Status = SelectedPosition ?? string.Empty,
             Username = SelectedEmployee.Username
         };
 

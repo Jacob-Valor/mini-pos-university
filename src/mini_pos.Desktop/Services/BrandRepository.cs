@@ -50,7 +50,14 @@ public sealed class BrandRepository : IBrandRepository
             await using var command = new MySqlCommand(SqlQueries.InsertBrand, connection);
             command.Parameters.AddWithValue("@id", brand.Id);
             command.Parameters.AddWithValue("@name", brand.Name);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Brand insert affected {Rows} rows for {Id}", rows, brand.Id);
+                return false;
+            }
+
             Log.Information("Brand added: {Name}", brand.Name);
             return true;
         }
@@ -69,9 +76,22 @@ public sealed class BrandRepository : IBrandRepository
             await using var command = new MySqlCommand(SqlQueries.UpdateBrand, connection);
             command.Parameters.AddWithValue("@id", brand.Id);
             command.Parameters.AddWithValue("@name", brand.Name);
-            await command.ExecuteNonQueryAsync();
-            Log.Information("Brand updated: {Id}", brand.Id);
-            return true;
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Brand updated: {Id}", brand.Id);
+                return true;
+            }
+
+            if (await BrandExistsAsync(connection, brand.Id))
+            {
+                Log.Information("Brand update skipped because data was unchanged: {Id}", brand.Id);
+                return true;
+            }
+
+            Log.Warning("Brand update failed because brand was not found: {Id}", brand.Id);
+            return false;
         }
         catch (Exception ex)
         {
@@ -87,7 +107,14 @@ public sealed class BrandRepository : IBrandRepository
             await using var connection = await _connectionFactory.OpenConnectionAsync();
             await using var command = new MySqlCommand(SqlQueries.DeleteBrand, connection);
             command.Parameters.AddWithValue("@id", brandId);
-            await command.ExecuteNonQueryAsync();
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Brand delete affected {Rows} rows for {Id}", rows, brandId);
+                return false;
+            }
+
             Log.Information("Brand deleted: {Id}", brandId);
             return true;
         }
@@ -96,5 +123,13 @@ public sealed class BrandRepository : IBrandRepository
             Log.Error(ex, "Error deleting brand: {Id}", brandId);
             return false;
         }
+    }
+
+    private static async Task<bool> BrandExistsAsync(MySqlConnection connection, string brandId)
+    {
+        await using var existsCommand = new MySqlCommand(SqlQueries.BrandExists, connection);
+        existsCommand.Parameters.AddWithValue("@id", brandId);
+        var result = await existsCommand.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

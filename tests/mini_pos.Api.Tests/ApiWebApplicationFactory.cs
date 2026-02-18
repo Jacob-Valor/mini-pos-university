@@ -196,9 +196,11 @@ public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
                 Surname = "Employee",
                 Gender = "M",
                 DateOfBirth = new DateTime(2000, 1, 1),
+                StartDate = new DateTime(2020, 1, 1),
                 VillageId = "010101",
                 PhoneNumber = "0200000000",
                 Position = "Admin",
+                Status = "Admin",
                 Username = "admin"
             }
         ];
