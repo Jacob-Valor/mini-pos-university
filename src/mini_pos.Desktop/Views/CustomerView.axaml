@@ -11,6 +11,30 @@
     x:DataType="vm:CustomerViewModel"
     FontFamily="{StaticResource LaoFont}"
 >
+    <UserControl.Styles>
+        <Style Selector="TextBox.addressInput">
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Foreground" Value="{DynamicResource TextColor}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource TextColor}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+        </Style>
+        <Style Selector="TextBox.addressInput:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+        </Style>
+        <Style Selector="TextBox.addressInput:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryDarkColor}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
+        </Style>
+    </UserControl.Styles>
+
     <Grid ColumnDefinitions="*, 2*" Margin="20" ShowGridLines="False">
 
         <!-- Left Side: Manage Form -->
@@ -112,13 +136,12 @@
                         Foreground="{DynamicResource TextMutedColor}"
                     />
                     <TextBox
+                        Classes="addressInput"
                         Text="{Binding Address}"
                         Height="80"
                         AcceptsReturn="True"
                         TextWrapping="Wrap"
-                        VerticalContentAlignment="Top"
                         Watermark="ປ້ອນທີ່ຢູ່..."
-                        FontSize="16"
                     />
                 </StackPanel>
 

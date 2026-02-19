@@ -150,7 +150,7 @@
                         Background="{DynamicResource TableHeaderBackgroundColor}"
                         Height="40"
                     >
-                         <Grid ColumnDefinitions="20, 50, 120, 120, *, 50">
+                         <Grid ColumnDefinitions="24, 64, 1.1*, 1.1*, 2.4*, 56">
                              <Border
                                 BorderBrush="{DynamicResource BorderColor}"
                                 BorderThickness="0,0,1,0"
@@ -228,7 +228,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid
-                                    ColumnDefinitions="20, 50, 120, 120, *, 50"
+                                    ColumnDefinitions="24, 64, 1.1*, 1.1*, 2.4*, 56"
                                 >
                                     <Border Classes="tableCell">
                                         <PathIcon
@@ -251,34 +251,35 @@
                                         />
                                     </Border>
 
-                                    <Border Grid.Column="2" Classes="tableCell">
-                                        <TextBlock
-                                            Text="{Binding UsdRate, StringFormat='{}{0:N0}'}"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,0,20,0"
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource TextColor}"
-                                        />
-                                    </Border>
+                                     <Border Grid.Column="2" Classes="tableCell">
+                                         <TextBlock
+                                             Text="{Binding UsdRate, StringFormat='{}{0:N0}'}"
+                                             HorizontalAlignment="Right"
+                                             Margin="0,0,16,0"
+                                             VerticalAlignment="Center"
+                                             Foreground="{DynamicResource TextColor}"
+                                         />
+                                     </Border>
 
-                                    <Border Grid.Column="3" Classes="tableCell">
-                                        <TextBlock
-                                            Text="{Binding ThbRate, StringFormat='{}{0:N0}'}"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,0,20,0"
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource TextColor}"
-                                        />
-                                    </Border>
+                                     <Border Grid.Column="3" Classes="tableCell">
+                                         <TextBlock
+                                             Text="{Binding ThbRate, StringFormat='{}{0:N0}'}"
+                                             HorizontalAlignment="Right"
+                                             Margin="0,0,16,0"
+                                             VerticalAlignment="Center"
+                                             Foreground="{DynamicResource TextColor}"
+                                         />
+                                     </Border>
 
-                                    <Border Grid.Column="4" Classes="tableCell">
-                                        <TextBlock
-                                            Text="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource TextColor}"
-                                        />
-                                    </Border>
+                                     <Border Grid.Column="4" Classes="tableCell">
+                                         <TextBlock
+                                             Text="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             Foreground="{DynamicResource TextColor}"
+                                             TextTrimming="CharacterEllipsis"
+                                         />
+                                     </Border>
 
                                     <!-- Delete Icon -->
                                     <Border

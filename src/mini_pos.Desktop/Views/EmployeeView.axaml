@@ -41,7 +41,7 @@
                 Value="{DynamicResource BorderColor}"
             />
             <Setter Property="BorderThickness" Value="0,0,1,0" />
-            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Padding" Value="8,0" />
         </Style>
         <Style Selector="Border.empCellLast">
             <Setter
@@ -49,7 +49,7 @@
                 Value="{DynamicResource BorderColor}"
             />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Padding" Value="8,0" />
         </Style>
         <Style Selector="TextBlock.empCellText">
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -410,7 +410,7 @@
                             Height="44"
                         >
                             <Grid
-                                ColumnDefinitions="60, 90, 1.6*, 1.6*, 60, 110, 110, 120, 120, 1.8*, 120, 80, 110"
+                                ColumnDefinitions="60, 90, 200, 200, 70, 120, 120, 150, 150, 230, 120, 90, 110"
                             >
                                 <Border
                                     BorderBrush="{DynamicResource BorderColor}"
@@ -591,7 +591,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid
-                                        ColumnDefinitions="60, 90, 1.6*, 1.6*, 60, 110, 110, 120, 120, 1.8*, 120, 80, 110"
+                                        ColumnDefinitions="60, 90, 200, 200, 70, 120, 120, 150, 150, 230, 120, 90, 110"
                                         Height="44"
                                     >
                                         <!-- Image -->

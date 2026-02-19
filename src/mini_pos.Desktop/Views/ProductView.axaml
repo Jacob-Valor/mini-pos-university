@@ -33,6 +33,16 @@
             <Setter Property="TextAlignment" Value="Right" />
             <Setter Property="Width" Value="100" />
         </Style>
+        <Style Selector="Border.productTableHeader TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="ListBox.productTableRows TextBlock">
+            <Setter Property="FontSize" Value="13" />
+        </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto, Auto, *" Margin="20" ShowGridLines="False">
@@ -113,7 +123,7 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Classes="form"
-                                Text="{Binding ProductQuantity}"
+                                Text="{Binding ProductQuantityInput}"
                             />
                         </Grid>
                     </StackPanel>
@@ -131,7 +141,7 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Classes="form"
-                                Text="{Binding ProductMinQuantity}"
+                                Text="{Binding ProductMinQuantityInput}"
                             />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
@@ -145,7 +155,7 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Classes="form"
-                                Text="{Binding ProductCostPrice, StringFormat='{}{0:N0}'}"
+                                Text="{Binding ProductCostPriceInput}"
                             />
                         </Grid>
                          <Grid ColumnDefinitions="Auto, *">
@@ -159,7 +169,7 @@
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Classes="form"
-                                Text="{Binding ProductSellingPrice, StringFormat='{}{0:N0}'}"
+                                Text="{Binding ProductSellingPriceInput}"
                             />
                         </Grid>
                     </StackPanel>
@@ -296,11 +306,12 @@
                     <!-- Header -->
                     <Border
                         Grid.Row="0"
+                        Classes="productTableHeader"
                         Background="{DynamicResource TableHeaderBackgroundColor}"
-                        Height="40"
+                        Height="44"
                     >
                         <Grid
-                            ColumnDefinitions="110, 4*, 90, 70, 110, 110, 110, 100, 120, 80"
+                            ColumnDefinitions="95, 2.9*, 0.95*, 0.85*, 1.15*, 1.2*, 1.2*, 1.35*, 1.6*, 0.8*"
                         >
                             <!-- 1. Code -->
                             <Border
@@ -315,7 +326,6 @@
                                     VerticalAlignment="Center"
                                     TextWrapping="Wrap"
                                     TextAlignment="Center"
-                                    FontSize="11"
                                 />
                             </Border>
                             <!-- 2. Name -->
@@ -374,7 +384,6 @@
                                     VerticalAlignment="Center"
                                     TextWrapping="Wrap"
                                     TextAlignment="Center"
-                                    FontSize="11"
                                 />
                             </Border>
                             <!-- 6. Cost -->
@@ -391,7 +400,6 @@
                                     VerticalAlignment="Center"
                                     TextWrapping="Wrap"
                                     TextAlignment="Center"
-                                    FontSize="11"
                                 />
                             </Border>
                             <!-- 7. Price -->
@@ -408,7 +416,6 @@
                                     VerticalAlignment="Center"
                                     TextWrapping="Wrap"
                                     TextAlignment="Center"
-                                    FontSize="11"
                                 />
                             </Border>
                             <!-- 8. Brand -->
@@ -455,6 +462,7 @@
                     <!-- Data List -->
                     <ListBox
                         Grid.Row="1"
+                        Classes="productTableRows"
                         ItemsSource="{Binding Products}"
                         SelectedItem="{Binding SelectedProduct}"
                         Background="Transparent"
@@ -463,7 +471,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid
-                                    ColumnDefinitions="110, 4*, 90, 70, 110, 110, 110, 100, 120, 80"
+                                    ColumnDefinitions="95, 2.9*, 0.95*, 0.85*, 1.15*, 1.2*, 1.2*, 1.35*, 1.6*, 0.8*"
                                 >
                                     <Border Grid.Column="0" Classes="tableCell">
                                         <TextBlock

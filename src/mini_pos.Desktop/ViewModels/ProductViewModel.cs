@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,6 +37,10 @@ public partial class ProductViewModel : ViewModelBase
             ProductMinQuantity = value.QuantityMin;
             ProductCostPrice = value.CostPrice;
             ProductSellingPrice = value.RetailPrice;
+            ProductQuantityInput = value.Quantity.ToString("N0", CultureInfo.CurrentCulture);
+            ProductMinQuantityInput = value.QuantityMin.ToString("N0", CultureInfo.CurrentCulture);
+            ProductCostPriceInput = value.CostPrice.ToString("N0", CultureInfo.CurrentCulture);
+            ProductSellingPriceInput = value.RetailPrice.ToString("N0", CultureInfo.CurrentCulture);
             SelectedBrandItem = Brands.FirstOrDefault(b => b.Id == value.BrandId);
             SelectedTypeItem = ProductTypes.FirstOrDefault(t => t.Id == value.CategoryId);
             SelectedStatusItem = value.Status;
@@ -63,6 +68,18 @@ public partial class ProductViewModel : ViewModelBase
 
     [ObservableProperty]
     private decimal _productSellingPrice;
+
+    [ObservableProperty]
+    private string _productQuantityInput = "0";
+
+    [ObservableProperty]
+    private string _productMinQuantityInput = "0";
+
+    [ObservableProperty]
+    private string _productCostPriceInput = "0";
+
+    [ObservableProperty]
+    private string _productSellingPriceInput = "0";
 
     [ObservableProperty]
     private Brand? _selectedBrandItem;
@@ -168,6 +185,64 @@ public partial class ProductViewModel : ViewModelBase
         return false;
     }
 
+    private async Task<bool> TryParseNumericInputsAsync()
+    {
+        if (!TryParseNonNegativeInt(ProductQuantityInput, out var quantity)
+            || !TryParseNonNegativeInt(ProductMinQuantityInput, out var minQuantity)
+            || !TryParseNonNegativeDecimal(ProductCostPriceInput, out var costPrice)
+            || !TryParseNonNegativeDecimal(ProductSellingPriceInput, out var sellingPrice))
+        {
+            HasError = true;
+            ErrorMessage = "ກະລຸນາປ້ອນຂໍ້ມູນຕົວເລກໃຫ້ຖືກຕ້ອງ";
+            if (_dialogService != null)
+            {
+                await _dialogService.ShowErrorAsync(ErrorMessage);
+            }
+
+            return false;
+        }
+
+        ProductQuantity = quantity;
+        ProductMinQuantity = minQuantity;
+        ProductCostPrice = costPrice;
+        ProductSellingPrice = sellingPrice;
+        return true;
+    }
+
+    private static bool TryParseNonNegativeInt(string? text, out int value)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            value = 0;
+            return true;
+        }
+
+        var success = int.TryParse(
+            text,
+            NumberStyles.Number,
+            CultureInfo.CurrentCulture,
+            out value);
+
+        return success && value >= 0;
+    }
+
+    private static bool TryParseNonNegativeDecimal(string? text, out decimal value)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            value = 0;
+            return true;
+        }
+
+        var success = decimal.TryParse(
+            text,
+            NumberStyles.Number,
+            CultureInfo.CurrentCulture,
+            out value);
+
+        return success && value >= 0;
+    }
+
     [RelayCommand]
     private async Task AddAsync()
     {
@@ -181,6 +256,8 @@ public partial class ProductViewModel : ViewModelBase
             if (_dialogService != null) await _dialogService.ShowErrorAsync(ErrorMessage);
             return;
         }
+
+        if (!await TryParseNumericInputsAsync()) return;
 
         if (!await ValidateProductSelectionsAsync()) return;
 
@@ -240,6 +317,8 @@ public partial class ProductViewModel : ViewModelBase
 
         HasError = false;
         ErrorMessage = string.Empty;
+
+        if (!await TryParseNumericInputsAsync()) return;
 
         if (!await ValidateProductSelectionsAsync()) return;
 
@@ -319,6 +398,10 @@ public partial class ProductViewModel : ViewModelBase
         ProductMinQuantity = 0;
         ProductCostPrice = 0;
         ProductSellingPrice = 0;
+        ProductQuantityInput = "0";
+        ProductMinQuantityInput = "0";
+        ProductCostPriceInput = "0";
+        ProductSellingPriceInput = "0";
         SelectedBrandItem = null;
         SelectedTypeItem = null;
         SelectedStatusItem = null;
