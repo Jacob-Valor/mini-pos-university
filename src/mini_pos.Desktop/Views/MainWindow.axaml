@@ -40,7 +40,7 @@
                         Width="28"
                         Height="28"
                         CornerRadius="14"
-                        Background="#18FFFFFF"
+                        Background="{DynamicResource SurfaceLightColor}"
                         BorderBrush="{DynamicResource BorderColor}"
                         BorderThickness="1"
                     >
@@ -90,7 +90,7 @@
                     VerticalAlignment="Center"
                 >
                      <Border
-                        Background="#18FFFFFF"
+                        Background="{DynamicResource SurfaceLightColor}"
                         CornerRadius="4"
                         Padding="8,4"
                     >
@@ -114,7 +114,7 @@
                     </Border>
 
                      <Border
-                        Background="#18FFFFFF"
+                        Background="{DynamicResource SurfaceLightColor}"
                         CornerRadius="4"
                         Padding="8,4"
                     >
@@ -146,13 +146,8 @@
             Padding="12,8"
             BorderBrush="{DynamicResource BorderColor}"
             BorderThickness="0,0,0,1"
+            Background="{DynamicResource TopNavBackground}"
         >
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#1E1E1E" Offset="0" />
-                    <GradientStop Color="#181818" Offset="1" />
-                </LinearGradientBrush>
-            </Border.Background>
 
 	            <Menu Background="Transparent" VerticalAlignment="Center">
 	                <Menu.ItemsPanel>
@@ -649,8 +644,44 @@
                     />
                 </MenuItem>
 
-<!-- 10. Logout -->
-	                <MenuItem Classes="topnav" Command="{Binding LogoutCommand}">
+<!-- 10. Theme Toggle -->
+                <MenuItem Classes="topnav" Command="{Binding ToggleThemeCommand}">
+                    <MenuItem.Header>
+                        <StackPanel
+                            Spacing="10"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                        >
+                             <Border
+                                Width="34"
+                                Height="34"
+                                CornerRadius="10"
+                                Background="{DynamicResource ThemeToggleBackgroundColor}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            >
+                                <PathIcon
+                                    Data="{Binding ThemeIcon}"
+                                    Width="20"
+                                    Height="20"
+                                    Foreground="{DynamicResource ThemeToggleForegroundColor}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                />
+                             </Border>
+                             <TextBlock
+                                Text="{Binding ThemeText}"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource LaoFont}"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                            />
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+
+<!-- 11. Logout -->
+                <MenuItem Classes="topnav" Command="{Binding LogoutCommand}">
                     <MenuItem.Header>
                         <StackPanel
                             Spacing="10"

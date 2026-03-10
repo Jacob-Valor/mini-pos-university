@@ -14,7 +14,7 @@
     WindowStartupLocation="CenterScreen"
     CanResize="False"
     SystemDecorations="Full"
-    Background="#121212"
+    Background="{DynamicResource BackgroundColor}"
     FontFamily="{StaticResource LaoFont}"
 >
 
@@ -36,13 +36,13 @@
                 Width="80"
                 Height="80"
                 CornerRadius="40"
-                Background="#1E1E1E"
+                Background="{DynamicResource SurfaceColor}"
             > <!-- Darker bg for circle -->
         <Panel>
-             <Ellipse Fill="#03A9F4" Width="70" Height="70" />
+             <Ellipse Fill="{DynamicResource PrimaryColor}" Width="70" Height="70" />
              <PathIcon
                         Data="M12,17A2,2 0 0,0 14,15A2,2 0 0,0 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10A2,2 0 0,1 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"
-                        Foreground="White"
+                        Foreground="{DynamicResource TextColor}"
                         Width="34"
                         Height="34"
                     />
@@ -51,7 +51,7 @@
 
       <TextBlock
                 Text="ຟອມເຂົ້າໃຊ້ລະບົບ"
-                Foreground="White"
+                Foreground="{DynamicResource TextColor}"
                 FontSize="24"
                 FontWeight="Bold"
                 HorizontalAlignment="Center"
@@ -66,7 +66,7 @@
          <PathIcon
                     Grid.Column="0"
                     Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-                    Foreground="#03A9F4"
+                    Foreground="{DynamicResource PrimaryColor}"
                     Width="28"
                     Height="28"
                     Margin="0,0,15,5"
@@ -88,7 +88,7 @@
         <PathIcon
                     Grid.Column="0"
                     Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"
-                    Foreground="#FFC107"
+                    Foreground="{DynamicResource WarningColor}"
                     Width="28"
                     Height="28"
                     Margin="0,0,15,5"
@@ -122,7 +122,7 @@
                     Grid.Column="0"
                     Content="ສະແດງລະຫັດຜ່ານ"
                     IsChecked="{Binding ShowPassword}"
-                    Foreground="#03A9F4"
+                    Foreground="{DynamicResource PrimaryColor}"
                     VerticalAlignment="Center"
                     ToolTip.Tip="ສະແດງລະຫັດຜ່ານ"
                 />
@@ -133,7 +133,7 @@
                     Content="ລ້າງຂໍ້ມູນ"
                     Command="{Binding ClearCommand}"
                     Background="Transparent"
-                    Foreground="#03A9F4"
+                    Foreground="{DynamicResource PrimaryColor}"
                     BorderThickness="0"
                     Padding="0"
                     FontSize="14"
@@ -147,7 +147,7 @@
       <TextBlock
                 x:Name="ErrorMessageTextBlock"
                 Text="{Binding ErrorMessage}"
-                Foreground="#EF5350"
+                Foreground="{DynamicResource ErrorColor}"
                 FontSize="14"
                 HorizontalAlignment="Center"
                 Margin="0,15,0,0"
@@ -187,7 +187,7 @@
                         Width="20"
                         Height="20"
                         CornerRadius="10"
-                        Background="White"
+                        Background="{DynamicResource SurfaceColor}"
                     >
                     <TextBlock
                             Text="..."

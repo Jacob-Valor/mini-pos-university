@@ -23,9 +23,10 @@ using mini_pos.Views;
 
 namespace mini_pos;
 
-public partial class App : Application
+    public partial class App : Application
 {
     public IServiceProvider? ServiceProvider { get; private set; }
+    private IThemeService? _themeService;
 
     public override void Initialize()
     {
@@ -37,6 +38,9 @@ public partial class App : Application
         var collection = new ServiceCollection();
         ConfigureServices(collection);
         ServiceProvider = collection.BuildServiceProvider();
+
+        _themeService = ServiceProvider.GetRequiredService<IThemeService>();
+        _themeService.ApplySavedTheme();
 
         _ = ServiceProvider.GetRequiredService<IMySqlConnectionFactory>();
 
@@ -74,6 +78,7 @@ public partial class App : Application
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IReportService, ReportService>();
         services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IValidator<Product>, ProductValidator>();
         services.AddSingleton<IValidator<Customer>, CustomerValidator>();
 

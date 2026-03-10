@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using mini_pos.Models;
@@ -31,22 +33,34 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private ViewModelBase? _currentPage;
 
+    [ObservableProperty]
+    private StreamGeometry _themeIcon;
+
+    [ObservableProperty]
+    private string _themeText;
+
     public event EventHandler? LogoutRequested;
 
     private readonly CancellationTokenSource _dateUpdateCts = new();
 
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
+    private readonly IThemeService _themeService;
     private readonly Employee? _loggedInEmployee;
 
     public MainWindowViewModel(
         Employee? employee,
         IDialogService dialogService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        IThemeService themeService)
     {
         _loggedInEmployee = employee;
         _dialogService = dialogService;
         _navigationService = navigationService;
+        _themeService = themeService;
+
+        _themeIcon = GetThemeIcon();
+        _themeText = GetThemeText();
 
         CurrentUser = employee != null
             ? $"{employee.Name} {employee.Surname}"
@@ -58,6 +72,30 @@ public partial class MainWindowViewModel : ViewModelBase
 
         UpdateCurrentDate();
         _ = UpdateDatePeriodicallyAsync(_dateUpdateCts.Token);
+    }
+
+    private StreamGeometry GetThemeIcon()
+    {
+        var app = Application.Current;
+        var iconKey = _themeService.IsDarkTheme ? "IconSun" : "IconMoon";
+        if (app != null && app.TryGetResource(iconKey, app.ActualThemeVariant, out object? resource) && resource is StreamGeometry geometry)
+        {
+            return geometry;
+        }
+        return new StreamGeometry();
+    }
+
+    private string GetThemeText()
+    {
+        return _themeService.IsDarkTheme ? "ໂໝດແສງ" : "ໂໝດມື່ອ";
+    }
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        _themeService.ToggleTheme();
+        ThemeIcon = GetThemeIcon();
+        ThemeText = GetThemeText();
     }
 
     private static string TranslateRoleToLao(string role)
