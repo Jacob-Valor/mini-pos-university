@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using mini_pos.Models;
+
+using MySqlConnector;
+
+using Serilog;
+
+namespace mini_pos.Services;
+
+public sealed class BrandRepository : IBrandRepository
+{
+    private readonly IMySqlConnectionFactory _connectionFactory;
+
+    public BrandRepository(IMySqlConnectionFactory connectionFactory)
+    {
+        _connectionFactory = connectionFactory;
+    }
+
+    public async Task<List<Brand>> GetBrandsAsync()
+    {
+        var brands = new List<Brand>();
+        try
+        {
+            await using var connection = await _connectionFactory.OpenConnectionAsync();
+            await using var command = new MySqlCommand(SqlQueries.Brands, connection);
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                brands.Add(new Brand
+                {
+                    Id = reader.GetString("brand_id"),
+                    Name = reader.GetString("brand_name")
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error fetching brands");
+        }
+
+        return brands;
+    }
+
+    public async Task<bool> AddBrandAsync(Brand brand)
+    {
+        try
+        {
+            await using var connection = await _connectionFactory.OpenConnectionAsync();
+            await using var command = new MySqlCommand(SqlQueries.InsertBrand, connection);
+            command.Parameters.AddWithValue("@id", brand.Id);
+            command.Parameters.AddWithValue("@name", brand.Name);
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Brand insert affected {Rows} rows for {Id}", rows, brand.Id);
+                return false;
+            }
+
+            Log.Information("Brand added: {Name}", brand.Name);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error adding brand: {Name}", brand.Name);
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateBrandAsync(Brand brand)
+    {
+        try
+        {
+            await using var connection = await _connectionFactory.OpenConnectionAsync();
+            await using var command = new MySqlCommand(SqlQueries.UpdateBrand, connection);
+            command.Parameters.AddWithValue("@id", brand.Id);
+            command.Parameters.AddWithValue("@name", brand.Name);
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows > 0)
+            {
+                Log.Information("Brand updated: {Id}", brand.Id);
+                return true;
+            }
+
+            if (await BrandExistsAsync(connection, brand.Id))
+            {
+                Log.Information("Brand update skipped because data was unchanged: {Id}", brand.Id);
+                return true;
+            }
+
+            Log.Warning("Brand update failed because brand was not found: {Id}", brand.Id);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error updating brand: {Id}", brand.Id);
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteBrandAsync(string brandId)
+    {
+        try
+        {
+            await using var connection = await _connectionFactory.OpenConnectionAsync();
+            await using var command = new MySqlCommand(SqlQueries.DeleteBrand, connection);
+            command.Parameters.AddWithValue("@id", brandId);
+
+            var rows = await command.ExecuteNonQueryAsync();
+            if (rows != 1)
+            {
+                Log.Warning("Brand delete affected {Rows} rows for {Id}", rows, brandId);
+                return false;
+            }
+
+            Log.Information("Brand deleted: {Id}", brandId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error deleting brand: {Id}", brandId);
+            return false;
+        }
+    }
+
+    private static async Task<bool> BrandExistsAsync(MySqlConnection connection, string brandId)
+    {
+        await using var existsCommand = new MySqlCommand(SqlQueries.BrandExists, connection);
+        existsCommand.Parameters.AddWithValue("@id", brandId);
+        var result = await existsCommand.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+}

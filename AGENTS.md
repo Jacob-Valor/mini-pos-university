@@ -18,10 +18,10 @@ docker ps  # Should show mini_pos_db as "healthy"
 
 ```bash
 # Build and run
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 
 # Or use hot reload for development
-dotnet watch run
+dotnet watch --project src/mini_pos.Desktop/mini_pos.csproj run
 ```
 
 ## 🛠️ Build Commands
@@ -31,9 +31,9 @@ dotnet watch run
 | `dotnet restore`                  | Restore NuGet packages.                             |
 | `dotnet build`                    | Build the solution.                                 |
 | `dotnet build -c Release`         | Build in Release mode.                              |
-| `dotnet run`                      | Run the application.                                |
-| `dotnet run --no-build`           | Run without rebuilding.                             |
-| `dotnet watch run`                | Run with hot reload (auto-rebuild on file changes). |
+| `dotnet run --project src/mini_pos.Desktop/mini_pos.csproj`                      | Run the desktop application.                                |
+| `dotnet run --project src/mini_pos.Desktop/mini_pos.csproj --no-build`           | Run without rebuilding.                             |
+| `dotnet watch --project src/mini_pos.Desktop/mini_pos.csproj run`                | Run with hot reload (auto-rebuild on file changes). |
 | `dotnet test`                     | Run all tests (requires test project).              |
 | `dotnet test --filter "TestName"` | Run a specific test case.                           |
 
@@ -50,7 +50,7 @@ open -a Docker
 
 # Start database and run app
 docker-compose up -d mariadb
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 ### Linux
@@ -64,10 +64,10 @@ sudo systemctl start docker
 
 # Start database and run app
 docker-compose up -d mariadb
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 
 # If running remotely via SSH, use xvfb:
-xvfb-run -a dotnet run
+xvfb-run -a dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 ### Windows
@@ -79,7 +79,7 @@ xvfb-run -a dotnet run
 
 # Start database and run app
 docker-compose up -d mariadb
-dotnet run
+dotnet run --project src/mini_pos.Desktop/mini_pos.csproj
 ```
 
 ## 🐳 Docker Commands
@@ -118,16 +118,15 @@ dotnet run
 
 ```
 mini_pos/
-├── Assets/              # Application resources (fonts, icons)
-├── Converters/          # Value converters for data binding
 ├── db/
 │   └── workshop.sql     # Database schema and sample data
-├── Models/              # Data models (Employee, Product, etc.)
-├── ViewModels/          # MVVM ViewModels
-├── Views/               # Avalonia XAML views (.axaml)
-├── App.axaml            # Application entry point
-├── Program.cs           # Application initialization
-├── mini_pos.csproj      # Project file
+├── src/
+│   ├── mini_pos.Desktop/    # Avalonia desktop app project
+│   └── mini_pos.Api/        # ASP.NET Core API project
+├── tests/
+│   ├── mini_pos.Tests/      # Desktop app tests
+│   └── mini_pos.Api.Tests/  # API tests
+├── mini_pos.sln         # Solution file
 ├── docker-compose.yml   # Database container configuration
 └── .env                 # Environment variables (gitignored)
 ```
@@ -173,11 +172,11 @@ mini_pos/
 
 | Directory     | Contents                       |
 | ------------- | ------------------------------ |
-| `Views/`      | `.axaml` files and code-behind |
-| `ViewModels/` | MVVM ViewModel classes         |
-| `Models/`     | Data models and entities       |
-| `Converters/` | Value converters for binding   |
-| `Services/`   | Business logic services        |
+| `src/mini_pos.Desktop/Views/`      | `.axaml` files and code-behind |
+| `src/mini_pos.Desktop/ViewModels/` | MVVM ViewModel classes         |
+| `src/mini_pos.Desktop/Models/`     | Data models and entities       |
+| `src/mini_pos.Desktop/Converters/` | Value converters for binding   |
+| `src/mini_pos.Desktop/Services/`   | Business logic services        |
 
 ## 🔧 Configuration
 
@@ -200,4 +199,4 @@ All configuration is managed via `.env` file:
 - The application runs **natively** on all platforms (not in Docker).
 - Docker is used **only for the database** (MariaDB).
 - The `.env` file contains sensitive data and is gitignored.
-- Use `dotnet watch run` for development with hot reload.
+- Use `dotnet watch --project src/mini_pos.Desktop/mini_pos.csproj run` for development with hot reload.
