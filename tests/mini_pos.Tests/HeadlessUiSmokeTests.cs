@@ -67,7 +67,11 @@ public class HeadlessUiSmokeTests
         customerRepository.Setup(x => x.GetCustomersAsync()).ReturnsAsync(new List<Customer>());
         var customerPage = new CustomerViewModel(customerRepository.Object);
 
-        var viewModel = new MainWindowViewModel(employee, MockDialogService().Object, MockNavigationService().Object)
+        var viewModel = new MainWindowViewModel(
+            employee,
+            MockDialogService().Object,
+            MockNavigationService().Object,
+            MockThemeService().Object)
         {
             CurrentPage = customerPage
         };
@@ -297,5 +301,12 @@ public class HeadlessUiSmokeTests
         var navigationService = new Mock<INavigationService>();
         navigationService.Setup(x => x.CreateViewModel<CustomerViewModel>()).Returns(new CustomerViewModel(new Mock<ICustomerRepository>().Object));
         return navigationService;
+    }
+
+    private static Mock<IThemeService> MockThemeService()
+    {
+        var themeService = new Mock<IThemeService>();
+        themeService.SetupGet(x => x.IsDarkTheme).Returns(false);
+        return themeService;
     }
 }

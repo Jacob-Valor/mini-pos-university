@@ -137,7 +137,10 @@ public class MainWindowViewModelTests
 
         navigationService = new Mock<INavigationService>();
 
-        return new MainWindowViewModel(employee, dialogService.Object, navigationService.Object);
+        var themeService = new Mock<IThemeService>();
+        themeService.SetupGet(x => x.IsDarkTheme).Returns(false);
+
+        return new MainWindowViewModel(employee, dialogService.Object, navigationService.Object, themeService.Object);
     }
 
     private static Employee CreateEmployee(string position = "Employee")
