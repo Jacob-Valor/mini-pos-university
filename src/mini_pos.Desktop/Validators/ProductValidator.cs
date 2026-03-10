@@ -1,4 +1,5 @@
 using FluentValidation;
+
 using mini_pos.Models;
 
 namespace mini_pos.Validators;

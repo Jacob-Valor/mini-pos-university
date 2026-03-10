@@ -1,8 +1,10 @@
 using System;
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+
 using mini_pos.ViewModels;
 
 namespace mini_pos.Views;

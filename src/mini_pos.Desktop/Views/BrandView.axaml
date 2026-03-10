@@ -1,89 +1,89 @@
 <UserControl
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:mini_pos.ViewModels"
-    mc:Ignorable="d"
-    d:DesignWidth="1000"
-    d:DesignHeight="600"
-    x:Class="mini_pos.Views.BrandView"
-    x:DataType="vm:BrandViewModel"
-    FontFamily="{StaticResource LaoFont}"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:vm="using:mini_pos.ViewModels"
+  mc:Ignorable="d"
+  d:DesignWidth="1000"
+  d:DesignHeight="600"
+  x:Class="mini_pos.Views.BrandView"
+  x:DataType="vm:BrandViewModel"
+  FontFamily="{StaticResource LaoFont}"
 >
     <Grid ColumnDefinitions="*, 1.5*" Margin="20" ShowGridLines="False">
 
         <!-- Left Side: Manage Form -->
         <Border
-            Grid.Column="0"
-            BorderBrush="{DynamicResource BorderColor}"
-            BorderThickness="1"
-            CornerRadius="4"
-            Padding="20"
-            VerticalAlignment="Top"
-            Margin="0,0,20,0"
-            Background="{DynamicResource SurfaceColor}"
-        >
+      Grid.Column="0"
+      BorderBrush="{DynamicResource BorderColor}"
+      BorderThickness="1"
+      CornerRadius="4"
+      Padding="20"
+      VerticalAlignment="Top"
+      Margin="0,0,20,0"
+      Background="{DynamicResource SurfaceColor}"
+    >
 
             <StackPanel Spacing="20">
                 <TextBlock
-                    Text="ຈັດການຂໍ້ມູນຍີ່ຫໍ້ສິນຄ້າ"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    Foreground="{DynamicResource TextColor}"
-                />
+          Text="ຈັດການຂໍ້ມູນຍີ່ຫໍ້ສິນຄ້າ"
+          FontSize="20"
+          FontWeight="Bold"
+          Foreground="{DynamicResource TextColor}"
+        />
 
                 <StackPanel Spacing="10">
                     <TextBlock
-                        Text="ຍີ່ຫໍ້ສິນຄ້າ"
-                        Foreground="{DynamicResource TextMutedColor}"
-                    />
+            Text="ຍີ່ຫໍ້ສິນຄ້າ"
+            Foreground="{DynamicResource TextMutedColor}"
+          />
                     <TextBox
-                        Classes="input"
-                        Text="{Binding BrandName}"
-                        Watermark="ປ້ອນຊື່ຍີ່ຫໍ້..."
-                    />
+            Classes="input"
+            Text="{Binding BrandName}"
+            Watermark="ປ້ອນຊື່ຍີ່ຫໍ້..."
+          />
                 </StackPanel>
 
                 <StackPanel
-                    Orientation="Horizontal"
-                    Spacing="10"
-                    HorizontalAlignment="Center"
-                    Margin="0,20,0,0"
-                >
+          Orientation="Horizontal"
+          Spacing="10"
+          HorizontalAlignment="Center"
+          Margin="0,20,0,0"
+        >
                     <!-- Add Button (Blue) -->
                      <Button
-                         Classes="action primary"
-                         Command="{Binding AddCommand}"
-                         ToolTip.Tip="ເພີ່ມ"
-                     >
+            Classes="action primary"
+            Command="{Binding AddCommand}"
+            ToolTip.Tip="ເພີ່ມ"
+          >
                         <TextBlock Text="ເພີ່ມ" />
                     </Button>
 
                     <!-- Edit Button (Yellow/Gold) -->
                      <Button
-                         Classes="action warning"
-                         Command="{Binding EditCommand}"
-                         ToolTip.Tip="ແກ້ໄຂ"
-                     >
+            Classes="action warning"
+            Command="{Binding EditCommand}"
+            ToolTip.Tip="ແກ້ໄຂ"
+          >
                         <TextBlock Text="ແກ້ໄຂ" />
                     </Button>
 
                     <!-- Delete Button (Red) -->
                      <Button
-                         Classes="action danger"
-                         Command="{Binding DeleteCommand}"
-                         ToolTip.Tip="ລຶບ"
-                     >
+            Classes="action danger"
+            Command="{Binding DeleteCommand}"
+            ToolTip.Tip="ລຶບ"
+          >
                         <TextBlock Text="ລຶບ" />
                     </Button>
 
                     <!-- Cancel Button (Gray) -->
                      <Button
-                         Classes="action neutral"
-                         Command="{Binding CancelCommand}"
-                         ToolTip.Tip="ຍົກເລີກ"
-                     >
+            Classes="action neutral"
+            Command="{Binding CancelCommand}"
+            ToolTip.Tip="ຍົກເລີກ"
+          >
                         <TextBlock Text="ຍົກເລີກ" />
                     </Button>
                 </StackPanel>
@@ -92,112 +92,112 @@
 
         <!-- Right Side: List/Table -->
         <Grid
-            Grid.Column="1"
-            RowDefinitions="Auto, *"
-            VerticalAlignment="Stretch"
-        >
+      Grid.Column="1"
+      RowDefinitions="Auto, *"
+      VerticalAlignment="Stretch"
+    >
 
             <!-- Search Bar -->
             <StackPanel
-                Orientation="Horizontal"
-                Spacing="10"
-                HorizontalAlignment="Right"
-                Margin="0,0,0,10"
-            >
+        Orientation="Horizontal"
+        Spacing="10"
+        HorizontalAlignment="Right"
+        Margin="0,0,0,10"
+      >
                 <TextBlock
-                    Text="ຄົ້ນຫາ"
-                    VerticalAlignment="Center"
-                    Foreground="{DynamicResource TextMutedColor}"
-                />
+          Text="ຄົ້ນຫາ"
+          VerticalAlignment="Center"
+          Foreground="{DynamicResource TextMutedColor}"
+        />
                 <TextBox
-                    Classes="input"
-                    Width="250"
-                    Text="{Binding SearchText}"
-                />
+          Classes="input"
+          Width="250"
+          Text="{Binding SearchText}"
+        />
             </StackPanel>
 
             <!-- Table Header -->
             <Border
-                Grid.Row="1"
-                VerticalAlignment="Top"
-                BorderBrush="{DynamicResource BorderColor}"
-                BorderThickness="1,1,1,0"
-            >
+        Grid.Row="1"
+        VerticalAlignment="Top"
+        BorderBrush="{DynamicResource BorderColor}"
+        BorderThickness="1,1,1,0"
+      >
                 <Grid RowDefinitions="Auto, *">
                     <!-- Header Row -->
                     <Border
-                        Grid.Row="0"
-                        Background="{DynamicResource TableHeaderBackgroundColor}"
-                        Height="40"
-                    >
+            Grid.Row="0"
+            Background="{DynamicResource TableHeaderBackgroundColor}"
+            Height="40"
+          >
                          <Grid ColumnDefinitions="30, 80, *">
                              <Border
-                                BorderBrush="{DynamicResource BorderColor}"
-                                BorderThickness="0,0,1,0"
-                            />
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="0,0,1,0"
+              />
                              <Border
-                                Grid.Column="1"
-                                BorderBrush="{DynamicResource BorderColor}"
-                                BorderThickness="0,0,1,0"
-                            >
+                Grid.Column="1"
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="0,0,1,0"
+              >
                                  <TextBlock
-                                    Text="ລຳດັບ"
-                                    FontWeight="Bold"
-                                    Foreground="Black"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                />
+                  Text="ລຳດັບ"
+                  FontWeight="Bold"
+                  Foreground="Black"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                />
                              </Border>
                              <TextBlock
-                                Grid.Column="2"
-                                Text="ຍີ່ຫໍ້ສິນຄ້າ"
-                                FontWeight="Bold"
-                                Foreground="Black"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                            />
+                Grid.Column="2"
+                Text="ຍີ່ຫໍ້ສິນຄ້າ"
+                FontWeight="Bold"
+                Foreground="Black"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+              />
                          </Grid>
                     </Border>
 
                     <!-- Data List -->
                     <ListBox
-                        Grid.Row="1"
-                        ItemsSource="{Binding Brands}"
-                        SelectedItem="{Binding SelectedBrand}"
-                        Classes="table"
-                    >
+            Grid.Row="1"
+            ItemsSource="{Binding Brands}"
+            SelectedItem="{Binding SelectedBrand}"
+            Classes="table"
+          >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="30, 80, *">
                                     <Border Classes="tableCell">
                                         <PathIcon
-                                            Data="M0,0 L8,5 L0,10 Z"
-                                            Width="8"
-                                            Height="10"
-                                            Foreground="{DynamicResource TextColor}"
-                                            IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                        />
+                      Data="M0,0 L8,5 L0,10 Z"
+                      Width="8"
+                      Height="10"
+                      Foreground="{DynamicResource TextColor}"
+                      IsVisible="{Binding $parent[ListBoxItem].IsSelected}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                    />
                                     </Border>
                                     <Border Grid.Column="1" Classes="tableCell">
                                         <TextBlock
-                                            Text="{Binding Id}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource TextColor}"
-                                        />
+                      Text="{Binding Id}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Foreground="{DynamicResource TextColor}"
+                    />
                                     </Border>
                                     <Border
-                                        Grid.Column="2"
-                                        Classes="tableCellLast"
-                                    >
+                    Grid.Column="2"
+                    Classes="tableCellLast"
+                  >
                                         <TextBlock
-                                            Text="{Binding Name}"
-                                            Margin="20,0,0,0"
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource TextColor}"
-                                        />
+                      Text="{Binding Name}"
+                      Margin="20,0,0,0"
+                      VerticalAlignment="Center"
+                      Foreground="{DynamicResource TextColor}"
+                    />
                                     </Border>
                                 </Grid>
                             </DataTemplate>

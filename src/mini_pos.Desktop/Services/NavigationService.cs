@@ -1,4 +1,5 @@
 using System;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace mini_pos.Services;
@@ -12,7 +13,7 @@ public interface INavigationService
     /// Creates a ViewModel of type T with all dependencies injected.
     /// </summary>
     T CreateViewModel<T>() where T : ViewModels.ViewModelBase;
-    
+
     /// <summary>
     /// Creates a ViewModel with additional constructor arguments.
     /// </summary>

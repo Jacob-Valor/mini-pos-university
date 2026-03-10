@@ -1,10 +1,13 @@
 using System;
 using System.Threading.Tasks;
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
+
 using Serilog;
 
 namespace mini_pos.Services;

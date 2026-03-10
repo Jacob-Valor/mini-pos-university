@@ -1,4 +1,5 @@
 using System;
+
 using MySqlConnector;
 
 namespace mini_pos.Configuration;

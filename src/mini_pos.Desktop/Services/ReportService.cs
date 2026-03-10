@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+
 using Avalonia;
 using Avalonia.Platform;
+
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Drawing;
+
 using mini_pos.Models;
+
 using Serilog;
 
 namespace mini_pos.Services;

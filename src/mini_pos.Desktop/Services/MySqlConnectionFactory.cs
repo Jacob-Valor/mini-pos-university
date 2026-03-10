@@ -1,6 +1,9 @@
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.Options;
+
 using mini_pos.Configuration;
+
 using MySqlConnector;
 
 namespace mini_pos.Services;

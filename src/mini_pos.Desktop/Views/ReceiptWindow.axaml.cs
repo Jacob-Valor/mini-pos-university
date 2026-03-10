@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+
 using mini_pos.ViewModels;
 
 namespace mini_pos.Views;

@@ -1,12 +1,16 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Avalonia;
 using Avalonia.Media;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using mini_pos.Models;
 using mini_pos.Services;
+
 using Serilog;
 
 namespace mini_pos.ViewModels;

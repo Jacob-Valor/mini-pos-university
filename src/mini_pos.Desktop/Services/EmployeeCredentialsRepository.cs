@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+
 using MySqlConnector;
+
 using Serilog;
 
 namespace mini_pos.Services;

@@ -4,7 +4,6 @@ using System.IO;
 
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 
@@ -12,7 +11,6 @@ using FluentValidation;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 using mini_pos.Models;
 using mini_pos.Configuration;
@@ -23,7 +21,7 @@ using mini_pos.Views;
 
 namespace mini_pos;
 
-    public partial class App : Application
+public partial class App : Application
 {
     public IServiceProvider? ServiceProvider { get; private set; }
     private IThemeService? _themeService;

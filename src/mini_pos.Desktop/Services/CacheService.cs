@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.Caching.Memory;
 
 namespace mini_pos.Services;
@@ -35,7 +36,7 @@ public class CacheService : ICacheService
     public Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
     {
         var cacheEntryOptions = new MemoryCacheEntryOptions();
-        
+
         if (expiry.HasValue)
         {
             cacheEntryOptions.SetAbsoluteExpiration(expiry.Value);

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using Avalonia;
+
 using Serilog;
 
 namespace mini_pos;
