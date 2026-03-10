@@ -33,6 +33,7 @@ public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<IEmployeeRepository>();
             services.RemoveAll<ICustomerRepository>();
             services.RemoveAll<ISalesRepository>();
+            services.RemoveAll<ISupplierRepository>();
 
             services.AddSingleton<IBrandRepository, FakeBrandRepository>();
             services.AddSingleton<IProductTypeRepository, FakeProductTypeRepository>();
@@ -40,6 +41,7 @@ public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
             services.AddSingleton<IEmployeeRepository, FakeEmployeeRepository>();
             services.AddSingleton<ICustomerRepository, FakeCustomerRepository>();
             services.AddSingleton<ISalesRepository, FakeSalesRepository>();
+            services.AddSingleton<ISupplierRepository, FakeSupplierRepository>();
         });
     }
 
@@ -329,5 +331,51 @@ public sealed class ApiWebApplicationFactory : WebApplicationFactory<Program>
 
         public Task<List<SalesReportItem>> GetSalesReportAsync(DateTime startDate, DateTime endDate)
             => Task.FromResult(_reportItems.ToList());
+    }
+
+    private sealed class FakeSupplierRepository : ISupplierRepository
+    {
+        private readonly List<Supplier> _suppliers =
+        [
+            new()
+            {
+                Id = "SUP001",
+                Name = "Seed Supplier",
+                ContactName = "Seed Contact",
+                Email = "seed@example.com",
+                Phone = "0200000001",
+                Address = "Seed Address"
+            }
+        ];
+
+        public Task<List<Supplier>> GetSuppliersAsync()
+            => Task.FromResult(_suppliers.ToList());
+
+        public Task<bool> AddSupplierAsync(Supplier supplier)
+        {
+            ArgumentNullException.ThrowIfNull(supplier);
+            if (_suppliers.Any(x => x.Id == supplier.Id))
+                return Task.FromResult(false);
+
+            _suppliers.Add(supplier);
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> UpdateSupplierAsync(Supplier supplier)
+        {
+            ArgumentNullException.ThrowIfNull(supplier);
+            var index = _suppliers.FindIndex(x => x.Id == supplier.Id);
+            if (index < 0)
+                return Task.FromResult(false);
+
+            _suppliers[index] = supplier;
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> DeleteSupplierAsync(string supplierId)
+        {
+            var removed = _suppliers.RemoveAll(x => x.Id == supplierId) > 0;
+            return Task.FromResult(removed);
+        }
     }
 }

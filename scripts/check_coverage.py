@@ -2,6 +2,7 @@
 
 import argparse
 import glob
+import os
 import sys
 import xml.etree.ElementTree as ET
 
@@ -30,7 +31,7 @@ def main() -> int:
         print(f"No coverage files matched: {args.path}", file=sys.stderr)
         return 2
 
-    coverage_file = matches[-1]
+    coverage_file = max(matches, key=os.path.getmtime)
     root = ET.parse(coverage_file).getroot()
     package_node = root.find(f"./packages/package[@name='{args.package}']")
 
