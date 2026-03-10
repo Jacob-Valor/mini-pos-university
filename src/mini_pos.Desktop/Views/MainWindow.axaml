@@ -64,6 +64,7 @@
                             IsVisible="False"
                         />
                         <TextBlock
+                            x:Name="CurrentUserTextBlock"
                             Text="{Binding CurrentUser}"
                             FontFamily="{StaticResource LaoFont}"
                             Foreground="{DynamicResource TextColor}"
@@ -71,6 +72,7 @@
                             FontSize="14"
                         />
                         <TextBlock
+                            x:Name="CurrentRoleTextBlock"
                             Text="{Binding CurrentRoleDisplay}"
                             ToolTip.Tip="{Binding CurrentRole}"
                             FontFamily="{StaticResource LaoFont}"
@@ -124,6 +126,7 @@
                                 Foreground="{DynamicResource PrimaryColor}"
                             />
                             <TextBlock
+                                x:Name="CurrentDateTextBlock"
                                 Text="{Binding CurrentDate}"
                                 VerticalAlignment="Center"
                                 Foreground="{DynamicResource TextColor}"
@@ -232,7 +235,7 @@
 	                </Menu.Styles>
 
 <!-- 1. Home -->
-	                <MenuItem Classes="topnav" Command="{Binding HomeCommand}">
+	                <MenuItem x:Name="HomeMenuItem" Classes="topnav" Command="{Binding HomeCommand}">
                     <MenuItem.Header>
                         <StackPanel
                             Spacing="10"
@@ -269,6 +272,7 @@
 
 <!-- 2. Manage Data -->
 	                <MenuItem
+                    x:Name="ManageDataMenuItem"
                     Classes="topnav"
                     Command="{Binding ManageDataCommand}"
                 >
@@ -381,7 +385,7 @@
                 </MenuItem>
 
 <!-- 4. Customers -->
-	                <MenuItem Classes="topnav" Command="{Binding CustomersCommand}">
+	                <MenuItem x:Name="CustomersMenuItem" Classes="topnav" Command="{Binding CustomersCommand}">
                     <MenuItem.Header>
                         <StackPanel
                             Spacing="10"
@@ -417,7 +421,7 @@
                 </MenuItem>
 
 <!-- 5. Sell -->
-	                <MenuItem Classes="topnav" Command="{Binding SaleCommand}">
+	                <MenuItem x:Name="SaleMenuItem" Classes="topnav" Command="{Binding SaleCommand}">
                     <MenuItem.Header>
                         <StackPanel
                             Spacing="10"
@@ -558,7 +562,7 @@
                 </MenuItem>
 
 <!-- 8. Profile -->
-	                <MenuItem Classes="topnav" Command="{Binding ProfileCommand}">
+	                <MenuItem x:Name="ProfileMenuItem" Classes="topnav" Command="{Binding ProfileCommand}">
                      <MenuItem.Header>
                         <StackPanel
                             Spacing="10"
@@ -687,6 +691,7 @@
         <!-- Main Content -->
         <Grid Background="{DynamicResource BackgroundColor}">
              <TextBlock
+                x:Name="GreetingTextBlock"
                 Text="{Binding Greeting}"
                 IsVisible="{Binding CurrentPage, Converter={x:Static conv:ObjectConverters.IsNull}}"
                 HorizontalAlignment="Center"
@@ -697,7 +702,7 @@
                 FontFamily="{StaticResource LaoFont}"
             />
 
-             <TransitioningContentControl Content="{Binding CurrentPage}" />
+             <TransitioningContentControl x:Name="CurrentPageContent" Content="{Binding CurrentPage}" />
         </Grid>
 
     </DockPanel>

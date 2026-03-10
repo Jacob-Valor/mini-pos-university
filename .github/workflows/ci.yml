@@ -51,6 +51,12 @@ jobs:
       - name: Test API
         run: dotnet test tests/mini_pos.Api.Tests/mini_pos.Api.Tests.csproj --no-build -c Release --collect:"XPlat Code Coverage"
 
+      - name: Enforce desktop coverage
+        run: python3 scripts/check_coverage.py --path "tests/mini_pos.Tests/TestResults/*/coverage.cobertura.xml" --package mini_pos --min-line 45
+
+      - name: Enforce API coverage
+        run: python3 scripts/check_coverage.py --path "tests/mini_pos.Api.Tests/TestResults/*/coverage.cobertura.xml" --package mini_pos.Api --min-line 40
+
       - name: Upload coverage reports
         if: success()
         uses: actions/upload-artifact@v4

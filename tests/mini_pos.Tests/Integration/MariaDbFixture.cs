@@ -119,6 +119,7 @@ public sealed class MariaDbFixture : IAsyncLifetime
         yield return "DROP TABLE IF EXISTS sales_product";
         yield return "DROP TABLE IF EXISTS sales";
         yield return "DROP TABLE IF EXISTS product";
+        yield return "DROP TABLE IF EXISTS supplier";
         yield return "DROP TABLE IF EXISTS category";
         yield return "DROP TABLE IF EXISTS brand";
         yield return "DROP TABLE IF EXISTS customer";
@@ -199,6 +200,17 @@ CREATE TABLE category (
   category_id VARCHAR(4) NOT NULL,
   category_name VARCHAR(50) NOT NULL,
   PRIMARY KEY (category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+        yield return @"
+CREATE TABLE supplier (
+  sup_id VARCHAR(10) NOT NULL,
+  sup_name VARCHAR(100) NOT NULL,
+  contract_name VARCHAR(100) NULL,
+  email VARCHAR(100) NULL,
+  telephone VARCHAR(20) NULL,
+  address VARCHAR(255) NULL,
+  PRIMARY KEY (sup_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
         yield return @"

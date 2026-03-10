@@ -55,6 +55,13 @@ public class ReportService : IReportService
 
     public void GenerateSalesReport(List<SalesReportItem> items, DateTime startDate, DateTime endDate, decimal totalAmount, string filePath)
     {
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
+        var directory = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory);
+
 
         Document.Create(container =>
         {
