@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Avalonia.Headless.XUnit;
+
 using mini_pos.Models;
 using mini_pos.Services;
 using mini_pos.ViewModels;
@@ -14,7 +16,7 @@ namespace mini_pos.Tests;
 
 public class MainWindowViewModelTests
 {
-    [Fact]
+    [AvaloniaFact]
     public void Constructor_WithAdminEmployee_SetsUserAndTranslatedRole()
     {
         var employee = CreateEmployee(position: "Admin");
@@ -29,7 +31,7 @@ public class MainWindowViewModelTests
         viewModel.LogoutCommand.Execute(null);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void CustomersCommand_CreatesCustomerPage()
     {
         var customerRepository = new Mock<ICustomerRepository>();
@@ -49,7 +51,7 @@ public class MainWindowViewModelTests
         viewModel.LogoutCommand.Execute(null);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void SaleCommand_WithLoggedInEmployee_CreatesSalesPage()
     {
         var employee = CreateEmployee();
@@ -67,7 +69,7 @@ public class MainWindowViewModelTests
         viewModel.LogoutCommand.Execute(null);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void SaleCommand_WithoutLoggedInEmployee_ShowsError()
     {
         var viewModel = CreateViewModel(null, out var dialogService, out _);
@@ -81,7 +83,7 @@ public class MainWindowViewModelTests
         viewModel.LogoutCommand.Execute(null);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void ProfileCommand_WithLoggedInEmployee_CreatesProfilePage()
     {
         var employee = CreateEmployee();
@@ -99,7 +101,7 @@ public class MainWindowViewModelTests
         viewModel.LogoutCommand.Execute(null);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void HomeCommand_ClearsCurrentPage()
     {
         var viewModel = CreateViewModel(CreateEmployee(), out _, out _);
@@ -112,7 +114,7 @@ public class MainWindowViewModelTests
         viewModel.LogoutCommand.Execute(null);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void LogoutCommand_RaisesEvent()
     {
         var viewModel = CreateViewModel(CreateEmployee(), out _, out _);

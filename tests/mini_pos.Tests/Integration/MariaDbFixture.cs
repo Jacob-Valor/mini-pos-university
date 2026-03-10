@@ -34,6 +34,11 @@ public sealed class MariaDbFixture : IAsyncLifetime
 
     public MariaDbFixture()
     {
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TESTCONTAINERS_RYUK_DISABLED")))
+        {
+            Environment.SetEnvironmentVariable("TESTCONTAINERS_RYUK_DISABLED", "true");
+        }
+
         _container = new TestcontainersBuilder<TestcontainersContainer>()
             .WithImage(Image)
             .WithName($"mini-pos-mariadb-{Guid.NewGuid():N}")
