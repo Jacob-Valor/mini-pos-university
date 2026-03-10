@@ -1,5 +1,7 @@
 using Xunit;
+
 using mini_pos.Services;
+
 using System;
 using System.Security.Cryptography;
 
@@ -12,7 +14,7 @@ public class PasswordHelperTests
     {
         var password = "TestPassword123";
         var hash = PasswordHelper.HashPassword(password);
-        
+
         Assert.NotNull(hash);
         Assert.StartsWith("pbkdf2-sha256$", hash, StringComparison.Ordinal);
 
@@ -31,7 +33,7 @@ public class PasswordHelperTests
         var password = "TestPassword123";
         var hash1 = PasswordHelper.HashPassword(password);
         var hash2 = PasswordHelper.HashPassword(password);
-        
+
         Assert.NotEqual(hash1, hash2);
     }
 
@@ -40,9 +42,9 @@ public class PasswordHelperTests
     {
         var password = "TestPassword123";
         var hash = PasswordHelper.HashPassword(password);
-        
+
         var result = PasswordHelper.VerifyPassword(password, hash);
-        
+
         Assert.True(result);
     }
 
@@ -63,9 +65,9 @@ public class PasswordHelperTests
         var password = "TestPassword123";
         var wrongPassword = "WrongPassword456";
         var hash = PasswordHelper.HashPassword(password);
-        
+
         var result = PasswordHelper.VerifyPassword(wrongPassword, hash);
-        
+
         Assert.False(result);
     }
 
@@ -74,9 +76,9 @@ public class PasswordHelperTests
     {
         var password = "test123";
         var md5Hash = ComputeMd5Hash(password);
-        
+
         var result = PasswordHelper.VerifyPassword(password, md5Hash);
-        
+
         Assert.True(result);
     }
 
@@ -93,9 +95,9 @@ public class PasswordHelperTests
     {
         var wrongPassword = "wrongpassword";
         var md5Hash = "482c811da5d5b4bc6d497ffa98491e38";
-        
+
         var result = PasswordHelper.VerifyPassword(wrongPassword, md5Hash);
-        
+
         Assert.False(result);
     }
 
@@ -103,7 +105,7 @@ public class PasswordHelperTests
     public void VerifyPassword_EmptyStoredHash_ReturnsFalse()
     {
         var result = PasswordHelper.VerifyPassword("password", "");
-        
+
         Assert.False(result);
     }
 
@@ -111,7 +113,7 @@ public class PasswordHelperTests
     public void VerifyPassword_NullStoredHash_ReturnsFalse()
     {
         var result = PasswordHelper.VerifyPassword("password", null!);
-        
+
         Assert.False(result);
     }
 
@@ -119,7 +121,7 @@ public class PasswordHelperTests
     public void VerifyPassword_InvalidHashFormat_ReturnsFalse()
     {
         var result = PasswordHelper.VerifyPassword("password", "invalid-hash-format");
-        
+
         Assert.False(result);
     }
 
@@ -127,7 +129,7 @@ public class PasswordHelperTests
     public void HashPassword_EmptyPassword_GeneratesValidHash()
     {
         var hash = PasswordHelper.HashPassword("");
-        
+
         Assert.NotNull(hash);
         Assert.StartsWith("pbkdf2-sha256$", hash, StringComparison.Ordinal);
         Assert.True(PasswordHelper.VerifyPassword("", hash));
@@ -138,7 +140,7 @@ public class PasswordHelperTests
     {
         var password = "ລາວ123ABC";
         var hash = PasswordHelper.HashPassword(password);
-        
+
         Assert.NotNull(hash);
         Assert.StartsWith("pbkdf2-sha256$", hash, StringComparison.Ordinal);
         Assert.True(PasswordHelper.VerifyPassword(password, hash));

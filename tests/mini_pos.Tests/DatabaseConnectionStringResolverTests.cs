@@ -1,5 +1,7 @@
 using mini_pos.Configuration;
+
 using MySqlConnector;
+
 using Xunit;
 
 namespace mini_pos.Tests;

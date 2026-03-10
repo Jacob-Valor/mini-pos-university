@@ -1,8 +1,11 @@
 using Xunit;
+
 using mini_pos.ViewModels;
 using mini_pos.Models;
 using mini_pos.Services;
+
 using Moq;
+
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;

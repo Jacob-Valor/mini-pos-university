@@ -1,8 +1,11 @@
 using Xunit;
+
 using mini_pos.ViewModels;
 using mini_pos.Models;
 using mini_pos.Services;
+
 using Moq;
+
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 
@@ -14,7 +17,7 @@ public class SalesViewModelTests
     public void AddProduct_DifferentProducts_AddsNewItem()
     {
         var vm = CreateSalesViewModel();
-        
+
         vm.Barcode = "123";
         vm.ProductName = "Product 1";
         vm.Unit = "pcs";
@@ -36,7 +39,7 @@ public class SalesViewModelTests
     public void ClearCartCommand_RemovesAllItems()
     {
         var vm = CreateSalesViewModel();
-        
+
         vm.Barcode = "123";
         vm.ProductName = "Product 1";
         vm.Unit = "pcs";
@@ -128,7 +131,7 @@ public class SalesViewModelTests
         var vm = CreateSalesViewModel();
         vm.TotalAmount = 230000;
         vm.ExchangeRateDollar = 23000;
-        
+
         var result = vm.ExchangeRateDollar > 0 ? vm.TotalAmount / vm.ExchangeRateDollar : 0;
 
         Assert.Equal(10, result);
@@ -140,7 +143,7 @@ public class SalesViewModelTests
         var vm = CreateSalesViewModel();
         vm.TotalAmount = 12520;
         vm.ExchangeRateBaht = 626;
-        
+
         var result = vm.ExchangeRateBaht > 0 ? vm.TotalAmount / vm.ExchangeRateBaht : 0;
 
         Assert.Equal(20, result);

@@ -1,8 +1,11 @@
 using Xunit;
+
 using mini_pos.ViewModels;
 using mini_pos.Models;
 using mini_pos.Services;
+
 using Moq;
+
 using System;
 
 namespace mini_pos.Tests;
@@ -116,7 +119,7 @@ public class ProfileViewModelTests
 
         var mockEmpRepo = new Mock<IEmployeeRepository>();
         var mockCredRepo = new Mock<IEmployeeCredentialsRepository>();
-        
+
         string storedHash = PasswordHelper.HashPassword("oldpassword");
         mockCredRepo.Setup(x => x.GetStoredPasswordHashAsync("john")).ReturnsAsync(storedHash);
         mockCredRepo.Setup(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
@@ -139,7 +142,7 @@ public class ProfileViewModelTests
 
         var mockEmpRepo = new Mock<IEmployeeRepository>();
         var mockCredRepo = new Mock<IEmployeeCredentialsRepository>();
-        
+
         string storedHash = PasswordHelper.HashPassword("oldpassword");
         mockCredRepo.Setup(x => x.GetStoredPasswordHashAsync("john")).ReturnsAsync(storedHash);
         mockCredRepo.Setup(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);

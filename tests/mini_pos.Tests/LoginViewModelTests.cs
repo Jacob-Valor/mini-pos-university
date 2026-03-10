@@ -1,7 +1,9 @@
 using Xunit;
+
 using mini_pos.ViewModels;
 using mini_pos.Models;
 using mini_pos.Services;
+
 using Moq;
 
 namespace mini_pos.Tests;
@@ -196,7 +198,7 @@ public class LoginViewModelTests
 
     private static (bool IsValid, string ErrorMessage) CallValidateCredentials(LoginViewModel vm)
     {
-        var method = typeof(LoginViewModel).GetMethod("ValidateCredentials", 
+        var method = typeof(LoginViewModel).GetMethod("ValidateCredentials",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         return ((bool IsValid, string ErrorMessage))method!.Invoke(vm, null)!;
     }
