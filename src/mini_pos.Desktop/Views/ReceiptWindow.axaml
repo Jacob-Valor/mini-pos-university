@@ -153,6 +153,7 @@
                             VerticalAlignment="Center"
                         />
                         <TextBlock
+                            x:Name="ReceiptTotalAmountTextBlock"
                             Text="{Binding TotalAmount, StringFormat='{}{0:N0}'}"
                             FontSize="42"
                             FontWeight="Bold"
@@ -178,6 +179,7 @@
                             VerticalAlignment="Center"
                         />
                         <TextBlock
+                            x:Name="ReceiptMoneyReceivedTextBlock"
                             Text="{Binding MoneyReceived, StringFormat='{}{0:N0}'}"
                             FontSize="34"
                             FontWeight="Bold"
@@ -196,6 +198,7 @@
                             VerticalAlignment="Center"
                         />
                         <TextBlock
+                            x:Name="ReceiptChangeTextBlock"
                             Text="{Binding Change, StringFormat='{}{0:N0}'}"
                             FontSize="28"
                             FontWeight="SemiBold"
@@ -219,6 +222,7 @@
 
                 <!-- Row 1: 1 2 3 4 -->
                 <Button
+                    x:Name="Numpad1Button"
                     Grid.Row="0"
                     Grid.Column="0"
                     Content="1"
@@ -227,6 +231,7 @@
                     CommandParameter="1"
                 />
                 <Button
+                    x:Name="Numpad2Button"
                     Grid.Row="0"
                     Grid.Column="1"
                     Content="2"
@@ -235,6 +240,7 @@
                     CommandParameter="2"
                 />
                 <Button
+                    x:Name="Numpad3Button"
                     Grid.Row="0"
                     Grid.Column="2"
                     Content="3"
@@ -243,6 +249,7 @@
                     CommandParameter="3"
                 />
                 <Button
+                    x:Name="Numpad4Button"
                     Grid.Row="0"
                     Grid.Column="3"
                     Content="4"
@@ -253,6 +260,7 @@
 
                 <!-- Row 2: 5 6 7 8 -->
                 <Button
+                    x:Name="Numpad5Button"
                     Grid.Row="1"
                     Grid.Column="0"
                     Content="5"
@@ -261,6 +269,7 @@
                     CommandParameter="5"
                 />
                 <Button
+                    x:Name="Numpad6Button"
                     Grid.Row="1"
                     Grid.Column="1"
                     Content="6"
@@ -269,6 +278,7 @@
                     CommandParameter="6"
                 />
                 <Button
+                    x:Name="Numpad7Button"
                     Grid.Row="1"
                     Grid.Column="2"
                     Content="7"
@@ -277,6 +287,7 @@
                     CommandParameter="7"
                 />
                 <Button
+                    x:Name="Numpad8Button"
                     Grid.Row="1"
                     Grid.Column="3"
                     Content="8"
@@ -287,6 +298,7 @@
 
                 <!-- Row 3: 9 0 Back -->
                 <Button
+                    x:Name="Numpad9Button"
                     Grid.Row="2"
                     Grid.Column="0"
                     Content="9"
@@ -295,6 +307,7 @@
                     CommandParameter="9"
                 />
                 <Button
+                    x:Name="Numpad0Button"
                     Grid.Row="2"
                     Grid.Column="1"
                     Content="0"
@@ -303,6 +316,7 @@
                     CommandParameter="0"
                 />
                 <Button
+                    x:Name="BackspaceButton"
                     Grid.Row="2"
                     Grid.Column="2"
                     Grid.ColumnSpan="2"
@@ -314,6 +328,7 @@
 
                 <!-- Row 4: Clear Pay -->
                 <Button
+                    x:Name="ClearReceiptButton"
                     Grid.Row="3"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
@@ -323,6 +338,7 @@
                     FontSize="20"
                 />
                 <Button
+                    x:Name="ConfirmPayButton"
                     Grid.Row="3"
                     Grid.Column="2"
                     Grid.ColumnSpan="2"

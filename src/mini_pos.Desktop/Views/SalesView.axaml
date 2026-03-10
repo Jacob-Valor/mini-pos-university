@@ -422,6 +422,7 @@
 
                           <!-- ListBox as DataGrid -->
                           <ListBox
+                            x:Name="CartItemsListBox"
                             Grid.Row="1"
                             ItemsSource="{Binding CartItems}"
                             SelectedItem="{Binding SelectedCartItem}"
@@ -604,6 +605,7 @@
                                 FontWeight="Bold"
                             />
                             <TextBox
+                                x:Name="TotalAmountTextBox"
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Classes="input"
@@ -667,6 +669,7 @@
                                 FontWeight="Bold"
                             />
                             <NumericUpDown
+                                x:Name="MoneyReceivedInput"
                                 Grid.Row="3"
                                 Grid.Column="1"
                                 Classes="input"
@@ -689,6 +692,7 @@
                                 FontWeight="Bold"
                             />
                             <TextBox
+                                x:Name="ChangeTextBox"
                                 Grid.Row="4"
                                 Grid.Column="1"
                                 Classes="input"
