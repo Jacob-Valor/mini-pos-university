@@ -35,18 +35,10 @@ namespace mini_pos.Views
                 var passwordTextBox = this.FindControl<TextBox>("PasswordTextBox");
                 var passwordVisibleTextBox = this.FindControl<TextBox>("PasswordVisibleTextBox");
 
-<<<<<<< HEAD:Views/LoginView.axaml.cs
-                // Focus the visible password field
-=======
->>>>>>> dev:src/mini_pos.Desktop/Views/LoginView.axaml.cs
                 if (passwordTextBox?.IsVisible == true)
                     passwordTextBox.Focus();
                 else if (passwordVisibleTextBox?.IsVisible == true)
                     passwordVisibleTextBox.Focus();
-<<<<<<< HEAD:Views/LoginView.axaml.cs
-                }
-=======
->>>>>>> dev:src/mini_pos.Desktop/Views/LoginView.axaml.cs
 
                 e.Handled = true;
             }
